@@ -7,8 +7,12 @@ import (
 	"annotate-x/router"
 )
 
-func main() {
+func initialize() {
 	auth.InitCasbinEnforcer()
+}
+
+func main() {
+	initialize()
 	r := router.SetupRouter()
 	r.Run(config.AppConfig.LISTEN_ADDRESS)
 }
