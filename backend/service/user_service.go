@@ -1,7 +1,6 @@
 package service
 
 import (
-	"annotate-x/internal/context"
 	"annotate-x/repository"
 
 	"annotate-x/internal/security"
@@ -14,8 +13,16 @@ var (
 	ErrUsernameExists = errors.New("username exists.")
 )
 
-func CreateUser(appCtx *context.AppContext, req model.UserCreateRequest) (*repository.User, error) {
-	exists, err := appCtx.UserRepo.UsernameExists(req.Username)
+type UserService struct {
+	repo *repository.UserRepository
+}
+
+func NewUserService(repo *repository.UserRepository) *UserService {
+	return &UserService{repo: repo}
+}
+
+func (s *UserService) CreateUser(req model.UserCreateRequest) (*repository.User, error) {
+	exists, err := s.repo.UsernameExists(req.Username)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +44,7 @@ func CreateUser(appCtx *context.AppContext, req model.UserCreateRequest) (*repos
 		Role:        req.Role,
 	}
 
-	if err := appCtx.UserRepo.CreateUser(user); err != nil {
+	if err := s.repo.CreateUser(user); err != nil {
 		return nil, err
 	}
 

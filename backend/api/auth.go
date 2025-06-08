@@ -93,7 +93,7 @@ func register(c *gin.Context) {
 	// for this endpoint role must be unassigned.
 	req.Role = string(model.RoleUnassigned)
 
-	user, err := service.CreateUser(appCtx, req)
+	user, err := service.NewUserService(appCtx.UserRepo).CreateUser(req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
