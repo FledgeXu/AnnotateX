@@ -9,7 +9,6 @@ import (
 	"annotate-x/service"
 
 	"annotate-x/internal/context"
-	"annotate-x/repository"
 
 	"annotate-x/internal/security"
 
@@ -108,7 +107,7 @@ func register(c *gin.Context) {
 }
 
 func me(c *gin.Context) {
-	user := c.MustGet("currentUser").(*repository.User)
+	user := c.MustGet("currentUser").(*model.User)
 
 	c.JSON(http.StatusCreated, model.UserCreateResponse{
 		Username:    user.Username,

@@ -21,7 +21,7 @@ func NewUserService(repo *repository.UserRepository) *UserService {
 	return &UserService{repo: repo}
 }
 
-func (s *UserService) CreateUser(req model.UserCreateRequest) (*repository.User, error) {
+func (s *UserService) CreateUser(req model.UserCreateRequest) (*model.User, error) {
 	exists, err := s.repo.UsernameExists(req.Username)
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func (s *UserService) CreateUser(req model.UserCreateRequest) (*repository.User,
 		return nil, err
 	}
 
-	user := &repository.User{
+	user := &model.User{
 		Username:    req.Username,
 		Password:    hashedPassword,
 		DisplayName: req.DisplayName,
@@ -49,4 +49,29 @@ func (s *UserService) CreateUser(req model.UserCreateRequest) (*repository.User,
 	}
 
 	return user, err
+}
+
+func (s *UserService) GetFilteredUserList(filter model.UserFilter) ([]model.UserCreateResponse, int, error) {
+	users, total, err := s.repo.FindWithFilter(filter)
+
+	if err != nil {
+		return []model.UserCreateResponse{}, 0, err
+	}
+
+	// Map []User to []UserCreateResponse
+	var result []model.UserCreateResponse
+	for _, u := range users {
+		result = append(result, model.UserCreateResponse{
+			Username:    u.Username,
+			DisplayName: u.DisplayName,
+			Email:       u.Email,
+			Role:        u.Role,
+		})
+	}
+
+	if result == nil {
+		result = []model.UserCreateResponse{}
+	}
+
+	return result, total, nil
 }

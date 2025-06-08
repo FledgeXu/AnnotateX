@@ -36,6 +36,7 @@ func SetupRouter() *gin.Engine {
 	v1 := r.Group("/v1")
 
 	api.RegisterAuthRouters(v1)
+	api.RegisterUsersRouters(v1)
 
 	return r
 }
