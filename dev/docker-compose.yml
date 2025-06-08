@@ -1,0 +1,56 @@
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:latest
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  migrate:
+    build:
+      context: ..
+      dockerfile: dev/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    working_dir: /app/backend
+    environment:
+      - DATABASE_URL=postgres://postgres:secret@db:5432/postgres
+    entrypoint: ["goose", "-dir", "migrations", "postgres", "postgres://postgres:secret@db:5432/postgres", "up"]
+
+  backend:
+    build:
+      context: ..
+      dockerfile: dev/Dockerfile
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../backend:/app/backend
+    working_dir: /app/backend
+    environment:
+      - DATABASE_URL=postgres://postgres:secret@db:5432/postgres
+      - JWT_SECRET=SECRET
+      - LISTEN_ADDRESS=:8080
+      - REDIS_ADDRESS=redis:6379
+    command: ["go", "run", "main.go"]
+
+volumes:
+  pgdata:
