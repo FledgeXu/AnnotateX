@@ -14,7 +14,7 @@ import (
 
 func RegisterUsersRouters(rg *gin.RouterGroup) {
 	auth := rg.Group("/users")
-	auth.Use(middleware.AuthMiddleware(), middleware.CasbinMiddleware(casbin_auth.Enforcer))
+	auth.Use(middleware.AuthMiddleware(), middleware.RequirePermissionMiddleware(casbin_auth.Enforcer))
 
 	auth.GET("/list", list)
 }

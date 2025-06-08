@@ -1,1 +1,2 @@
-p, /v1/users/*, *, *
+p, /v1/users/*, super_admin, *
+p, /v1/users/*, admin, *
