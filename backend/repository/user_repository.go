@@ -16,6 +16,7 @@ type User struct {
 	IsActive    bool   `db:"is_active"`
 	CreatedAt   string `db:"created_at"`
 	UpdatedAt   string `db:"updated_at"`
+	Role        string `db:"role"`
 }
 
 type UserRepository struct {
@@ -29,7 +30,12 @@ func NewUserRepository(db *sqlx.DB) *UserRepository {
 func (r *UserRepository) GetUserByID(id int64) (*User, error) {
 	var user User
 	err := r.DB.Get(&user, `
-		SELECT * FROM users WHERE id = $1
+		SELECT u.*, r.name AS role
+		FROM users u
+		LEFT JOIN user_roles ur ON u.id = ur.user_id
+		LEFT JOIN roles r ON ur.role_id = r.id
+		WHERE u.id = $1
+		LIMIT 1
 	`, id)
 	if err != nil {
 		return nil, err
@@ -40,7 +46,12 @@ func (r *UserRepository) GetUserByID(id int64) (*User, error) {
 func (r *UserRepository) GetUserByUsername(username string) (*User, error) {
 	var user User
 	err := r.DB.Get(&user, `
-		SELECT * FROM users WHERE username = $1
+		SELECT u.*, r.name AS role
+		FROM users u
+		LEFT JOIN user_roles ur ON u.id = ur.user_id
+		LEFT JOIN roles r ON ur.role_id = r.id
+		WHERE u.username = $1
+		LIMIT 1
 	`, username)
 	if err != nil {
 		return nil, err
@@ -65,6 +76,7 @@ func (r *UserRepository) CreateUser(user *User) error {
 	}
 	defer tx.Rollback()
 
+	// 插入用户
 	err = tx.QueryRowx(`
 		INSERT INTO users (username, password_hash, display_name, email, avatar_url)
 		VALUES ($1, $2, $3, $4, $5)
@@ -80,15 +92,23 @@ func (r *UserRepository) CreateUser(user *User) error {
 		return err
 	}
 
-	var unassignedRoleID int
-	err = tx.Get(&unassignedRoleID, `SELECT id FROM roles WHERE name = 'unassigned'`)
+	// 角色处理逻辑：为空则默认 unassigned
+	roleName := user.Role
+	if roleName == "" {
+		roleName = "unassigned"
+	}
+
+	var roleID int64
+	err = tx.Get(&roleID, `SELECT id FROM roles WHERE name = $1`, roleName)
 	if err != nil {
 		return err
 	}
 
+	// 插入角色绑定
 	_, err = tx.Exec(`
-		INSERT INTO user_roles (user_id, role_id) VALUES ($1, $2)
-	`, user.ID, unassignedRoleID)
+		INSERT INTO user_roles (user_id, role_id)
+		VALUES ($1, $2)
+	`, user.ID, roleID)
 	if err != nil {
 		return err
 	}

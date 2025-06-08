@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"annotate-x/internal/middleware"
+	"annotate-x/model"
 
 	"annotate-x/internal/context"
 	"annotate-x/repository"
@@ -31,7 +32,7 @@ func RegisterAuthRouters(rg *gin.RouterGroup) {
 	{
 		auth.POST("/login", postLogin)
 		auth.POST("/register", postRegister)
-		auth.GET("/me", middleware.AuthMiddleware(), getMe)
+		auth.GET("/me", middleware.AuthMiddleware(), middleware.UserInjectionMiddleware(), getMe)
 		auth.POST("/logout", middleware.AuthMiddleware(), postLogout)
 	}
 }
@@ -124,34 +125,13 @@ func postRegister(c *gin.Context) {
 }
 
 func getMe(c *gin.Context) {
-	appCtx := c.MustGet("appCtx").(*context.AppContext)
-	claimsRaw, exists := c.Get("jwtClaims")
-	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "User ID not found in context"})
-		return
-	}
-	claims := claimsRaw.(*security.Claims)
+	user := c.MustGet("currentUser").(*repository.User)
 
-	userID := claims.UserID
-
-	user, err := appCtx.UserRepo.GetUserByID(userID)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-		return
-	}
-
-	roles, err := appCtx.UserRepo.GetUserRoles(userID)
-	if err != nil {
-		roles = []string{} // graceful fallback
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"id":           user.ID,
-		"username":     user.Username,
-		"display_name": user.DisplayName,
-		"email":        user.Email,
-		"avatar_url":   user.AvatarURL,
-		"roles":        roles,
+	c.JSON(http.StatusCreated, model.UserCreateResponse{
+		Username:    user.Username,
+		DisplayName: user.DisplayName,
+		Email:       user.Email,
+		Role:        user.Role,
 	})
 }
 
