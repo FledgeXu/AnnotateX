@@ -6,15 +6,17 @@ import (
 	"strconv"
 	"strings"
 
+	casbin_auth "annotate-x/internal/auth"
 	"annotate-x/internal/context"
+	"annotate-x/internal/middleware"
 	"github.com/gin-gonic/gin"
 )
 
 func RegisterUsersRouters(rg *gin.RouterGroup) {
 	auth := rg.Group("/users")
-	{
-		auth.GET("/list", list)
-	}
+	auth.Use(middleware.AuthMiddleware(), middleware.CasbinMiddleware(casbin_auth.Enforcer))
+
+	auth.GET("/list", list)
 }
 
 func list(c *gin.Context) {
