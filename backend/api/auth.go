@@ -6,6 +6,7 @@ import (
 
 	"annotate-x/internal/middleware"
 	"annotate-x/model"
+	"annotate-x/service"
 
 	"annotate-x/internal/context"
 	"annotate-x/repository"
@@ -30,14 +31,14 @@ type RegisterRequest struct {
 func RegisterAuthRouters(rg *gin.RouterGroup) {
 	auth := rg.Group("/auth")
 	{
-		auth.POST("/login", postLogin)
-		auth.POST("/register", postRegister)
-		auth.GET("/me", middleware.AuthMiddleware(), middleware.UserInjectionMiddleware(), getMe)
-		auth.POST("/logout", middleware.AuthMiddleware(), postLogout)
+		auth.POST("/login", login)
+		auth.POST("/register", register)
+		auth.GET("/me", middleware.AuthMiddleware(), middleware.UserInjectionMiddleware(), me)
+		auth.POST("/logout", middleware.AuthMiddleware(), logout)
 	}
 }
 
-func postLogin(c *gin.Context) {
+func login(c *gin.Context) {
 	appCtx := c.MustGet("appCtx").(*context.AppContext)
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -81,50 +82,32 @@ func postLogin(c *gin.Context) {
 	})
 }
 
-func postRegister(c *gin.Context) {
+func register(c *gin.Context) {
 	appCtx := c.MustGet("appCtx").(*context.AppContext)
-	var req RegisterRequest
+	var req model.UserCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	exists, err := appCtx.UserRepo.UsernameExists(req.Username)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	if exists {
-		c.JSON(http.StatusConflict, gin.H{"error": "Username is already taken"})
-		return
-	}
+	// for this endpoint role must be unassigned.
+	req.Role = string(model.RoleUnassigned)
 
-	hash, err := security.HashPassword(req.Password)
+	user, err := service.CreateUser(appCtx, req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	user := &repository.User{
-		Username:    req.Username,
-		Password:    hash,
-		DisplayName: req.DisplayName,
-		Email:       req.Email,
-		IsActive:    true,
-	}
-
-	if err := appCtx.UserRepo.CreateUser(user); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusCreated, gin.H{
-		"message": "User registered successfully",
-		"user_id": user.ID,
+	c.JSON(http.StatusCreated, model.UserCreateResponse{
+		Username:    user.Username,
+		DisplayName: user.DisplayName,
+		Email:       user.Email,
+		Role:        user.Role,
 	})
 }
 
-func getMe(c *gin.Context) {
+func me(c *gin.Context) {
 	user := c.MustGet("currentUser").(*repository.User)
 
 	c.JSON(http.StatusCreated, model.UserCreateResponse{
@@ -135,7 +118,7 @@ func getMe(c *gin.Context) {
 	})
 }
 
-func postLogout(c *gin.Context) {
+func logout(c *gin.Context) {
 	appCtx := c.MustGet("appCtx").(*context.AppContext)
 	tokenRaw, exists := c.Get("rawToken")
 	if !exists {
