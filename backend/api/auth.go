@@ -20,13 +20,6 @@ type LoginRequest struct {
 	Password string `json:"password" binding:"required"`
 }
 
-type RegisterRequest struct {
-	Username    string `json:"username" binding:"required"`
-	Password    string `json:"password" binding:"required,min=8,max=64"`
-	DisplayName string `json:"display_name"`
-	Email       string `json:"email" binding:"omitempty,email"`
-}
-
 func RegisterAuthRouters(rg *gin.RouterGroup) {
 	auth := rg.Group("/auth")
 	{
