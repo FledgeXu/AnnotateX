@@ -8,7 +8,6 @@ import (
 	"github.com/redis/go-redis/v9"
 	"net/http"
 
-	"fmt"
 	"github.com/casbin/casbin/v2"
 )
 
@@ -58,7 +57,6 @@ func RequirePermissionMiddleware(enforcer *casbin.Enforcer) gin.HandlerFunc {
 
 		obj := c.FullPath() // API path，like /labels
 		act := c.Request.Method
-		fmt.Printf("[CASBIN] obj=%s role=%s act=%s\n", obj, role, act)
 
 		allowed, err := enforcer.Enforce(obj, role, act)
 		if err != nil {
