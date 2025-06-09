@@ -11,7 +11,6 @@ CREATE TABLE users (
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     display_name VARCHAR(100),
     email VARCHAR(255),
-    avatar_url TEXT,
 
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW()

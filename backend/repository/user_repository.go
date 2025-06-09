@@ -68,7 +68,7 @@ func (r *UserRepository) CreateUser(user *model.User) error {
 	}
 	defer tx.Rollback()
 
-	// 插入用户
+	// Insert user
 	err = tx.QueryRowx(`
 		INSERT INTO users (username, password_hash, display_name, email, avatar_url)
 		VALUES ($1, $2, $3, $4, $5)
@@ -78,13 +78,12 @@ func (r *UserRepository) CreateUser(user *model.User) error {
 		user.Password,
 		user.DisplayName,
 		user.Email,
-		user.AvatarURL,
 	).Scan(&user.ID)
 	if err != nil {
 		return err
 	}
 
-	// 角色处理逻辑：为空则默认 unassigned
+	// Process user role, default is "unassigned".
 	roleName := user.Role
 	if roleName == "" {
 		roleName = "unassigned"
@@ -96,7 +95,7 @@ func (r *UserRepository) CreateUser(user *model.User) error {
 		return err
 	}
 
-	// 插入角色绑定
+	// Insert binding of role.
 	_, err = tx.Exec(`
 		INSERT INTO user_roles (user_id, role_id)
 		VALUES ($1, $2)

@@ -11,13 +11,16 @@ import (
 	"annotate-x/internal/middleware"
 
 	"github.com/gin-gonic/gin"
+
+	"net/http"
 )
 
 func RegisterUsersRouters(rg *gin.RouterGroup) {
-	auth := rg.Group("/users")
-	auth.Use(middleware.AuthMiddleware(), middleware.RequirePermissionMiddleware(casbin_auth.Enforcer))
+	group := rg.Group("/users")
+	group.Use(middleware.AuthMiddleware(), middleware.RequirePermissionMiddleware(casbin_auth.Enforcer))
 
-	auth.GET("/list", list)
+	group.GET("/list", list)
+	group.GET("/me", middleware.AuthMiddleware(), middleware.UserInjectionMiddleware(), me)
 }
 
 func list(c *gin.Context) {
@@ -66,5 +69,16 @@ func list(c *gin.Context) {
 		"offset":  offset,
 		"total":   total,
 		"results": users,
+	})
+}
+
+func me(c *gin.Context) {
+	user := c.MustGet("currentUser").(*model.User)
+
+	c.JSON(http.StatusCreated, model.UserCreateResponse{
+		Username:    user.Username,
+		DisplayName: user.DisplayName,
+		Email:       user.Email,
+		Role:        user.Role,
 	})
 }

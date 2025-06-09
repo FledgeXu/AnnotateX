@@ -21,12 +21,11 @@ type LoginRequest struct {
 }
 
 func RegisterAuthRouters(rg *gin.RouterGroup) {
-	auth := rg.Group("/auth")
+	group := rg.Group("/auth")
 	{
-		auth.POST("/login", login)
-		auth.POST("/register", register)
-		auth.GET("/me", middleware.AuthMiddleware(), middleware.UserInjectionMiddleware(), me)
-		auth.POST("/logout", middleware.AuthMiddleware(), logout)
+		group.POST("/login", login)
+		group.POST("/register", register)
+		group.POST("/logout", middleware.AuthMiddleware(), logout)
 	}
 }
 
@@ -90,17 +89,6 @@ func register(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
-	c.JSON(http.StatusCreated, model.UserCreateResponse{
-		Username:    user.Username,
-		DisplayName: user.DisplayName,
-		Email:       user.Email,
-		Role:        user.Role,
-	})
-}
-
-func me(c *gin.Context) {
-	user := c.MustGet("currentUser").(*model.User)
 
 	c.JSON(http.StatusCreated, model.UserCreateResponse{
 		Username:    user.Username,
