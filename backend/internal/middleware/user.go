@@ -5,6 +5,7 @@ import (
 
 	"annotate-x/internal/context"
 	"annotate-x/internal/security"
+
 	"github.com/gin-gonic/gin"
 )
 

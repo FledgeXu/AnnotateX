@@ -4,8 +4,9 @@ import (
 	"annotate-x/model"
 
 	"fmt"
-	"github.com/jmoiron/sqlx"
 	"strings"
+
+	"github.com/jmoiron/sqlx"
 
 	"database/sql"
 )

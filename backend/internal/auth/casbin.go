@@ -4,6 +4,7 @@ import (
 	"embed"
 
 	"fmt"
+
 	"github.com/casbin/casbin/v2"
 	casbin_fs_adapter "github.com/naucon/casbin-fs-adapter"
 )

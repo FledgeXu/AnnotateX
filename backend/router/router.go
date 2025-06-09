@@ -2,6 +2,7 @@ package router
 
 import (
 	"annotate-x/api"
+
 	"github.com/gin-gonic/gin"
 
 	"annotate-x/config"

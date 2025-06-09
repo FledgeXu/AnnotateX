@@ -9,6 +9,7 @@ import (
 	casbin_auth "annotate-x/internal/auth"
 	"annotate-x/internal/context"
 	"annotate-x/internal/middleware"
+
 	"github.com/gin-gonic/gin"
 )
 

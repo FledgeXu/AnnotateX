@@ -4,9 +4,10 @@ import (
 	ctxpkg "annotate-x/internal/context"
 	"annotate-x/internal/security"
 	"context"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
-	"net/http"
 
 	"github.com/casbin/casbin/v2"
 )
