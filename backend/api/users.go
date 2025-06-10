@@ -105,12 +105,10 @@ func updateMe(c *gin.Context) {
 	}
 
 	if req.DisplayName != "" {
-		print("username")
 		user.DisplayName = req.DisplayName
 	}
 
 	if user.Email != "" {
-		print("email")
 		user.Email = req.Email
 	}
 
