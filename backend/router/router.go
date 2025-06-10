@@ -10,8 +10,36 @@ import (
 
 	"annotate-x/cache"
 	"annotate-x/db"
+	"annotate-x/internal/security"
+	"annotate-x/model"
 	"annotate-x/repository"
 )
+
+func createSuperAdmin() {
+	appConfig := config.AppConfig
+	db := db.InitDB(appConfig.DATABASE_URL)
+	userRepository := repository.NewUserRepository(db)
+	if exists, err := userRepository.UsernameExists(appConfig.SUPER_ADMIN_USERNAME); err != nil {
+		panic(err.Error())
+	} else if exists {
+		return
+	}
+	hashedPassword, err := security.HashPassword(appConfig.SUPER_ADMIN_PASSWORD)
+	if err != nil {
+		panic(err.Error())
+	}
+	user := &model.User{
+		Username:    appConfig.SUPER_ADMIN_USERNAME,
+		Password:    hashedPassword,
+		DisplayName: "superadmin",
+		Email:       "",
+		IsActive:    true,
+		Role:        string(model.RoleSuperAdmin),
+	}
+	if err := userRepository.CreateUser(user); err != nil {
+		panic(err.Error())
+	}
+}
 
 func setupAppContext() *context.AppContext {
 	appConfig := config.AppConfig
@@ -30,6 +58,7 @@ func setupAppContext() *context.AppContext {
 }
 
 func SetupRouter() *gin.Engine {
+	createSuperAdmin()
 	r := gin.Default()
 
 	r.Use(context.InjectAppContext(setupAppContext()))

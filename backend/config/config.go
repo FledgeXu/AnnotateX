@@ -10,26 +10,30 @@ import (
 )
 
 type Config struct {
-	DATABASE_URL   string
-	LISTEN_ADDRESS string
-	JWT_SECRET     string
-	JWT_TIMEOUT    time.Duration
-	REDIS_ADDRESS  string
-	REDIS_PASSWORD string
-	REDIS_DB       int
+	DATABASE_URL         string
+	LISTEN_ADDRESS       string
+	JWT_SECRET           string
+	JWT_TIMEOUT          time.Duration
+	REDIS_ADDRESS        string
+	REDIS_PASSWORD       string
+	REDIS_DB             int
+	SUPER_ADMIN_USERNAME string
+	SUPER_ADMIN_PASSWORD string
 }
 
 var AppConfig = Load()
 
 func Load() *Config {
 	c := &Config{
-		DATABASE_URL:   getEnvOrPanic("DATABASE_URL"),
-		LISTEN_ADDRESS: getEnvOrDefault("LISTEN_ADDRESS", ":80"),
-		JWT_SECRET:     getEnvOrDefault("JWT_SECRET", "JWT_SECRET"),
-		JWT_TIMEOUT:    getDurationEnvFlexible("JWT_TIMEOUT", 72*time.Hour),
-		REDIS_ADDRESS:  getEnvOrPanic("REDIS_ADDRESS"),
-		REDIS_PASSWORD: getEnvOrDefault("REDIS_PASSWORD", ""),
-		REDIS_DB:       GetEnvInt("REDIS_DB", 0),
+		DATABASE_URL:         getEnvOrPanic("DATABASE_URL"),
+		LISTEN_ADDRESS:       getEnvOrDefault("LISTEN_ADDRESS", ":80"),
+		JWT_SECRET:           getEnvOrDefault("JWT_SECRET", "JWT_SECRET"),
+		JWT_TIMEOUT:          getDurationEnvFlexible("JWT_TIMEOUT", 72*time.Hour),
+		REDIS_ADDRESS:        getEnvOrPanic("REDIS_ADDRESS"),
+		REDIS_PASSWORD:       getEnvOrDefault("REDIS_PASSWORD", ""),
+		REDIS_DB:             GetEnvInt("REDIS_DB", 0),
+		SUPER_ADMIN_USERNAME: getEnvOrDefault("SUPER_ADMIN_USERNAME", "superadmin"),
+		SUPER_ADMIN_PASSWORD: getEnvOrDefault("SUPER_ADMIN_PASSWORD", "superadmin"),
 	}
 	return c
 }
