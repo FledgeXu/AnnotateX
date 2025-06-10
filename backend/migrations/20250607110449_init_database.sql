@@ -36,6 +36,17 @@ INSERT INTO roles (name, description) VALUES
   ('labeler', 'Labeler responsible for data annotation tasks'),
   ('unassigned', 'User has not been assigned a role yet');
 
+CREATE TABLE organizations (
+    id SERIAL PRIMARY KEY,                             -- Unique organization ID
+    name VARCHAR(255) NOT NULL UNIQUE,                 -- Organization name (must be unique)
+    code VARCHAR(64) UNIQUE,                           -- Optional short code or slug
+    type VARCHAR(50) NOT NULL DEFAULT 'vendor',        -- Organization type: vendor, internal, etc.
+    description TEXT,                                  -- Optional description
+    is_active BOOLEAN DEFAULT TRUE,                    -- Whether the organization is active
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(), -- Creation timestamp
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()  -- Last update timestamp
+);
+
 -- +goose StatementEnd
 
 -- +goose Down
