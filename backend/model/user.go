@@ -1,8 +1,8 @@
 package model
 
 type UpdateUserRequest struct {
-	Password    string `json:"password" binding:"required,min=8,max=64"`
-	DisplayName string `json:"displayName"`
+	Password    string `json:"password" binding:"omitempty,required,min=8,max=64"`
+	DisplayName string `json:"displayName" binding:"omitempty"`
 	Email       string `json:"email" binding:"omitempty,email"`
 }
 

@@ -9,6 +9,7 @@ import (
 	casbin_auth "annotate-x/internal/auth"
 	"annotate-x/internal/context"
 	"annotate-x/internal/middleware"
+	"annotate-x/internal/security"
 
 	"github.com/gin-gonic/gin"
 
@@ -21,6 +22,7 @@ func RegisterUsersRouters(rg *gin.RouterGroup) {
 
 	group.GET("/list", list)
 	group.GET("/me", middleware.AuthMiddleware(), middleware.UserInjectionMiddleware(), me)
+	group.PUT("/me", middleware.AuthMiddleware(), middleware.UserInjectionMiddleware(), updateMe)
 }
 
 func list(c *gin.Context) {
@@ -80,5 +82,47 @@ func me(c *gin.Context) {
 		DisplayName: user.DisplayName,
 		Email:       user.Email,
 		Role:        user.Role,
+	})
+}
+
+func updateMe(c *gin.Context) {
+	appCtx := c.MustGet("appCtx").(*context.AppContext)
+	user := c.MustGet("currentUser").(*model.User)
+
+	var req model.UpdateUserRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if req.Password != "" {
+		hashedPassword, err := security.HashPassword(req.Password)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		user.Password = hashedPassword
+	}
+
+	if req.DisplayName != "" {
+		print("username")
+		user.DisplayName = req.DisplayName
+	}
+
+	if user.Email != "" {
+		print("email")
+		user.Email = req.Email
+	}
+
+	updatedUser, err := appCtx.UserRepo.UpdateUser(user)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+
+	c.JSON(http.StatusCreated, model.UserCreateResponse{
+		Username:    updatedUser.Username,
+		DisplayName: updatedUser.DisplayName,
+		Email:       updatedUser.Email,
+		Role:        updatedUser.Role,
 	})
 }

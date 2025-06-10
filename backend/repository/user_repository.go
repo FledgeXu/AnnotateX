@@ -70,8 +70,8 @@ func (r *UserRepository) CreateUser(user *model.User) error {
 
 	// Insert user
 	err = tx.QueryRowx(`
-		INSERT INTO users (username, password_hash, display_name, email, avatar_url)
-		VALUES ($1, $2, $3, $4, $5)
+		INSERT INTO users (username, password_hash, display_name, email)
+		VALUES ($1, $2, $3, $4)
 		RETURNING id
 	`,
 		user.Username,
@@ -211,4 +211,30 @@ func (r *UserRepository) FindWithFilter(f model.UserFilter) ([]model.User, int, 
 	}
 
 	return users, total, nil
+}
+
+func (r *UserRepository) UpdateUser(user *model.User) (*model.User, error) {
+	result, err := r.DB.Exec(`
+		UPDATE users
+		SET password_hash = $1,
+			display_name = $2,
+		    email = $3,
+		    is_active = $4,
+		    updated_at = NOW()
+		WHERE id = $5
+	`, user.Password, user.DisplayName, user.Email, user.IsActive, user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return nil, err
+	}
+	if rowsAffected == 0 {
+		return nil, sql.ErrNoRows
+	}
+
+	// retrun updated user
+	return r.GetUserByID(user.ID)
 }
