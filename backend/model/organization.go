@@ -9,10 +9,10 @@ type OrganizationCreateRequest struct {
 
 type Organization struct {
 	ID          int64  `db:"id"`
-	orgType     string `db:"type"`
-	name        string `db:"name"`
-	code        string `db:"code"`
-	description string `db:"description"`
+	OrgType     string `db:"type"`
+	Name        string `db:"name"`
+	Code        string `db:"code"`
+	Description string `db:"description"`
 	IsActive    bool   `db:"is_active"`
 	CreatedAt   string `db:"created_at"`
 	UpdatedAt   string `db:"updated_at"`

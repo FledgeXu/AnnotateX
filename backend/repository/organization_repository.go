@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"annotate-x/model"
+
 	"github.com/jmoiron/sqlx"
 )
 
@@ -20,4 +22,17 @@ func (r *OrganizationRepository) OrganizationExists(name string) (bool, error) {
 		)
 	`, name)
 	return exists, err
+}
+
+func (r *OrganizationRepository) CreateOrganization(organization *model.Organization) error {
+	err := r.DB.QueryRow(`
+		INSERT INTO organization (type, name, code, description)
+		VALUES ($1, $2, $3, $4)
+		RETURNING id`,
+		organization.OrgType,
+		organization.Name,
+		organization.Code,
+		organization.Description,
+	).Scan(&organization.ID)
+	return err
 }
