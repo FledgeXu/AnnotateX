@@ -29,7 +29,7 @@ func (r *OrganizationRepository) CreateOrganization(organization *model.Organiza
 		INSERT INTO organization (type, name, code, description)
 		VALUES ($1, $2, $3, $4)
 		RETURNING id`,
-		organization.OrgType,
+		organization.Type,
 		organization.Name,
 		organization.Code,
 		organization.Description,

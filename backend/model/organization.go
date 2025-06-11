@@ -9,7 +9,7 @@ type OrganizationCreateRequest struct {
 
 type Organization struct {
 	ID          int64  `db:"id"`
-	OrgType     string `db:"type"`
+	Type        string `db:"type"`
 	Name        string `db:"name"`
 	Code        string `db:"code"`
 	Description string `db:"description"`
