@@ -36,7 +36,7 @@ INSERT INTO roles (name, description) VALUES
   ('labeler', 'Labeler responsible for data annotation tasks'),
   ('unassigned', 'User has not been assigned a role yet');
 
-CREATE TABLE organization (
+CREATE TABLE organizations (
     id SERIAL PRIMARY KEY,                             -- Unique organization ID
     type VARCHAR(50) NOT NULL DEFAULT 'vendor',        -- Organization type: vendor, internal, etc.
     name VARCHAR(255) NOT NULL UNIQUE,                 -- Organization name (must be unique)
