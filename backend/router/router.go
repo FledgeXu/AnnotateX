@@ -2,11 +2,15 @@ package router
 
 import (
 	"annotate-x/api"
+	"annotate-x/logger"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
 	"annotate-x/config"
 	"annotate-x/internal/context"
+
+	ginzap "github.com/gin-contrib/zap"
 
 	"annotate-x/cache"
 	"annotate-x/db"
@@ -62,6 +66,8 @@ func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
 	r.Use(context.InjectAppContext(setupAppContext()))
+	r.Use(ginzap.Ginzap(logger.Logger, time.RFC3339, true))
+	r.Use(ginzap.RecoveryWithZap(logger.Logger, true))
 
 	v1 := r.Group("/v1")
 
