@@ -51,10 +51,12 @@ func setupAppContext() *context.AppContext {
 	db := db.InitDB(appConfig.DATABASE_URL)
 	redis := cache.InitRedis(appConfig.REDIS_ADDRESS, appConfig.REDIS_PASSWORD, appConfig.REDIS_DB)
 	userRepository := repository.NewUserRepository(db)
+	organizationRepository := repository.NewOrganizationRepository(db)
 	cacheRepository := repository.NewCacheRepository(redis)
 
 	appContext := context.AppContext{
 		UserRepo:  userRepository,
+		OrgRepo:   organizationRepository,
 		CacheRepo: cacheRepository,
 	}
 

@@ -8,6 +8,7 @@ import (
 
 type AppContext struct {
 	UserRepo  *repository.UserRepository
+	OrgRepo   *repository.OrganizationRepository
 	CacheRepo *repository.CacheRepository
 }
 
