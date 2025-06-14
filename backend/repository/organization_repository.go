@@ -24,6 +24,12 @@ func (r *OrganizationRepository) OrganizationExists(name string) (bool, error) {
 	return exists, err
 }
 
+func (r *OrganizationRepository) GetOrganizationById(id int) (*model.Organization, error) {
+	var organization *model.Organization
+	err := r.DB.Get(organization, `SELECT 1 FROM users WHERE name = $1`, id)
+	return organization, err
+}
+
 func (r *OrganizationRepository) CreateOrganization(organization *model.Organization) error {
 	err := r.DB.QueryRow(`
 		INSERT INTO organization (type, name, code, description)

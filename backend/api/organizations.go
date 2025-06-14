@@ -5,6 +5,7 @@ import (
 	"annotate-x/internal/middleware"
 	"annotate-x/model"
 	"net/http"
+	"strconv"
 
 	"annotate-x/internal/context"
 
@@ -15,6 +16,7 @@ func RegisterOrganizationsRouters(rg *gin.RouterGroup) {
 	group := rg.Group("/organizations")
 	group.Use(middleware.AuthMiddleware(), middleware.RequirePermissionMiddleware(casbin_auth.Enforcer))
 	group.POST("/create", create)
+	group.GET("/:id", info)
 }
 
 func create(c *gin.Context) {
@@ -43,4 +45,23 @@ func create(c *gin.Context) {
 	}
 	appCtx.OrgRepo.CreateOrganization(&organization)
 	c.JSON(http.StatusCreated, organization)
+}
+
+func info(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid organization id",
+		})
+		return
+	}
+	appCtx := c.MustGet("appCtx").(*context.AppContext)
+	model, err := appCtx.OrgRepo.GetOrganizationById(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid organization id",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, model)
 }
