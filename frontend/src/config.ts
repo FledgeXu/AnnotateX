@@ -1,1 +1,5 @@
-export const BASE_URL = import.meta.env.VITE_BASE_URL;
+import axios from "axios";
+export const API = axios.create({
+    baseURL: import.meta.env.VITE_BASE_URL,
+    timeout: 360,
+});

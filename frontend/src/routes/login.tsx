@@ -19,7 +19,6 @@ export const Route = createFileRoute("/login")({
 });
 
 function Login() {
-    console.log(BASE_URL);
     return (
         <Flex align="center" justify="center" height="100vh">
             <Card size="3" className="w-full max-w-sm">
