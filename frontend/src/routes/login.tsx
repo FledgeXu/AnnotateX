@@ -25,13 +25,13 @@ function Login() {
                     <Flex gap={"3"} direction={"column"}>
                         <Heading>Login</Heading>
                         <Box>
-                            <Text>Username</Text>
+                            <Text weight={"medium"}>Username</Text>
                             <TextField.Root type="text">
                                 <TextField.Slot />
                             </TextField.Root>
                         </Box>
                         <Box>
-                            <Text>Password</Text>
+                            <Text weight={"medium"}>Password</Text>
                             <TextField.Root type="password">
                                 <TextField.Slot />
                                 <TextField.Slot>
