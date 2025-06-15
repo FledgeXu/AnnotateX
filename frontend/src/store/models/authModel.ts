@@ -1,4 +1,6 @@
-import { Action, action } from 'easy-peasy';
+import { action } from "easy-peasy";
+import type { Action } from "easy-peasy";
+
 
 export interface AuthModel {
     token: string | null;
