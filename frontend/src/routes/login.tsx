@@ -12,12 +12,14 @@ import {
     IconButton,
 } from "@radix-ui/themes";
 import { EyeOpenIcon } from "@radix-ui/react-icons";
+import { BASE_URL } from "../config";
 
 export const Route = createFileRoute("/login")({
     component: Login,
 });
 
 function Login() {
+    console.log(BASE_URL);
     return (
         <Flex align="center" justify="center" height="100vh">
             <Card size="3" className="w-full max-w-sm">
