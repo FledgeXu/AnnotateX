@@ -1,6 +1,6 @@
 import axios from "axios";
 import type { Store } from "easy-peasy";
-import type { StoreModel } from "./store/types";
+import type { StoreModel } from "@/store/types";
 
 export const createAPI = (store: Store<StoreModel>) => {
     const api = axios.create({
