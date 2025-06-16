@@ -8,7 +8,9 @@ import "@/main.css";
 import "@radix-ui/themes/styles.css";
 
 // Import the generated route tree
-import { routeTree } from "./routeTree.gen";
+import { routeTree } from "@/routeTree.gen";
+import { StoreProvider } from "easy-peasy";
+import { store } from "@/store";
 
 // Create a new router instance
 const router = createRouter({ routeTree });
@@ -28,12 +30,14 @@ if (!rootElement.innerHTML) {
     const root = ReactDOM.createRoot(rootElement);
     root.render(
         <StrictMode>
-            <QueryClientProvider client={queryClient}>
-                <Theme>
-                    <RouterProvider router={router} />
-                </Theme>
-                {import.meta.env.DEV && <ReactQueryDevtools />}
-            </QueryClientProvider>
+            <StoreProvider store={store}>
+                <QueryClientProvider client={queryClient}>
+                    <Theme>
+                        <RouterProvider router={router} />
+                    </Theme>
+                    {import.meta.env.DEV && <ReactQueryDevtools />}
+                </QueryClientProvider>
+            </StoreProvider>
         </StrictMode>,
     );
 }
