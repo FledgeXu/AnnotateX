@@ -12,7 +12,6 @@ import {
     IconButton,
 } from "@radix-ui/themes";
 import { EyeOpenIcon } from "@radix-ui/react-icons";
-import { BASE_URL } from "../config";
 
 export const Route = createFileRoute("/login")({
     component: Login,

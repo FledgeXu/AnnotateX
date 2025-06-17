@@ -3,6 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/")({
     component: Index,
+    beforeLoad: async ({ context }) => {
+        await context.userAuth.check();
+    },
 });
 
 function Index() {
