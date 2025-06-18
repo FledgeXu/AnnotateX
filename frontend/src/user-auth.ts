@@ -1,7 +1,6 @@
 import { HttpStatusCode } from 'axios';
 import { createAPI } from "@/config"
 import { store } from "@/store"
-import { redirect } from "@tanstack/react-router";
 
 
 export const useUserAuth = () => {
@@ -15,13 +14,7 @@ export const useUserAuth = () => {
             return false;
         }
     };
-
-    const check = async () => {
-        if (!(await isLogin())) {
-            throw redirect({ to: "/login" });
-        }
-    }
-    return { check }
+    return { isLogin }
 }
 
 export type IUserAuth = ReturnType<typeof useUserAuth>;
