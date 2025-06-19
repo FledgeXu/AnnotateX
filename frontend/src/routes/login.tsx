@@ -26,13 +26,19 @@ function Login() {
                         <Heading>Login</Heading>
                         <Box>
                             <Text weight={"medium"}>Username</Text>
-                            <TextField.Root type="text">
+                            <TextField.Root
+                                type="text"
+                                placeholder="Enter your account name."
+                            >
                                 <TextField.Slot />
                             </TextField.Root>
                         </Box>
                         <Box>
                             <Text weight={"medium"}>Password</Text>
-                            <TextField.Root type="password">
+                            <TextField.Root
+                                type="password"
+                                placeholder="Enter your password."
+                            >
                                 <TextField.Slot />
                                 <TextField.Slot>
                                     <IconButton variant="ghost">
