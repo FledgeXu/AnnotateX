@@ -10,6 +10,7 @@ import (
 	"annotate-x/config"
 	"annotate-x/internal/context"
 
+	"github.com/gin-contrib/cors"
 	ginzap "github.com/gin-contrib/zap"
 
 	"annotate-x/cache"
@@ -65,8 +66,12 @@ func setupAppContext() *context.AppContext {
 
 func SetupRouter() *gin.Engine {
 	createSuperAdmin()
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowAllOrigins = true
+
 	r := gin.Default()
 
+	r.Use(cors.New(corsConfig))
 	r.Use(context.InjectAppContext(setupAppContext()))
 	r.Use(ginzap.Ginzap(logger.Logger, time.RFC3339, true))
 	r.Use(ginzap.RecoveryWithZap(logger.Logger, true))
