@@ -50,6 +50,7 @@ services:
       - JWT_SECRET=SECRET
       - LISTEN_ADDRESS=:8080
       - REDIS_ADDRESS=redis:6379
+      - ALLOW_ORIGINS=http://localhost:5173
     command: ["go", "run", "main.go"]
 
 volumes:

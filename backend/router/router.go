@@ -64,14 +64,26 @@ func setupAppContext() *context.AppContext {
 	return &appContext
 }
 
+func setupCors() gin.HandlerFunc {
+	appConfig := config.AppConfig
+
+	cors.DefaultConfig()
+	return cors.New(cors.Config{
+		AllowOrigins:     appConfig.ALLOW_ORIGINS,
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	})
+}
+
 func SetupRouter() *gin.Engine {
 	createSuperAdmin()
-	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowAllOrigins = true
 
 	r := gin.Default()
 
-	r.Use(cors.New(corsConfig))
+	r.Use(setupCors())
 	r.Use(context.InjectAppContext(setupAppContext()))
 	r.Use(ginzap.Ginzap(logger.Logger, time.RFC3339, true))
 	r.Use(ginzap.RecoveryWithZap(logger.Logger, true))

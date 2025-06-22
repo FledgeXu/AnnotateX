@@ -14,8 +14,14 @@ import {
     IconButton,
     Callout,
 } from "@radix-ui/themes";
+
 import { EyeOpenIcon, InfoCircledIcon } from "@radix-ui/react-icons";
 import { z } from "zod";
+import { createAPI } from "@/config";
+import { store } from "@/store";
+import { useStoreActions } from "easy-peasy";
+import type { StoreModel } from "@/store/types";
+import { useRouter } from "@tanstack/react-router";
 
 const schema = z.object({
     username: z.string().min(3, "Username is required"),
@@ -44,8 +50,25 @@ function Login() {
             agree: false,
         },
     });
-    const onSubmit = (data: FormData) => {
-        console.log("✅ Submitted:", data);
+
+    const authLogin = useStoreActions<StoreModel>(
+        (actions) => actions.auth.login,
+    );
+    const router = useRouter();
+
+    const onSubmit = async (data: FormData) => {
+        const api = createAPI(store);
+        try {
+            const res = await api.post("/v1/auth/login", {
+                username: data.username,
+                password: data.password,
+            });
+            const { token } = res.data;
+            authLogin(token);
+            router.navigate({ to: "/" });
+        } catch (err: any) {
+            console.error("Fail", err.message);
+        }
     };
 
     return (

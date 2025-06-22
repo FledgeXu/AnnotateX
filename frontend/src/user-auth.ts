@@ -4,7 +4,7 @@ import { store } from "@/store"
 
 
 export const useUserAuth = () => {
-    const api = createAPI(store);;
+    const api = createAPI(store);
 
     const isLogin = async () => {
         try {

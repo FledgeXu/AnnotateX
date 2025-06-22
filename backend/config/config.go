@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	_ "github.com/joho/godotenv/autoload"
@@ -19,6 +20,7 @@ type Config struct {
 	REDIS_DB             int
 	SUPER_ADMIN_USERNAME string
 	SUPER_ADMIN_PASSWORD string
+	ALLOW_ORIGINS        []string
 }
 
 var AppConfig = Load()
@@ -34,6 +36,13 @@ func Load() *Config {
 		REDIS_DB:             GetEnvInt("REDIS_DB", 0),
 		SUPER_ADMIN_USERNAME: getEnvOrDefault("SUPER_ADMIN_USERNAME", "superadmin"),
 		SUPER_ADMIN_PASSWORD: getEnvOrDefault("SUPER_ADMIN_PASSWORD", "superadmin"),
+		ALLOW_ORIGINS: func() []string {
+			parts := strings.Split(getEnvOrDefault("ALLOW_ORIGINS", ""), ",")
+			for i, v := range parts {
+				parts[i] = strings.TrimSpace(v)
+			}
+			return parts
+		}(),
 	}
 	return c
 }
