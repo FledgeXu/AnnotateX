@@ -85,6 +85,7 @@ function Login() {
     const [loginErrorMessage, setLoginErrorMessage] = useState<string | null>(
         null,
     );
+    const [visible, setVisible] = useState(false);
     const loginMutation = useLoginMutation(setLoginErrorMessage);
     const onSubmit = handleSubmit((data) => loginMutation.mutate(data));
 
@@ -134,13 +135,17 @@ function Login() {
                                 control={control}
                                 render={({ field }) => (
                                     <TextField.Root
-                                        type="password"
+                                        type={visible ? "text" : "password"}
                                         placeholder="Enter your password."
                                         {...field}
                                     >
                                         <TextField.Slot />
                                         <TextField.Slot>
-                                            <IconButton variant="ghost">
+                                            <IconButton
+                                                type="button"
+                                                variant="ghost"
+                                                onClick={async () => setVisible((v) => !v)}
+                                            >
                                                 <EyeOpenIcon />
                                             </IconButton>
                                         </TextField.Slot>
@@ -167,7 +172,10 @@ function Login() {
                             </Text>
                         </Flex>
                         <Box>
-                            <Flex direction={"row-reverse"}>
+                            <Flex justify={"between"} align={"center"}>
+                                <Link href="/register" size={"2"} target="_blank">
+                                    Create account.
+                                </Link>
                                 <Button type="submit">Login</Button>
                             </Flex>
                         </Box>
