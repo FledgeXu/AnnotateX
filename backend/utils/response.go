@@ -5,12 +5,12 @@ import (
 )
 
 type Response struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data"`
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    any    `json:"data"`
 }
 
-func JSONResponse(c *gin.Context, httpCode int, message string, data interface{}) {
+func JSONResponse(c *gin.Context, httpCode int, message string, data any) {
 	if data == nil {
 		data = gin.H{}
 	}
@@ -21,7 +21,7 @@ func JSONResponse(c *gin.Context, httpCode int, message string, data interface{}
 	})
 }
 
-func JSONSuccess(c *gin.Context, httpCode int, data interface{}) {
+func JSONSuccess(c *gin.Context, httpCode int, data any) {
 	JSONResponse(c, httpCode, "success", data)
 }
 
