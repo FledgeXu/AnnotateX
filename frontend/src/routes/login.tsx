@@ -22,6 +22,7 @@ import { useStoreActions } from "easy-peasy";
 import type { StoreModel } from "@/store/types";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
+import type { Response, LoginToken } from "@/models";
 
 const schema = z.object({
     username: z.string().min(3, "Username is required"),
@@ -37,7 +38,7 @@ export const Route = createFileRoute("/login")({
     component: Login,
 });
 
-export const login = async (data: FormData): Promise<{ token: string }> => {
+export const login = async (data: FormData): Promise<Response<LoginToken>> => {
     const api = createAPI(store);
     const res = await api.post("/v1/auth/login", {
         username: data.username,
@@ -55,11 +56,11 @@ export const useLoginMutation = (onErrorMessage: (msg: string) => void) => {
     return useMutation({
         mutationFn: login,
         onSuccess: (data) => {
-            authLogin(data.token);
+            authLogin(data.data.token);
             navigate({ to: "/" });
         },
         onError: (error: any) => {
-            const msg = error?.response?.data?.error || "Failed to log in.";
+            const msg = error?.response?.data?.message || "Failed to log in.";
             onErrorMessage(msg);
         },
     });
