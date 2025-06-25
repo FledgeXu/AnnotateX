@@ -1,7 +1,6 @@
 package api
 
 import (
-	"net/http"
 	"time"
 
 	"annotate-x/internal/middleware"
@@ -34,23 +33,23 @@ func login(c *gin.Context) {
 	appCtx := c.MustGet("appCtx").(*context.AppContext)
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.JSONError(c, http.StatusBadRequest, err.Error())
+		utils.BadRequest(c, err.Error())
 		return
 	}
 
 	user, err := appCtx.UserRepo.GetUserByUsername(req.Username)
 	if err != nil || !user.IsActive {
-		utils.JSONError(c, http.StatusUnauthorized, "Invalid username or password")
+		utils.Unauthorized(c, "Invalid username or password")
 		return
 	}
 
 	match, needsRehash, err := security.VerifyPassword(req.Password, user.Password)
 	if err != nil {
-		utils.JSONError(c, http.StatusInternalServerError, err.Error())
+		utils.InternalServerError(c, err.Error())
 		return
 	}
 	if !match {
-		utils.JSONError(c, http.StatusUnauthorized, "Invalid username or password")
+		utils.Unauthorized(c, "Invalid username or password")
 		return
 	}
 
@@ -64,11 +63,10 @@ func login(c *gin.Context) {
 
 	token, err := security.GenerateToken(user.ID, user.Username, user.Role)
 	if err != nil {
-		utils.JSONError(c, http.StatusInternalServerError, "Failed to generate token")
+		utils.InternalServerError(c, "Failed to generate token")
 		return
 	}
-
-	utils.JSONSuccess(c, http.StatusOK, gin.H{
+	utils.OK(c, gin.H{
 		"token": token,
 	})
 }
@@ -77,7 +75,7 @@ func register(c *gin.Context) {
 	appCtx := c.MustGet("appCtx").(*context.AppContext)
 	var req model.UserCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.JSONError(c, http.StatusBadRequest, err.Error())
+		utils.BadRequest(c, err.Error())
 		return
 	}
 
@@ -86,11 +84,11 @@ func register(c *gin.Context) {
 
 	user, err := service.NewUserService(appCtx.UserRepo).CreateUser(req)
 	if err != nil {
-		utils.JSONError(c, http.StatusInternalServerError, err.Error())
+		utils.InternalServerError(c, err.Error())
 		return
 	}
 
-	utils.JSONSuccess(c, http.StatusCreated, model.UserCreateResponse{
+	utils.Created(c, model.UserCreateResponse{
 		Username:    user.Username,
 		DisplayName: user.DisplayName,
 		Email:       user.Email,
@@ -102,14 +100,14 @@ func logout(c *gin.Context) {
 	appCtx := c.MustGet("appCtx").(*context.AppContext)
 	tokenRaw, exists := c.Get("rawToken")
 	if !exists {
-		utils.JSONError(c, http.StatusBadRequest, "Missing token")
+		utils.BadRequest(c, "Missing token")
 		return
 	}
 	tokenStr := tokenRaw.(string)
 
 	claimsRaw, exists := c.Get("jwtClaims")
 	if !exists {
-		utils.JSONError(c, http.StatusBadRequest, "Missing claims")
+		utils.BadRequest(c, "Missing claims")
 		return
 	}
 	claims := claimsRaw.(*security.Claims)
@@ -118,9 +116,8 @@ func logout(c *gin.Context) {
 	expiration := time.Until(claims.ExpiresAt.Time)
 	err := appCtx.CacheRepo.BlacklistToken(c.Request.Context(), tokenStr, expiration)
 	if err != nil {
-		utils.JSONError(c, http.StatusInternalServerError, "Failed to logout")
+		utils.InternalServerError(c, "Failed to logout")
 		return
 	}
-
-	utils.JSONResponse(c, http.StatusOK, "Logged out successfully", gin.H{})
+	utils.OK(c, gin.H{})
 }

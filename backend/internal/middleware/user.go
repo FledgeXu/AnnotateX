@@ -16,14 +16,14 @@ func UserInjectionMiddleware() gin.HandlerFunc {
 
 		claimsRaw, exists := c.Get("jwtClaims")
 		if !exists {
-			utils.JSONAbortWithError(c, http.StatusUnauthorized, "JWT claims missing")
+			utils.AbortJSON(c, http.StatusUnauthorized, "JWT claims missing")
 			return
 		}
 		claims := claimsRaw.(*security.Claims)
 
 		user, err := appCtx.UserRepo.GetUserByID(claims.UserID)
 		if err != nil {
-			utils.JSONAbortWithError(c, http.StatusNotFound, "User not found")
+			utils.AbortJSON(c, http.StatusNotFound, "User not found")
 			return
 		}
 

@@ -18,7 +18,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		appCtx := c.MustGet("appCtx").(*ctxpkg.AppContext)
 		authHeader := c.GetHeader("Authorization")
 		if len(authHeader) < 7 || authHeader[:7] != "Bearer " {
-			utils.JSONAbortWithError(c, http.StatusUnauthorized, "Authorization header missing or malformed")
+			utils.AbortJSON(c, http.StatusUnauthorized, "Authorization header missing or malformed")
 			return
 		}
 
@@ -27,17 +27,17 @@ func AuthMiddleware() gin.HandlerFunc {
 		ctx := context.Background()
 		exist, err := appCtx.CacheRepo.IsBlacklisted(ctx, tokenStr)
 		if err != nil && err != redis.Nil {
-			utils.JSONAbortWithError(c, http.StatusInternalServerError, "Failed to check token blacklist")
+			utils.AbortJSON(c, http.StatusInternalServerError, "Failed to check token blacklist")
 			return
 		}
 		if exist {
-			utils.JSONAbortWithError(c, http.StatusUnauthorized, "Token is blacklisted")
+			utils.AbortJSON(c, http.StatusUnauthorized, "Token is blacklisted")
 			return
 		}
 
 		claims, err := security.ParseToken(tokenStr)
 		if err != nil {
-			utils.JSONAbortWithError(c, http.StatusUnauthorized, "Invalid or expired token")
+			utils.AbortJSON(c, http.StatusUnauthorized, "Invalid or expired token")
 			return
 		}
 
@@ -52,7 +52,7 @@ func RequirePermissionMiddleware(enforcer *casbin.Enforcer) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		claimsRaw, exists := c.Get("jwtClaims")
 		if !exists {
-			utils.JSONAbortWithError(c, http.StatusUnauthorized, "Unauthorized")
+			utils.AbortJSON(c, http.StatusUnauthorized, "Unauthorized")
 			return
 		}
 		role := claimsRaw.(*security.Claims).Role // Get role from jwt claims.
@@ -62,11 +62,11 @@ func RequirePermissionMiddleware(enforcer *casbin.Enforcer) gin.HandlerFunc {
 
 		allowed, err := enforcer.Enforce(obj, role, act)
 		if err != nil {
-			utils.JSONAbortWithError(c, http.StatusInternalServerError, err.Error())
+			utils.AbortJSON(c, http.StatusInternalServerError, err.Error())
 			return
 		}
 		if !allowed {
-			utils.JSONAbortWithError(c, http.StatusForbidden, "Forbidden")
+			utils.AbortJSON(c, http.StatusForbidden, "Forbidden")
 			return
 		}
 		c.Next()

@@ -25,17 +25,17 @@ func create(c *gin.Context) {
 	appCtx := c.MustGet("appCtx").(*context.AppContext)
 	var req model.OrganizationCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.JSONError(c, http.StatusBadRequest, err.Error())
+		utils.BadRequest(c, err.Error())
 		return
 	}
 
 	exists, err := appCtx.OrgRepo.OrganizationExists(req.Name)
 	if err != nil {
-		utils.JSONError(c, http.StatusUnauthorized, err.Error())
+		utils.Unauthorized(c, err.Error())
 		return
 	}
 	if exists {
-		utils.JSONError(c, http.StatusUnauthorized, "Organization exists")
+		utils.Unauthorized(c, "Organization exists")
 		return
 	}
 
@@ -46,7 +46,7 @@ func create(c *gin.Context) {
 		Description: req.Description,
 	}
 	if err := appCtx.OrgRepo.CreateOrganization(&organization); err != nil {
-		utils.JSONError(c, http.StatusUnauthorized, err.Error())
+		utils.Unauthorized(c, err.Error())
 		return
 	}
 	c.JSON(http.StatusCreated, organization)
@@ -55,15 +55,16 @@ func create(c *gin.Context) {
 func info(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		utils.JSONError(c, http.StatusBadRequest, "Invalid organization ID: must be a numeric value")
+		utils.BadRequest(c, "Invalid organization ID: must be a numeric value")
 		return
 	}
 	fmt.Println(id)
 	appCtx := c.MustGet("appCtx").(*context.AppContext)
 	model, err := appCtx.OrgRepo.GetOrganizationById(id)
 	if err != nil {
-		utils.JSONError(c, http.StatusBadRequest, err.Error())
+		utils.BadRequest(c, err.Error())
 		return
 	}
-	utils.JSONSuccess(c, http.StatusOK, model)
+
+	utils.OK(c, model)
 }

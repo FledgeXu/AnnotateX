@@ -13,8 +13,6 @@ import (
 	"annotate-x/internal/security"
 
 	"github.com/gin-gonic/gin"
-
-	"net/http"
 )
 
 func RegisterUsersRouters(rg *gin.RouterGroup) {
@@ -63,11 +61,11 @@ func list(c *gin.Context) {
 
 	users, total, err := service.NewUserService(appCtx.UserRepo).GetFilteredUserList(filter)
 	if err != nil {
-		utils.JSONError(c, http.StatusInternalServerError, "Failed to get users")
+		utils.InternalServerError(c, "Failed to get users")
 		return
 	}
 
-	utils.JSONSuccess(c, http.StatusOK, gin.H{
+	utils.OK(c, gin.H{
 		"limit":   limit,
 		"offset":  offset,
 		"total":   total,
@@ -78,7 +76,7 @@ func list(c *gin.Context) {
 func me(c *gin.Context) {
 	user := c.MustGet("currentUser").(*model.User)
 
-	utils.JSONSuccess(c, http.StatusCreated, model.UserCreateResponse{
+	utils.OK(c, model.UserCreateResponse{
 		Username:    user.Username,
 		DisplayName: user.DisplayName,
 		Email:       user.Email,
@@ -92,14 +90,14 @@ func updateMe(c *gin.Context) {
 
 	var req model.UpdateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.JSONError(c, http.StatusBadRequest, err.Error())
+		utils.BadRequest(c, err.Error())
 		return
 	}
 
 	if req.Password != "" {
 		hashedPassword, err := security.HashPassword(req.Password)
 		if err != nil {
-			utils.JSONError(c, http.StatusBadRequest, err.Error())
+			utils.BadRequest(c, err.Error())
 			return
 		}
 		user.Password = hashedPassword
@@ -115,10 +113,10 @@ func updateMe(c *gin.Context) {
 
 	updatedUser, err := appCtx.UserRepo.UpdateUser(user)
 	if err != nil {
-		utils.JSONError(c, http.StatusInternalServerError, err.Error())
+		utils.InternalServerError(c, err.Error())
 	}
 
-	utils.JSONSuccess(c, http.StatusCreated, model.UserCreateResponse{
+	utils.OK(c, model.UserCreateResponse{
 		Username:    updatedUser.Username,
 		DisplayName: updatedUser.DisplayName,
 		Email:       updatedUser.Email,
