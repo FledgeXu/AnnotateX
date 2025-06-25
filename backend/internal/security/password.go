@@ -34,11 +34,11 @@ type Params struct {
 
 // ====== Sentinel Errors ======
 var (
-	ErrInvalidHashFormat   = errors.New("invalid hash format")
-	ErrUnsupportedVersion  = errors.New("unsupported argon2 version")
-	ErrInvalidParameters   = errors.New("invalid hash parameters")
-	ErrInvalidSaltEncoding = errors.New("invalid salt encoding")
-	ErrInvalidHashEncoding = errors.New("invalid hash encoding")
+	ErrInvalidHashFormat   = errors.New("Invalid hash format")
+	ErrUnsupportedVersion  = errors.New("Unsupported argon2 version")
+	ErrInvalidParameters   = errors.New("Invalid hash parameters")
+	ErrInvalidSaltEncoding = errors.New("Invalid salt encoding")
+	ErrInvalidHashEncoding = errors.New("Invalid hash encoding")
 )
 
 // HashPassword generates a new hashed password string in encoded format.

@@ -3,6 +3,7 @@ package api
 import (
 	"annotate-x/model"
 	"annotate-x/service"
+	"annotate-x/utils"
 	"strconv"
 	"strings"
 
@@ -62,11 +63,11 @@ func list(c *gin.Context) {
 
 	users, total, err := service.NewUserService(appCtx.UserRepo).GetFilteredUserList(filter)
 	if err != nil {
-		c.JSON(500, gin.H{"error": "failed to get users"})
+		utils.JSONError(c, http.StatusInternalServerError, "Failed to get users")
 		return
 	}
 
-	c.JSON(200, gin.H{
+	utils.JSONSuccess(c, http.StatusOK, gin.H{
 		"limit":   limit,
 		"offset":  offset,
 		"total":   total,
@@ -77,7 +78,7 @@ func list(c *gin.Context) {
 func me(c *gin.Context) {
 	user := c.MustGet("currentUser").(*model.User)
 
-	c.JSON(http.StatusCreated, model.UserCreateResponse{
+	utils.JSONSuccess(c, http.StatusCreated, model.UserCreateResponse{
 		Username:    user.Username,
 		DisplayName: user.DisplayName,
 		Email:       user.Email,
@@ -91,14 +92,14 @@ func updateMe(c *gin.Context) {
 
 	var req model.UpdateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.JSONError(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if req.Password != "" {
 		hashedPassword, err := security.HashPassword(req.Password)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			utils.JSONError(c, http.StatusBadRequest, err.Error())
 			return
 		}
 		user.Password = hashedPassword
@@ -114,10 +115,10 @@ func updateMe(c *gin.Context) {
 
 	updatedUser, err := appCtx.UserRepo.UpdateUser(user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		utils.JSONError(c, http.StatusInternalServerError, err.Error())
 	}
 
-	c.JSON(http.StatusCreated, model.UserCreateResponse{
+	utils.JSONSuccess(c, http.StatusCreated, model.UserCreateResponse{
 		Username:    updatedUser.Username,
 		DisplayName: updatedUser.DisplayName,
 		Email:       updatedUser.Email,

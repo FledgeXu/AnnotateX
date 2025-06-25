@@ -11,6 +11,7 @@ import (
 	"annotate-x/internal/context"
 
 	"annotate-x/internal/security"
+	"annotate-x/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -33,23 +34,23 @@ func login(c *gin.Context) {
 	appCtx := c.MustGet("appCtx").(*context.AppContext)
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.JSONError(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	user, err := appCtx.UserRepo.GetUserByUsername(req.Username)
 	if err != nil || !user.IsActive {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
+		utils.JSONError(c, http.StatusUnauthorized, "Invalid username or password")
 		return
 	}
 
 	match, needsRehash, err := security.VerifyPassword(req.Password, user.Password)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		utils.JSONError(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 	if !match {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
+		utils.JSONError(c, http.StatusUnauthorized, "Invalid username or password")
 		return
 	}
 
@@ -63,13 +64,12 @@ func login(c *gin.Context) {
 
 	token, err := security.GenerateToken(user.ID, user.Username, user.Role)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		utils.JSONError(c, http.StatusInternalServerError, "Failed to generate token")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Login successful",
-		"token":   token,
+	utils.JSONSuccess(c, http.StatusOK, gin.H{
+		"token": token,
 	})
 }
 
@@ -77,7 +77,7 @@ func register(c *gin.Context) {
 	appCtx := c.MustGet("appCtx").(*context.AppContext)
 	var req model.UserCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.JSONError(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -86,11 +86,11 @@ func register(c *gin.Context) {
 
 	user, err := service.NewUserService(appCtx.UserRepo).CreateUser(req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		utils.JSONError(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusCreated, model.UserCreateResponse{
+	utils.JSONSuccess(c, http.StatusCreated, model.UserCreateResponse{
 		Username:    user.Username,
 		DisplayName: user.DisplayName,
 		Email:       user.Email,
@@ -102,14 +102,14 @@ func logout(c *gin.Context) {
 	appCtx := c.MustGet("appCtx").(*context.AppContext)
 	tokenRaw, exists := c.Get("rawToken")
 	if !exists {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing token"})
+		utils.JSONError(c, http.StatusBadRequest, "Missing token")
 		return
 	}
 	tokenStr := tokenRaw.(string)
 
 	claimsRaw, exists := c.Get("jwtClaims")
 	if !exists {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing claims"})
+		utils.JSONError(c, http.StatusBadRequest, "Missing claims")
 		return
 	}
 	claims := claimsRaw.(*security.Claims)
@@ -118,9 +118,9 @@ func logout(c *gin.Context) {
 	expiration := time.Until(claims.ExpiresAt.Time)
 	err := appCtx.CacheRepo.BlacklistToken(c.Request.Context(), tokenStr, expiration)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to logout"})
+		utils.JSONError(c, http.StatusInternalServerError, "Failed to logout")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
+	utils.JSONResponse(c, http.StatusOK, "Logged out successfully", gin.H{})
 }

@@ -3,6 +3,7 @@ package middleware
 import (
 	ctxpkg "annotate-x/internal/context"
 	"annotate-x/internal/security"
+	"annotate-x/utils"
 	"context"
 	"net/http"
 
@@ -17,7 +18,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		appCtx := c.MustGet("appCtx").(*ctxpkg.AppContext)
 		authHeader := c.GetHeader("Authorization")
 		if len(authHeader) < 7 || authHeader[:7] != "Bearer " {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authorization header missing or malformed"})
+			utils.JSONAbortWithError(c, http.StatusUnauthorized, "Authorization header missing or malformed")
 			return
 		}
 
@@ -26,17 +27,17 @@ func AuthMiddleware() gin.HandlerFunc {
 		ctx := context.Background()
 		exist, err := appCtx.CacheRepo.IsBlacklisted(ctx, tokenStr)
 		if err != nil && err != redis.Nil {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to check token blacklist"})
+			utils.JSONAbortWithError(c, http.StatusInternalServerError, "Failed to check token blacklist")
 			return
 		}
 		if exist {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Token is blacklisted"})
+			utils.JSONAbortWithError(c, http.StatusUnauthorized, "Token is blacklisted")
 			return
 		}
 
 		claims, err := security.ParseToken(tokenStr)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
+			utils.JSONAbortWithError(c, http.StatusUnauthorized, "Invalid or expired token")
 			return
 		}
 
@@ -51,7 +52,7 @@ func RequirePermissionMiddleware(enforcer *casbin.Enforcer) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		claimsRaw, exists := c.Get("jwtClaims")
 		if !exists {
-			c.AbortWithStatusJSON(401, gin.H{"error": "unauthorized"})
+			utils.JSONAbortWithError(c, http.StatusUnauthorized, "Unauthorized")
 			return
 		}
 		role := claimsRaw.(*security.Claims).Role // Get role from jwt claims.
@@ -61,11 +62,11 @@ func RequirePermissionMiddleware(enforcer *casbin.Enforcer) gin.HandlerFunc {
 
 		allowed, err := enforcer.Enforce(obj, role, act)
 		if err != nil {
-			c.AbortWithStatusJSON(500, gin.H{"error": err.Error()})
+			utils.JSONAbortWithError(c, http.StatusInternalServerError, err.Error())
 			return
 		}
 		if !allowed {
-			c.AbortWithStatusJSON(403, gin.H{"error": "forbidden"})
+			utils.JSONAbortWithError(c, http.StatusForbidden, "Forbidden")
 			return
 		}
 		c.Next()

@@ -4,6 +4,7 @@ import (
 	casbin_auth "annotate-x/internal/auth"
 	"annotate-x/internal/middleware"
 	"annotate-x/model"
+	"annotate-x/utils"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -24,17 +25,17 @@ func create(c *gin.Context) {
 	appCtx := c.MustGet("appCtx").(*context.AppContext)
 	var req model.OrganizationCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.JSONError(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	exists, err := appCtx.OrgRepo.OrganizationExists(req.Name)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		utils.JSONError(c, http.StatusUnauthorized, err.Error())
 		return
 	}
 	if exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Organization exists"})
+		utils.JSONError(c, http.StatusUnauthorized, "Organization exists")
 		return
 	}
 
@@ -45,7 +46,7 @@ func create(c *gin.Context) {
 		Description: req.Description,
 	}
 	if err := appCtx.OrgRepo.CreateOrganization(&organization); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		utils.JSONError(c, http.StatusUnauthorized, err.Error())
 		return
 	}
 	c.JSON(http.StatusCreated, organization)
@@ -54,19 +55,15 @@ func create(c *gin.Context) {
 func info(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid organization ID: must be a numeric value",
-		})
+		utils.JSONError(c, http.StatusBadRequest, "Invalid organization ID: must be a numeric value")
 		return
 	}
 	fmt.Println(id)
 	appCtx := c.MustGet("appCtx").(*context.AppContext)
 	model, err := appCtx.OrgRepo.GetOrganizationById(id)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		utils.JSONError(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, model)
+	utils.JSONSuccess(c, http.StatusOK, model)
 }

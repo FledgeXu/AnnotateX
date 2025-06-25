@@ -22,9 +22,17 @@ func JSONResponse(c *gin.Context, httpCode int, message string, data any) {
 }
 
 func JSONSuccess(c *gin.Context, httpCode int, data any) {
-	JSONResponse(c, httpCode, "success", data)
+	JSONResponse(c, httpCode, "Success", data)
 }
 
-func JSONError(c *gin.Context, httpCode int, code int, message string) {
-	JSONResponse(c, code, message, nil)
+func JSONError(c *gin.Context, httpCode int, message string) {
+	JSONResponse(c, httpCode, message, nil)
+}
+
+func JSONAbortWithError(c *gin.Context, httpCode int, message string) {
+	c.AbortWithStatusJSON(httpCode, Response{
+		Code:    httpCode,
+		Message: message,
+		Data:    gin.H{},
+	})
 }

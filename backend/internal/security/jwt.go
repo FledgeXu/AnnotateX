@@ -13,7 +13,7 @@ var jwtSecret = []byte(config.AppConfig.JWT_SECRET)
 type Claims struct {
 	UserID   int64  `json:"user_id"`
 	Username string `json:"username"`
-	Role     string `json:role`
+	Role     string `json:"role"`
 	jwt.RegisteredClaims
 }
 
@@ -45,5 +45,5 @@ func ParseToken(tokenString string) (*Claims, error) {
 	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
 		return claims, nil
 	}
-	return nil, errors.New("invalid token")
+	return nil, errors.New("Invalid token")
 }

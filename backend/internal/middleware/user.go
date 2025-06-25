@@ -5,6 +5,7 @@ import (
 
 	"annotate-x/internal/context"
 	"annotate-x/internal/security"
+	"annotate-x/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,14 +16,14 @@ func UserInjectionMiddleware() gin.HandlerFunc {
 
 		claimsRaw, exists := c.Get("jwtClaims")
 		if !exists {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "jwtClaims missing"})
+			utils.JSONAbortWithError(c, http.StatusUnauthorized, "JWT claims missing")
 			return
 		}
 		claims := claimsRaw.(*security.Claims)
 
 		user, err := appCtx.UserRepo.GetUserByID(claims.UserID)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "User not found"})
+			utils.JSONAbortWithError(c, http.StatusNotFound, "User not found")
 			return
 		}
 
