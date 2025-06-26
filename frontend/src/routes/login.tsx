@@ -1,20 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-    Box,
-    Button,
-    Card,
-    Checkbox,
-    Flex,
-    Heading,
-    Link,
-    Text,
-    TextField,
-    IconButton,
-    Callout,
-} from "@radix-ui/themes";
-import { EyeOpenIcon, InfoCircledIcon } from "@radix-ui/react-icons";
 import { z } from "zod";
 import { createAPI } from "@/config";
 import { store } from "@/store";
@@ -23,6 +9,18 @@ import type { StoreModel } from "@/store/types";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import type { Response, LoginToken } from "@/models";
+import {
+    CardHeader,
+    CardTitle,
+    Card,
+    CardContent,
+    CardFooter,
+    CardDescription,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const schema = z.object({
     username: z.string().min(3, "Username is required"),
@@ -91,98 +89,58 @@ function Login() {
     const onSubmit = handleSubmit((data) => loginMutation.mutate(data));
 
     return (
-        <Flex align="center" justify="center" height="100vh">
-            <Card size="3" className="w-full max-w-sm">
-                <form onSubmit={onSubmit}>
-                    <Flex gap={"3"} direction={"column"}>
-                        {Object.entries(errors).map(([key, error]) => (
-                            <Callout.Root key={key} color="red">
-                                <Callout.Icon>
-                                    <InfoCircledIcon />
-                                </Callout.Icon>
-                                <Callout.Text>{error?.message}</Callout.Text>
-                            </Callout.Root>
-                        ))}
-                        {loginErrorMessage && (
-                            <Callout.Root key="loginErrorMessage" color="red">
-                                <Callout.Icon>
-                                    <InfoCircledIcon />
-                                </Callout.Icon>
-                                <Callout.Text>{loginErrorMessage}</Callout.Text>
-                            </Callout.Root>
-                        )}
-                        <Heading>Login</Heading>
-                        <Controller
-                            name="username"
-                            control={control}
-                            render={({ field }) => (
-                                <Box>
-                                    <Text weight={"medium"}>Username</Text>
-                                    <TextField.Root
-                                        type="text"
-                                        placeholder="Enter your account name."
-                                        {...field}
+        <div className="flex items-center justify-center h-screen">
+            <Card className="w-full max-w-sm">
+                <CardHeader>
+                    <CardTitle>
+                        <Label className="text-xl font-bold">Login</Label>
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <form>
+                        <div className="flex flex-col gap-6">
+                            <div className="grid gap-2">
+                                <Label htmlFor="email">Email</Label>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    placeholder="m@example.com"
+                                    required
+                                />
+                            </div>
+                            <div className="grid gap-2">
+                                <div className="flex items-center">
+                                    <Label htmlFor="password">Password</Label>
+                                    <a
+                                        href="#"
+                                        className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                                     >
-                                        <TextField.Slot />
-                                    </TextField.Root>
-                                </Box>
-                            )}
-                        />
-                        <Box>
-                            <Text weight={"medium"}>Password</Text>
-
-                            <Controller
-                                name="password"
-                                control={control}
-                                render={({ field }) => (
-                                    <TextField.Root
-                                        type={visible ? "text" : "password"}
-                                        placeholder="Enter your password."
-                                        {...field}
-                                    >
-                                        <TextField.Slot />
-                                        <TextField.Slot>
-                                            <IconButton
-                                                type="button"
-                                                variant="ghost"
-                                                onClick={async () => setVisible((v) => !v)}
-                                            >
-                                                <EyeOpenIcon />
-                                            </IconButton>
-                                        </TextField.Slot>
-                                    </TextField.Root>
-                                )}
-                            />
-                        </Box>
-                        <Flex align="center" gap="2">
-                            <Controller
-                                name="agree"
-                                control={control}
-                                render={({ field }) => (
-                                    <Checkbox
-                                        checked={field.value}
-                                        onCheckedChange={(val) => field.onChange(val === true)}
-                                    />
-                                )}
-                            />
-                            <Text size="2">
-                                I have read and agree to{" "}
-                                <Link href="/terms" target="_blank">
-                                    Terms of Service
-                                </Link>
-                            </Text>
-                        </Flex>
-                        <Box>
-                            <Flex justify={"between"} align={"center"}>
-                                <Link href="/register" size={"2"} target="_blank">
-                                    Create account.
-                                </Link>
-                                <Button type="submit">Login</Button>
-                            </Flex>
-                        </Box>
-                    </Flex>
-                </form>
+                                        Forgot your password?
+                                    </a>
+                                </div>
+                                <Input id="password" type="password" required />
+                            </div>
+                            <div className="grid gap-2">
+                                <div className=" flex items-center space-x-2">
+                                    <Checkbox id="terms" />
+                                    <Label htmlFor="terms">Accept terms and conditions</Label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </CardContent>
+                <CardFooter className="flex-col gap-2">
+                    <Button type="submit" className="w-full">
+                        Login
+                    </Button>
+                    <CardDescription>
+                        Don't have account?
+                        <a href="#" className="underline ml-2">
+                            Register!
+                        </a>
+                    </CardDescription>
+                </CardFooter>
             </Card>
-        </Flex>
+        </div>
     );
 }

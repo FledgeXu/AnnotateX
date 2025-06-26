@@ -1,5 +1,4 @@
 import { RouterProvider, createRouter } from "@tanstack/react-router";
-import { Theme } from "@radix-ui/themes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import "@/main.css";
@@ -33,9 +32,7 @@ export const App = () => {
     return (
         <StoreProvider store={store}>
             <QueryClientProvider client={queryClient}>
-                <Theme>
-                    <RouterProvider router={router} context={{ userAuth }} />
-                </Theme>
+                <RouterProvider router={router} context={{ userAuth }} />
                 {import.meta.env.DEV && <ReactQueryDevtools />}
             </QueryClientProvider>
         </StoreProvider>
