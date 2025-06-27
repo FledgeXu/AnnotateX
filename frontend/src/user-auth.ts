@@ -9,7 +9,7 @@ export const useUserAuth = () => {
     try {
       const res = await api.get("/v1/users/me");
       return (res.status = HttpStatusCode.Ok);
-    } catch (err) {
+    } catch {
       return false;
     }
   };

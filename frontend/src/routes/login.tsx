@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { LoginForm } from "@/components/pages/LoginForm";
 import { CardHeader, CardTitle, Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { LoginForm } from "@/components/pages/LoginForm";
 
 export const Route = createFileRoute("/login")({
   component: Login,

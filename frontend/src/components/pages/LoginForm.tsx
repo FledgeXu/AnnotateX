@@ -1,7 +1,15 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import type { AxiosError } from "axios";
+import { useStoreActions } from "easy-peasy";
 import { Eye, EyeOff } from "lucide-react";
-import { toast } from "sonner";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -10,20 +18,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { createAPI } from "@/config";
-import { store } from "@/store";
-import { useStoreActions } from "easy-peasy";
-import type { StoreModel } from "@/store/types";
-import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import type { Response, LoginToken } from "@/models";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { createAPI } from "@/config";
 import { cn } from "@/lib/utils";
+import type { Response, LoginToken } from "@/models";
+import { store } from "@/store";
+import type { StoreModel } from "@/store/types";
 
 const schema = z.object({
   username: z.string().min(3, "Username is required"),
@@ -56,7 +57,7 @@ export const useLoginMutation = () => {
       authLogin(data.data.token);
       navigate({ to: "/" });
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<{ message?: string }>) => {
       const message = error?.response?.data?.message || "Failed to log in.";
       toast.error(`Login failed: ${message}`);
     },
