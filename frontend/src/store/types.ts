@@ -1,6 +1,5 @@
-import { AuthModel } from './models/authModel';
+import { AuthModel } from "./models/authModel";
 
 export interface StoreModel {
-    auth: AuthModel;
+  auth: AuthModel;
 }
-
