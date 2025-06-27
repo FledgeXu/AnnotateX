@@ -1,5 +1,14 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Eye, EyeOff } from "lucide-react";
 import { useForm } from "react-hook-form";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { createAPI } from "@/config";
@@ -9,18 +18,12 @@ import type { StoreModel } from "@/store/types";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import type { Response, LoginToken } from "@/models";
-import {
-    CardHeader,
-    CardTitle,
-    Card,
-    CardContent,
-    CardFooter,
-    CardDescription,
-} from "@/components/ui/card";
+import { CardHeader, CardTitle, Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
 
 const schema = z.object({
     username: z.string().min(3, "Username is required"),
@@ -76,17 +79,13 @@ const useLoginForm = () => {
 };
 
 function Login() {
-    const {
-        control,
-        handleSubmit,
-        formState: { errors },
-    } = useLoginForm();
+    const form = useLoginForm();
     const [loginErrorMessage, setLoginErrorMessage] = useState<string | null>(
         null,
     );
     const [visible, setVisible] = useState(false);
     const loginMutation = useLoginMutation(setLoginErrorMessage);
-    const onSubmit = handleSubmit((data) => loginMutation.mutate(data));
+    const onSubmit = form.handleSubmit((data) => loginMutation.mutate(data));
 
     return (
         <div className="flex items-center justify-center h-screen">
@@ -97,49 +96,95 @@ function Login() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <form>
-                        <div className="flex flex-col gap-6">
-                            <div className="grid gap-2">
-                                <Label htmlFor="email">Email</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    placeholder="m@example.com"
-                                    required
+                    <Form {...form}>
+                        <form onSubmit={onSubmit}>
+                            <div className="flex flex-col gap-4">
+                                <FormField
+                                    control={form.control}
+                                    name="username"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Username</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="Enter your account name."
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
+                                <FormField
+                                    control={form.control}
+                                    name="password"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Password</FormLabel>
+                                            <FormControl>
+                                                <div className="relative">
+                                                    <Input
+                                                        type={cn(visible ? "text" : "password")}
+                                                        id="password"
+                                                        placeholder="Enter your password"
+                                                        className="pr-10"
+                                                        {...field}
+                                                    />
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+                                                        onClick={() => setVisible((prev) => !prev)}
+                                                    >
+                                                        {visible ? (
+                                                            <EyeOff className="w-4 h-4" />
+                                                        ) : (
+                                                            <Eye className="w-4 h-4" />
+                                                        )}
+                                                        <span className="sr-only">
+                                                            Toggle password visibility
+                                                        </span>
+                                                    </Button>
+                                                </div>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="agree"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormControl>
+                                                <div className="flex items-center gap-3">
+                                                    <Checkbox
+                                                        id="terms"
+                                                        checked={field.value}
+                                                        onCheckedChange={(val) =>
+                                                            field.onChange(val === true)
+                                                        }
+                                                    />
+                                                    <Label htmlFor="terms" gap-1>
+                                                        I have read and agree to{" "}
+                                                        <a href="/terms" className="underline">
+                                                            Terms of Service{" "}
+                                                        </a>
+                                                    </Label>
+                                                </div>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <Button type="submit" className="w-full">
+                                    Login
+                                </Button>
                             </div>
-                            <div className="grid gap-2">
-                                <div className="flex items-center">
-                                    <Label htmlFor="password">Password</Label>
-                                    <a
-                                        href="#"
-                                        className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                                    >
-                                        Forgot your password?
-                                    </a>
-                                </div>
-                                <Input id="password" type="password" required />
-                            </div>
-                            <div className="grid gap-2">
-                                <div className=" flex items-center space-x-2">
-                                    <Checkbox id="terms" />
-                                    <Label htmlFor="terms">Accept terms and conditions</Label>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
+                        </form>
+                    </Form>
                 </CardContent>
-                <CardFooter className="flex-col gap-2">
-                    <Button type="submit" className="w-full">
-                        Login
-                    </Button>
-                    <CardDescription>
-                        Don't have account?
-                        <a href="#" className="underline ml-2">
-                            Register!
-                        </a>
-                    </CardDescription>
-                </CardFooter>
             </Card>
         </div>
     );
