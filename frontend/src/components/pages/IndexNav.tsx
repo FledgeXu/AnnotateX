@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useStoreActions } from "easy-peasy";
-import { Warehouse, CircleUserRound, Search } from "lucide-react";
+import { CircleUserRound, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import type { StoreModel } from "@/store/types";
 
 export const IndexNav = () => {
@@ -24,9 +25,7 @@ export const IndexNav = () => {
   };
   return (
     <nav className="flex items-center justify-between px-4 py-3 border-b-1">
-      <a href="/">
-        <Warehouse className="w-5 h-5" />
-      </a>
+      <SidebarTrigger className="w-5 h-5" />
       <div className="flex items-center gap-4 h-6">
         <Button
           variant={"secondary"}
