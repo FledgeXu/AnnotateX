@@ -48,7 +48,7 @@ CREATE TABLE organizations (
 );
 
 CREATE TABLE projects (
-    id UUID PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     code TEXT UNIQUE NOT NULL,
     name TEXT NOT NULL,
     modality TEXT NOT NULL,

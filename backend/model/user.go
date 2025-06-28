@@ -1,5 +1,7 @@
 package model
 
+import "time"
+
 type UpdateUserRequest struct {
 	Password    string `json:"password" binding:"omitempty,required,min=8,max=64"`
 	DisplayName string `json:"displayName" binding:"omitempty"`
@@ -22,13 +24,13 @@ type UserCreateResponse struct {
 }
 
 type User struct {
-	ID          int64  `db:"id"`
-	Username    string `db:"username"`
-	Password    string `db:"password_hash"`
-	DisplayName string `db:"display_name"`
-	Email       string `db:"email"`
-	IsActive    bool   `db:"is_active"`
-	CreatedAt   string `db:"created_at"`
-	UpdatedAt   string `db:"updated_at"`
-	Role        string `db:"role"`
+	ID          int64     `db:"id"`
+	Username    string    `db:"username"`
+	Password    string    `db:"password_hash"`
+	DisplayName string    `db:"display_name"`
+	Email       string    `db:"email"`
+	IsActive    bool      `db:"is_active"`
+	CreatedAt   time.Time `db:"created_at"`
+	UpdatedAt   time.Time `db:"updated_at"`
+	Role        string    `db:"role"`
 }

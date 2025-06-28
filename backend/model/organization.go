@@ -1,5 +1,7 @@
 package model
 
+import "time"
+
 type OrganizationCreateRequest struct {
 	Type        string `json:"type" binding:"required,oneof=vendor internal partner"` // OrganizationType
 	Name        string `json:"name" binding:"required"`                               // Organization name
@@ -8,12 +10,12 @@ type OrganizationCreateRequest struct {
 }
 
 type Organization struct {
-	ID          int64  `db:"id"`
-	Type        string `db:"type"`
-	Name        string `db:"name"`
-	Code        string `db:"code"`
-	Description string `db:"description"`
-	IsActive    bool   `db:"is_active"`
-	CreatedAt   string `db:"created_at"`
-	UpdatedAt   string `db:"updated_at"`
+	ID          int64     `db:"id"`
+	Type        string    `db:"type"`
+	Name        string    `db:"name"`
+	Code        string    `db:"code"`
+	Description string    `db:"description"`
+	IsActive    bool      `db:"is_active"`
+	CreatedAt   time.Time `db:"created_at"`
+	UpdatedAt   time.Time `db:"updated_at"`
 }
