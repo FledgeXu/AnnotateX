@@ -49,7 +49,6 @@ CREATE TABLE organizations (
 
 CREATE TABLE projects (
     id SERIAL PRIMARY KEY,
-    code TEXT UNIQUE NOT NULL,
     name TEXT NOT NULL,
     modality TEXT NOT NULL,
     description TEXT NOT NULL DEFAULT '',

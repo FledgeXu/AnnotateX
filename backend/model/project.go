@@ -20,7 +20,6 @@ var ValidProjectTypes = []ProjectType{
 
 type Project struct {
 	ID          int       `db:"id" json:"id"`
-	Code        string    `db:"code" json:"code"`
 	Name        string    `db:"name" json:"name"`
 	Modality    string    `db:"modality" json:"modality"`
 	Description string    `db:"description" json:"description"`

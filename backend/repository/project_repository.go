@@ -3,13 +3,8 @@ package repository
 import (
 	"annotate-x/model"
 
-	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
-
-func generateShortUUIDSlug() string {
-	return uuid.New().String()[:8]
-}
 
 type ProjectRepository struct {
 	DB *sqlx.DB
@@ -39,16 +34,13 @@ func (r *ProjectRepository) ProjectNameExists(name string) (bool, error) {
 }
 
 func (r *ProjectRepository) CreateProject(req *model.CreateProjectRequest) (*model.Project, error) {
-
 	query := `
-	INSERT INTO projects (code, name, modality, description)
-	VALUES (:code, :name, :modality, :description)
-	RETURNING id, code, name, modality, description, created_at, updated_at
+	INSERT INTO projects (name, modality, description)
+	VALUES (:name, :modality, :description)
+	RETURNING *
 	`
 
-	code := generateShortUUIDSlug()
 	args := map[string]any{
-		"code":        code,
 		"name":        req.Name,
 		"modality":    req.Modality,
 		"description": req.Description,
