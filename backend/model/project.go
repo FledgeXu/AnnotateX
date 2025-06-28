@@ -2,6 +2,22 @@ package model
 
 import "time"
 
+type ProjectType string
+
+const (
+	ProjectType2D    ProjectType = "2D"
+	ProjectType3D    ProjectType = "3D"
+	ProjectTypeAudio ProjectType = "audio"
+	ProjectTypeText  ProjectType = "text"
+)
+
+var validProjectTypes = []ProjectType{
+	ProjectType2D,
+	ProjectType3D,
+	ProjectTypeAudio,
+	ProjectTypeText,
+}
+
 type Project struct {
 	ID          int       `db:"id"`
 	Code        string    `db:"code"`
