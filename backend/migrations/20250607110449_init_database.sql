@@ -47,6 +47,16 @@ CREATE TABLE organizations (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()  -- Last update timestamp
 );
 
+CREATE TABLE projects (
+    id UUID PRIMARY KEY,
+    code TEXT UNIQUE NOT NULL,
+    name TEXT NOT NULL,
+    modality TEXT NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT now(),
+    updated_at TIMESTAMP DEFAULT now()
+);
+
 -- +goose StatementEnd
 
 -- +goose Down
