@@ -11,8 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AboutRouteImport } from './routes/about'
-import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
-import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as HomepageRouteImport } from './routes/_homepage'
+import { Route as HomepageProjectRouteImport } from './routes/_homepage/project'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -24,43 +24,43 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRoute = AuthenticatedRouteImport.update({
-  id: '/_authenticated',
+const HomepageRoute = HomepageRouteImport.update({
+  id: '/_homepage',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthenticatedRoute,
+const HomepageProjectRoute = HomepageProjectRouteImport.update({
+  id: '/project',
+  path: '/project',
+  getParentRoute: () => HomepageRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
-  '/': typeof AuthenticatedIndexRoute
+  '/project': typeof HomepageProjectRoute
 }
 export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
-  '/': typeof AuthenticatedIndexRoute
+  '/project': typeof HomepageProjectRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/_homepage': typeof HomepageRouteWithChildren
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
-  '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_homepage/project': typeof HomepageProjectRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/about' | '/login' | '/'
+  fullPaths: '/about' | '/login' | '/project'
   fileRoutesByTo: FileRoutesByTo
-  to: '/about' | '/login' | '/'
-  id: '__root__' | '/_authenticated' | '/about' | '/login' | '/_authenticated/'
+  to: '/about' | '/login' | '/project'
+  id: '__root__' | '/_homepage' | '/about' | '/login' | '/_homepage/project'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  HomepageRoute: typeof HomepageRouteWithChildren
   AboutRoute: typeof AboutRoute
   LoginRoute: typeof LoginRoute
 }
@@ -81,37 +81,37 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated': {
-      id: '/_authenticated'
+    '/_homepage': {
+      id: '/_homepage'
       path: ''
       fullPath: ''
-      preLoaderRoute: typeof AuthenticatedRouteImport
+      preLoaderRoute: typeof HomepageRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/': {
-      id: '/_authenticated/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/_homepage/project': {
+      id: '/_homepage/project'
+      path: '/project'
+      fullPath: '/project'
+      preLoaderRoute: typeof HomepageProjectRouteImport
+      parentRoute: typeof HomepageRoute
     }
   }
 }
 
-interface AuthenticatedRouteChildren {
-  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+interface HomepageRouteChildren {
+  HomepageProjectRoute: typeof HomepageProjectRoute
 }
 
-const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+const HomepageRouteChildren: HomepageRouteChildren = {
+  HomepageProjectRoute: HomepageProjectRoute,
 }
 
-const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
-  AuthenticatedRouteChildren,
+const HomepageRouteWithChildren = HomepageRoute._addFileChildren(
+  HomepageRouteChildren,
 )
 
 const rootRouteChildren: RootRouteChildren = {
-  AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  HomepageRoute: HomepageRouteWithChildren,
   AboutRoute: AboutRoute,
   LoginRoute: LoginRoute,
 }
