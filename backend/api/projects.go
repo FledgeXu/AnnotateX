@@ -1,7 +1,7 @@
 package api
 
 import (
-	casbin_auth "annotate-x/internal/auth"
+	"annotate-x/internal/auth"
 	"annotate-x/internal/context"
 	"annotate-x/internal/middleware"
 	"annotate-x/model"
@@ -13,7 +13,7 @@ import (
 
 func RegisterProjectsRouters(rg *gin.RouterGroup) {
 	group := rg.Group("/projects")
-	group.Use(middleware.AuthMiddleware(), middleware.RequirePermissionMiddleware(casbin_auth.Enforcer))
+	group.Use(middleware.AuthMiddleware(), middleware.RequirePermissionMiddleware(auth.Enforcer))
 
 	group.GET("/list", listProject)
 	group.POST("/create", createProject)
