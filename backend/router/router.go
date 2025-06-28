@@ -53,12 +53,14 @@ func setupAppContext() *context.AppContext {
 	redis := cache.InitRedis(appConfig.REDIS_ADDRESS, appConfig.REDIS_PASSWORD, appConfig.REDIS_DB)
 	userRepository := repository.NewUserRepository(db)
 	organizationRepository := repository.NewOrganizationRepository(db)
+	projectRepository := repository.NewProjectRepository(db)
 	cacheRepository := repository.NewCacheRepository(redis)
 
 	appContext := context.AppContext{
-		UserRepo:  userRepository,
-		OrgRepo:   organizationRepository,
-		CacheRepo: cacheRepository,
+		UserRepo:    userRepository,
+		OrgRepo:     organizationRepository,
+		ProjectRepo: projectRepository,
+		CacheRepo:   cacheRepository,
 	}
 
 	return &appContext
@@ -93,6 +95,7 @@ func SetupRouter() *gin.Engine {
 	api.RegisterAuthRouters(v1)
 	api.RegisterUsersRouters(v1)
 	api.RegisterOrganizationsRouters(v1)
+	api.RegisterProjectsRouters(v1)
 
 	return r
 }

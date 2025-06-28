@@ -11,7 +11,7 @@ const (
 	ProjectTypeText  ProjectType = "text"
 )
 
-var validProjectTypes = []ProjectType{
+var ValidProjectTypes = []ProjectType{
 	ProjectType2D,
 	ProjectType3D,
 	ProjectTypeAudio,
@@ -19,11 +19,17 @@ var validProjectTypes = []ProjectType{
 }
 
 type Project struct {
-	ID          int       `db:"id"`
-	Code        string    `db:"code"`
-	Name        string    `db:"name"`
-	Modality    string    `db:"modality"`
-	Description *string   `db:"description"`
-	CreatedAt   time.Time `db:"created_at"`
-	UpdatedAt   time.Time `db:"updated_at"`
+	ID          int       `db:"id" json:"id"`
+	Code        string    `db:"code" json:"code"`
+	Name        string    `db:"name" json:"name"`
+	Modality    string    `db:"modality" json:"modality"`
+	Description string    `db:"description" json:"description"`
+	CreatedAt   time.Time `db:"created_at" json:"created_at"`
+	UpdatedAt   time.Time `db:"updated_at" json:"updated_at"`
+}
+
+type CreateProjectRequest struct {
+	Name        string `json:"name" binding:"omitempty"`
+	Modality    string `json:"modality" binding:"omitempty"`
+	Description string `json:"description"`
 }

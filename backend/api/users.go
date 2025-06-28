@@ -19,12 +19,12 @@ func RegisterUsersRouters(rg *gin.RouterGroup) {
 	group := rg.Group("/users")
 	group.Use(middleware.AuthMiddleware(), middleware.RequirePermissionMiddleware(casbin_auth.Enforcer))
 
-	group.GET("/list", list)
+	group.GET("/list", userList)
 	group.GET("/me", middleware.AuthMiddleware(), middleware.UserInjectionMiddleware(), me)
 	group.PUT("/me", middleware.AuthMiddleware(), middleware.UserInjectionMiddleware(), updateMe)
 }
 
-func list(c *gin.Context) {
+func userList(c *gin.Context) {
 	appCtx := c.MustGet("appCtx").(*context.AppContext)
 	// Parse pagination
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))

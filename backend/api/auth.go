@@ -73,7 +73,7 @@ func login(c *gin.Context) {
 
 func register(c *gin.Context) {
 	appCtx := c.MustGet("appCtx").(*context.AppContext)
-	var req model.UserCreateRequest
+	var req model.CreateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.BadRequest(c, err.Error())
 		return

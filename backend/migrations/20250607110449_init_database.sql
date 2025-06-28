@@ -52,7 +52,7 @@ CREATE TABLE projects (
     code TEXT UNIQUE NOT NULL,
     name TEXT NOT NULL,
     modality TEXT NOT NULL,
-    description TEXT,
+    description TEXT NOT NULL DEFAULT '',
     created_at TIMESTAMP DEFAULT now(),
     updated_at TIMESTAMP DEFAULT now()
 );

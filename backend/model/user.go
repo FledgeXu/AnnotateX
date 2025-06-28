@@ -8,7 +8,7 @@ type UpdateUserRequest struct {
 	Email       string `json:"email" binding:"omitempty,email"`
 }
 
-type UserCreateRequest struct {
+type CreateUserRequest struct {
 	Username    string `json:"username" binding:"required"`
 	Password    string `json:"password" binding:"required,min=8,max=64"`
 	DisplayName string `json:"displayName"`

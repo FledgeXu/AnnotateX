@@ -7,9 +7,10 @@ import (
 )
 
 type AppContext struct {
-	UserRepo  *repository.UserRepository
-	OrgRepo   *repository.OrganizationRepository
-	CacheRepo *repository.CacheRepository
+	UserRepo    *repository.UserRepository
+	OrgRepo     *repository.OrganizationRepository
+	ProjectRepo *repository.ProjectRepository
+	CacheRepo   *repository.CacheRepository
 }
 
 func InjectAppContext(app *AppContext) gin.HandlerFunc {

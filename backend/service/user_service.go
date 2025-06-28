@@ -21,7 +21,7 @@ func NewUserService(repo *repository.UserRepository) *UserService {
 	return &UserService{repo: repo}
 }
 
-func (s *UserService) CreateUser(req model.UserCreateRequest) (*model.User, error) {
+func (s *UserService) CreateUser(req model.CreateUserRequest) (*model.User, error) {
 	exists, err := s.repo.UsernameExists(req.Username)
 	if err != nil {
 		return nil, err
