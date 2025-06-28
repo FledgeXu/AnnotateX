@@ -1,5 +1,10 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { IndexNav } from "@/components/pages/IndexNav";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarProvider,
+} from "@/components/ui/sidebar";
 
 export const Route = createFileRoute("/_homepage")({
   beforeLoad: async ({ context }) => {
@@ -12,9 +17,14 @@ export const Route = createFileRoute("/_homepage")({
 
 function AuthenticatedLayout() {
   return (
-    <>
-      <IndexNav />
-      <Outlet />
-    </>
+    <SidebarProvider>
+      <Sidebar>
+        <SidebarContent />
+      </Sidebar>
+      <div className="w-full">
+        <IndexNav />
+        <Outlet />
+      </div>
+    </SidebarProvider>
   );
 }
