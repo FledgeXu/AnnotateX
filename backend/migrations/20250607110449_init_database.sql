@@ -51,6 +51,7 @@ CREATE TABLE projects (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     modality TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'active',
     description TEXT NOT NULL DEFAULT '',
     created_at TIMESTAMP DEFAULT now(),
     updated_at TIMESTAMP DEFAULT now()

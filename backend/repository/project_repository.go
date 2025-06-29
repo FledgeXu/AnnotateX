@@ -35,14 +35,15 @@ func (r *ProjectRepository) ProjectNameExists(name string) (bool, error) {
 
 func (r *ProjectRepository) CreateProject(req *model.CreateProjectRequest) (*model.Project, error) {
 	query := `
-	INSERT INTO projects (name, modality, description)
-	VALUES (:name, :modality, :description)
+	INSERT INTO projects (name, modality, status, description)
+	VALUES (:name, :modality, :status, :description)
 	RETURNING *
 	`
 
 	args := map[string]any{
 		"name":        req.Name,
 		"modality":    req.Modality,
+		"status":      "active",
 		"description": req.Description,
 	}
 

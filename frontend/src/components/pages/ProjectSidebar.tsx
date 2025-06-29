@@ -15,7 +15,6 @@ export const ProjectSidebar = () => {
         queryFn: async () => {
             const api = createAPI(store);
             const res = await api.get("/v1/projects/list");
-            // console.log(res.data.data.results);
             return res.data;
         },
     });
@@ -36,7 +35,11 @@ export const ProjectSidebar = () => {
                 <div className="flex-1 min-h-0">
                     <ScrollArea className="flex-1 h-full">
                         {data?.data.results.map((project) => (
-                            <div key={project.id}>{project.name}</div>
+                            <a href="/project/" key={project.id}>
+                                <div className="p-2 w-full hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50">
+                                    {project.name}, {project.status}
+                                </div>
+                            </a>
                         ))}
                     </ScrollArea>
                 </div>
