@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { SearchIcon, SquarePlus } from "lucide-react";
 import { SearchInput } from "@/components/pages/IconInput";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { createAPI } from "@/config";
@@ -15,6 +16,7 @@ export const ProjectSidebar = () => {
         queryFn: async () => {
             const api = createAPI(store);
             const res = await api.get("/v1/projects/list");
+            console.log(res.data);
             return res.data;
         },
     });
@@ -36,8 +38,12 @@ export const ProjectSidebar = () => {
                     <ScrollArea className="flex-1 h-full">
                         {data?.data.results.map((project) => (
                             <a href="/project/" key={project.id}>
-                                <div className="p-2 w-full hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50">
-                                    {project.name}, {project.status}
+                                <div className="p-2 w-full hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 rounded-sm">
+                                    <div>{project.name}</div>
+                                    <div>
+                                        <Badge>{project.status}</Badge>
+                                        {project.created_at}
+                                    </div>
                                 </div>
                             </a>
                         ))}

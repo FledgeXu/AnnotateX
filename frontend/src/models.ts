@@ -21,6 +21,6 @@ export interface Project {
   modality: string;
   status: ProjectStatus;
   description: string;
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
 }
