@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { HomePageSidebar } from "@/components/pages/HomePageSidebar";
 import { IndexNav } from "@/components/pages/IndexNav";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { HomePageSidebar } from "@/components/pages/HomePageSidebar";
 
 export const Route = createFileRoute("/_homepage")({
   beforeLoad: async ({ context }) => {
@@ -14,11 +14,11 @@ export const Route = createFileRoute("/_homepage")({
 
 function AuthenticatedLayout() {
   return (
-    <SidebarProvider>
+    <SidebarProvider className="h-full">
       <HomePageSidebar />
-      <div className="flex flex-col w-full h-dvh">
+      <div className="w-full h-full flex flex-col">
         <IndexNav />
-        <div className="flex-1 p-4">
+        <div className="flex-1 min-h-0 p-2">
           <Outlet />
         </div>
       </div>

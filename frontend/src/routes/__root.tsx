@@ -8,9 +8,9 @@ interface IRouterContext {
 
 export const Route = createRootRouteWithContext<IRouterContext>()({
   component: () => (
-    <>
+    <div className="h-dvh">
       <Outlet />
       {import.meta.env.DEV && <TanStackRouterDevtools />}
-    </>
+    </div>
   ),
 });
