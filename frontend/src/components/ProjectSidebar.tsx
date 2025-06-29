@@ -1,9 +1,25 @@
+import { useQuery } from "@tanstack/react-query";
 import { SearchIcon, SquarePlus } from "lucide-react";
 import { SearchInput } from "@/components/pages/IconInput";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { createAPI } from "@/config";
+import type { ProjectResponse, Response } from "@/models";
+import { store } from "@/store";
 
 export const ProjectSidebar = () => {
+    const { isPending, error, data, isFetching } = useQuery<
+        Response<ProjectResponse>
+    >({
+        queryKey: ["queryProjects"],
+        queryFn: async () => {
+            const api = createAPI(store);
+            const res = await api.get("/v1/projects/list");
+            // console.log(res.data.data.results);
+            return res.data;
+        },
+    });
+
     return (
         <>
             <div className="h-full w-sm flex flex-col gap-2">
@@ -19,11 +35,9 @@ export const ProjectSidebar = () => {
                 />
                 <div className="flex-1 min-h-0">
                     <ScrollArea className="flex-1 h-full">
-                        <div className="p-2">
-                            {Array.from({ length: 200 }).map((_, i) => (
-                                <div key={i}>HHHH</div>
-                            ))}
-                        </div>
+                        {data?.data.results.map((project) => (
+                            <div key={project.id}>{project.name}</div>
+                        ))}
                     </ScrollArea>
                 </div>
             </div>

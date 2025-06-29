@@ -7,3 +7,16 @@ export interface Response<T = unknown> {
 export interface LoginToken {
   token: string;
 }
+
+export interface ProjectResponse {
+  results: Project[]
+}
+
+export interface Project {
+  id: number;
+  name: string;
+  modality: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+}
