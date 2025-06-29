@@ -24,7 +24,7 @@ export const IndexNav = () => {
     navigate({ to: "/login" });
   };
   return (
-    <nav className="flex items-center justify-between px-4 py-3 border-b-1">
+    <nav className="flex items-center justify-between px-4 py-3">
       <SidebarTrigger className="w-5 h-5" />
       <div className="flex items-center gap-4 h-6">
         <Button
