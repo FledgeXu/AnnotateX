@@ -25,6 +25,9 @@ func listProject(c *gin.Context) {
 	if err != nil {
 		utils.InternalServerError(c, err.Error())
 	}
+	if projects == nil {
+		projects = []model.Project{}
+	}
 	utils.OK(c, gin.H{
 		"results": projects,
 	})
