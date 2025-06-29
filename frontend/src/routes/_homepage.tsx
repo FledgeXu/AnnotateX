@@ -3,6 +3,7 @@ import { IndexNav } from "@/components/pages/IndexNav";
 import {
   Sidebar,
   SidebarContent,
+  SidebarHeader,
   SidebarProvider,
 } from "@/components/ui/sidebar";
 
@@ -19,6 +20,7 @@ function AuthenticatedLayout() {
   return (
     <SidebarProvider>
       <Sidebar>
+        <SidebarHeader>AnnotateX</SidebarHeader>
         <SidebarContent />
       </Sidebar>
       <div className="w-full">
