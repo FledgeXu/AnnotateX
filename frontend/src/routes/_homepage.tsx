@@ -16,9 +16,11 @@ function AuthenticatedLayout() {
   return (
     <SidebarProvider>
       <HomePageSidebar />
-      <div className="w-full">
+      <div className="flex flex-col w-full h-dvh">
         <IndexNav />
-        <Outlet />
+        <div className="flex-1 p-4">
+          <Outlet />
+        </div>
       </div>
     </SidebarProvider>
   );
