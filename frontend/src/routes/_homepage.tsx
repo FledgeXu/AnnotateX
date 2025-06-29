@@ -1,11 +1,7 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { HomePageSidebar } from "@/components/pages/HomePageSidebar";
 import { IndexNav } from "@/components/pages/IndexNav";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarProvider,
-} from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 export const Route = createFileRoute("/_homepage")({
   beforeLoad: async ({ context }) => {
@@ -19,10 +15,7 @@ export const Route = createFileRoute("/_homepage")({
 function AuthenticatedLayout() {
   return (
     <SidebarProvider>
-      <Sidebar>
-        <SidebarHeader>AnnotateX</SidebarHeader>
-        <SidebarContent />
-      </Sidebar>
+      <HomePageSidebar />
       <div className="w-full">
         <IndexNav />
         <Outlet />
