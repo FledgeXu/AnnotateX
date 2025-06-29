@@ -18,7 +18,7 @@ function AuthenticatedLayout() {
       <HomePageSidebar />
       <div className="w-full h-full flex flex-col">
         <IndexNav />
-        <div className="flex-1 min-h-0 p-2">
+        <div className="flex-1 min-h-0 p-4">
           <Outlet />
         </div>
       </div>
