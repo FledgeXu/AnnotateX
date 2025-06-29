@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_homepage/project")({
 function RouteComponent() {
   return (
     <div className="flex h-full w-full gap-2">
-      <div className="w-xs">
+      <div className="flex flex-col w-xs gap-1">
         <div className="flex justify-between">
           <h1 className="text-2xl font-bold">Project</h1>
           <Button variant={"ghost"}>
@@ -23,7 +23,7 @@ function RouteComponent() {
         />
       </div>
 
-      <div className="bg-amber-300 w-full h-full">HHH</div>
+      <div className="bg-gray-100 rounded-sm border w-full h-full">HHH</div>
     </div>
   );
 }
