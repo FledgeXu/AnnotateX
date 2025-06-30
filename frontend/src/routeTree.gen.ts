@@ -14,6 +14,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as HomepageRouteImport } from './routes/_homepage'
 import { Route as HomepageIndexRouteImport } from './routes/_homepage/index'
 import { Route as HomepageProjectRouteImport } from './routes/_homepage/project'
+import { Route as HomepageProjectIdRouteImport } from './routes/_homepage/project/$id'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -39,32 +40,40 @@ const HomepageProjectRoute = HomepageProjectRouteImport.update({
   path: '/project',
   getParentRoute: () => HomepageRoute,
 } as any)
+const HomepageProjectIdRoute = HomepageProjectIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => HomepageProjectRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
-  '/project': typeof HomepageProjectRoute
+  '/project': typeof HomepageProjectRouteWithChildren
   '/': typeof HomepageIndexRoute
+  '/project/$id': typeof HomepageProjectIdRoute
 }
 export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
-  '/project': typeof HomepageProjectRoute
+  '/project': typeof HomepageProjectRouteWithChildren
   '/': typeof HomepageIndexRoute
+  '/project/$id': typeof HomepageProjectIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_homepage': typeof HomepageRouteWithChildren
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
-  '/_homepage/project': typeof HomepageProjectRoute
+  '/_homepage/project': typeof HomepageProjectRouteWithChildren
   '/_homepage/': typeof HomepageIndexRoute
+  '/_homepage/project/$id': typeof HomepageProjectIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/about' | '/login' | '/project' | '/'
+  fullPaths: '/about' | '/login' | '/project' | '/' | '/project/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/about' | '/login' | '/project' | '/'
+  to: '/about' | '/login' | '/project' | '/' | '/project/$id'
   id:
     | '__root__'
     | '/_homepage'
@@ -72,6 +81,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/_homepage/project'
     | '/_homepage/'
+    | '/_homepage/project/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -117,16 +127,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HomepageProjectRouteImport
       parentRoute: typeof HomepageRoute
     }
+    '/_homepage/project/$id': {
+      id: '/_homepage/project/$id'
+      path: '/$id'
+      fullPath: '/project/$id'
+      preLoaderRoute: typeof HomepageProjectIdRouteImport
+      parentRoute: typeof HomepageProjectRoute
+    }
   }
 }
 
+interface HomepageProjectRouteChildren {
+  HomepageProjectIdRoute: typeof HomepageProjectIdRoute
+}
+
+const HomepageProjectRouteChildren: HomepageProjectRouteChildren = {
+  HomepageProjectIdRoute: HomepageProjectIdRoute,
+}
+
+const HomepageProjectRouteWithChildren = HomepageProjectRoute._addFileChildren(
+  HomepageProjectRouteChildren,
+)
+
 interface HomepageRouteChildren {
-  HomepageProjectRoute: typeof HomepageProjectRoute
+  HomepageProjectRoute: typeof HomepageProjectRouteWithChildren
   HomepageIndexRoute: typeof HomepageIndexRoute
 }
 
 const HomepageRouteChildren: HomepageRouteChildren = {
-  HomepageProjectRoute: HomepageProjectRoute,
+  HomepageProjectRoute: HomepageProjectRouteWithChildren,
   HomepageIndexRoute: HomepageIndexRoute,
 }
 
