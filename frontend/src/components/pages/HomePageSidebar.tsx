@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { PanelsTopLeft } from "lucide-react";
 import {
     Sidebar,
@@ -22,10 +23,10 @@ export const HomePageSidebar = () => {
                         <SidebarGroupContent>
                             <SidebarMenuItem>
                                 <SidebarMenuButton asChild>
-                                    <a href="/project">
+                                    <Link to="/project">
                                         <PanelsTopLeft />
                                         <span>Projects</span>
-                                    </a>
+                                    </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                         </SidebarGroupContent>

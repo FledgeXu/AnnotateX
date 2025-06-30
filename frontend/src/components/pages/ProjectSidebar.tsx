@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { SearchIcon, SquarePlus } from "lucide-react";
 import { SearchInput } from "@/components/pages/IconInput";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +21,11 @@ type ProjectListProps = {
 const ProjectList = ({ projects }: ProjectListProps) => (
     <ScrollArea className="h-full">
         {projects.map((project, index) => (
-            <a href={`/project/${project.id}`} key={project.id}>
+            <Link
+                to="/project/$id"
+                params={{ id: String(project.id) }}
+                key={project.id}
+            >
                 <div className="p-2 w-full hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 rounded-sm">
                     <div className="flex justify-between items-center">
                         <div className="pb-2 font-medium">{project.name}</div>
@@ -33,7 +38,7 @@ const ProjectList = ({ projects }: ProjectListProps) => (
                     </span>
                 </div>
                 {index < projects.length - 1 && <Separator className="m-2" />}
-            </a>
+            </Link>
         ))}
     </ScrollArea>
 );
