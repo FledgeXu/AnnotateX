@@ -1,6 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Plus, SearchIcon } from "lucide-react";
+import { useEffect } from "react";
+import { toast } from "sonner";
+import { Skeleton } from "../ui/skeleton";
 import { SearchInput } from "@/components/pages/IconInput";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -52,6 +55,11 @@ export const ProjectSidebar = () => {
             return res.data;
         },
     });
+    useEffect(() => {
+        if (error) {
+            toast.error("Fail to load projects.");
+        }
+    }, [error]);
 
     return (
         <div className="h-full w-sm flex flex-col gap-2">
@@ -67,6 +75,13 @@ export const ProjectSidebar = () => {
             />
             <div className="flex-1 min-h-0">
                 {data && <ProjectList projects={data.data} />}
+                {(isPending || isFetching) && (
+                    <div className="space-y-2">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-2/3" />
+                        <Skeleton className="h-4 w-1/3" />
+                    </div>
+                )}
             </div>
         </div>
     );
