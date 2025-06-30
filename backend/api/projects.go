@@ -28,9 +28,7 @@ func listProject(c *gin.Context) {
 	if projects == nil {
 		projects = []model.Project{}
 	}
-	utils.OK(c, gin.H{
-		"results": projects,
-	})
+	utils.OK(c, projects)
 }
 
 func createProject(c *gin.Context) {
