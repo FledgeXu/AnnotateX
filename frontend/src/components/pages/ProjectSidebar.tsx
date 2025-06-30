@@ -4,6 +4,7 @@ import { SearchInput } from "@/components/pages/IconInput";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import { createAPI } from "@/config";
 import type { ProjectResponse, Response } from "@/models";
 import { store } from "@/store";
@@ -40,7 +41,7 @@ export const ProjectSidebar = () => {
             />
             <div className="flex-1 min-h-0">
                 <ScrollArea className="flex-1 h-full">
-                    {data?.data.results.map((project) => (
+                    {data?.data.results.map((project, index) => (
                         <a href="/project/" key={project.id}>
                             <div className="p-2 w-full hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 rounded-sm">
                                 <div className="flex justify-between items-center">
@@ -49,8 +50,13 @@ export const ProjectSidebar = () => {
                                         {project.status}
                                     </Badge>
                                 </div>
-                                <span className="text-sm text-gray-500">{localizedDateFromISO(project.created_at)}</span>
+                                <span className="text-sm text-gray-500">
+                                    {localizedDateFromISO(project.created_at)}
+                                </span>
                             </div>
+                            {index < data?.data.results.length - 1 && (
+                                <Separator className="m-2" />
+                            )}
                         </a>
                     ))}
                 </ScrollArea>
