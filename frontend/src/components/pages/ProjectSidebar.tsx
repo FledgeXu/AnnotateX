@@ -20,7 +20,7 @@ type ProjectListProps = {
 const ProjectList = ({ projects }: ProjectListProps) => (
     <ScrollArea className="h-full">
         {projects.map((project, index) => (
-            <a href="/project/" key={project.id}>
+            <a href={`/project/${project.id}`} key={project.id}>
                 <div className="p-2 w-full hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 rounded-sm">
                     <div className="flex justify-between items-center">
                         <div className="pb-2 font-medium">{project.name}</div>
