@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { SearchIcon, SquarePlus } from "lucide-react";
+import { Plus, SearchIcon } from "lucide-react";
 import { SearchInput } from "@/components/pages/IconInput";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -57,8 +57,8 @@ export const ProjectSidebar = () => {
         <div className="h-full w-sm flex flex-col gap-2">
             <div className="flex justify-between">
                 <h1 className="text-2xl font-bold">Project</h1>
-                <Button variant={"ghost"}>
-                    <SquarePlus />
+                <Button variant={"outline"}>
+                    <Plus />
                 </Button>
             </div>
             <SearchInput
