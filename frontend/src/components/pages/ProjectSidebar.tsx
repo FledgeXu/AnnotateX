@@ -8,7 +8,6 @@ import { CreateProjectDialog } from "./CreateProjectDialog";
 import { SearchInput } from "@/components/pages/IconInput";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { createAPI } from "@/config";
@@ -67,16 +66,11 @@ export const ProjectSidebar = () => {
         <div className="h-full w-sm flex flex-col gap-2">
             <div className="flex justify-between">
                 <h1 className="text-2xl font-bold">Project</h1>
-                <Dialog>
-                    <DialogTrigger asChild>
-                        <Button variant={"outline"}>
-                            <Plus />
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <CreateProjectDialog />
-                    </DialogContent>
-                </Dialog>
+                <CreateProjectDialog>
+                    <Button variant={"outline"}>
+                        <Plus />
+                    </Button>
+                </CreateProjectDialog>
             </div>
             <SearchInput
                 placeholder="Search..."
