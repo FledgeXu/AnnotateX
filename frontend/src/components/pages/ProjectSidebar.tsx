@@ -22,14 +22,14 @@ type ProjectListProps = {
     projects: Project[];
 };
 const ProjectList = ({ projects }: ProjectListProps) => (
-    <ScrollArea className="h-full">
+    <ScrollArea className="h-full pr-3">
         {projects.map((project, index) => (
             <Link
                 to="/project/$id"
                 params={{ id: String(project.id) }}
                 key={project.id}
             >
-                <div className="p-2 w-full hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 rounded-sm">
+                <div className="w-full hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 rounded-sm">
                     <div className="flex justify-between items-center">
                         <div className="pb-2 font-medium">{project.name}</div>
                         <Badge className={statusColorMap.get(project.status)}>
