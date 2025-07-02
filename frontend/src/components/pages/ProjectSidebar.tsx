@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
+import { useStoreActions, useStoreState } from "easy-peasy";
 import { Plus, SearchIcon } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
@@ -13,6 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { createAPI } from "@/config";
 import type { Project, Response } from "@/models";
 import { store } from "@/store";
+import type { StoreModel } from "@/store/types";
 import { localizedDateFromISO } from "@/utils/date";
 const statusColorMap = new Map<string, string>([
     ["active", "bg-green-600 text-white"],
@@ -48,11 +50,15 @@ const ProjectList = ({ projects }: ProjectListProps) => (
 );
 
 export const ProjectSidebar = () => {
+    const updateProjects = useStoreActions<StoreModel>(
+        (state) => state.projects.updateProjects,
+    );
     const { isPending, error, data, isFetching } = useQuery<Response<Project[]>>({
         queryKey: ["queryProjects"],
         queryFn: async () => {
             const api = createAPI(store);
             const res = await api.get("/v1/projects/list");
+            updateProjects(res.data.data);
             return res.data;
         },
     });
@@ -61,6 +67,9 @@ export const ProjectSidebar = () => {
             toast.error("Fail to load projects.");
         }
     }, [error]);
+    const projects = useStoreState<StoreModel>(
+        (state) => state.projects.projects,
+    );
 
     return (
         <div className="h-full w-sm flex flex-col gap-2">
@@ -77,7 +86,7 @@ export const ProjectSidebar = () => {
                 startIcon={<SearchIcon className="w-4 h-4" />}
             />
             <div className="flex-1 min-h-0">
-                {data && <ProjectList projects={data.data} />}
+                {data && <ProjectList projects={projects} />}
                 {(isPending || isFetching) && (
                     <div className="space-y-2">
                         <Skeleton className="h-4 w-full" />
