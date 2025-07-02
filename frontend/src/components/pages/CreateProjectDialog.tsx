@@ -1,6 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import type { AxiosError } from "axios";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import z from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,23 +34,51 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { createAPI } from "@/config";
+import type { Response, Project } from "@/models";
+import { store } from "@/store";
 
-const projectType = ["2D", "3D", "audio", "text"] as const;
+const projectModality = ["2D", "3D", "audio", "text"] as const;
 
 const schema = z.object({
     name: z.string().min(3, "Project is required"),
     description: z.string(),
-    type: z.enum(projectType),
+    modality: z.enum(projectModality),
 });
 type FormData = z.infer<typeof schema>;
 
-const useLoginForm = () => {
+const useCreateProjectForm = () => {
     return useForm<FormData>({
         resolver: zodResolver(schema),
         defaultValues: {
             name: "",
+            modality: "2D",
             description: "",
-            type: "2D",
+        },
+    });
+};
+
+export const createProject = async (
+    data: FormData,
+): Promise<Response<Project>> => {
+    const api = createAPI(store);
+    const res = await api.post("/v1/projects/create", {
+        name: data.name,
+        modality: data.modality,
+        description: data.description,
+    });
+    return res.data;
+};
+
+export const useCreateProjectMutation = (setOpen: (value: boolean) => void) => {
+    return useMutation({
+        mutationFn: createProject,
+        onSuccess: (data) => {
+            setOpen(false);
+        },
+        onError: (error: AxiosError<{ message?: string }>) => {
+            const message = error?.response?.data?.message || "Failed to log in.";
+            toast.error(`Login failed: ${message}`);
         },
     });
 };
@@ -58,7 +89,11 @@ export const CreateProjectDialog = ({
     children: React.ReactNode;
 }) => {
     const [open, setOpen] = useState(false);
-    const form = useLoginForm();
+    const form = useCreateProjectForm();
+    const createProjectMutation = useCreateProjectMutation(setOpen);
+    const onSubmit = form.handleSubmit((data) =>
+        createProjectMutation.mutate(data),
+    );
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -72,7 +107,7 @@ export const CreateProjectDialog = ({
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
-                    <form autoComplete="off">
+                    <form onSubmit={onSubmit} autoComplete="off">
                         <div className="flex flex-col gap-4">
                             <FormField
                                 control={form.control}
@@ -90,10 +125,10 @@ export const CreateProjectDialog = ({
 
                             <FormField
                                 control={form.control}
-                                name="type"
+                                name="modality"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Email</FormLabel>
+                                        <FormLabel>Modality</FormLabel>
                                         <Select
                                             onValueChange={field.onChange}
                                             defaultValue={field.value}
@@ -104,8 +139,10 @@ export const CreateProjectDialog = ({
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                {projectType.map((t, _) => (
-                                                    <SelectItem value={t}>{t}</SelectItem>
+                                                {projectModality.map((t, _) => (
+                                                    <SelectItem key={t} value={t}>
+                                                        {t}
+                                                    </SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
@@ -138,7 +175,7 @@ export const CreateProjectDialog = ({
                                 Close
                             </Button>
                         </DialogClose>
-                        <Button>Create</Button>
+                        <Button onClick={() => onSubmit()}>Create</Button>
                     </DialogFooter>
                 </Form>
             </DialogContent>
