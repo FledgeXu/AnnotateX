@@ -53,20 +53,29 @@ export const ProjectSidebar = () => {
     const updateProjects = useStoreActions<StoreModel>(
         (state) => state.projects.updateProjects,
     );
-    const { isPending, error, data, isFetching } = useQuery<Response<Project[]>>({
+    const { isPending, error, data, isFetching, isSuccess } = useQuery<
+        Response<Project[]>
+    >({
         queryKey: ["queryProjects"],
         queryFn: async () => {
             const api = createAPI(store);
             const res = await api.get("/v1/projects/list");
-            updateProjects(res.data.data);
             return res.data;
         },
     });
+
+    useEffect(() => {
+        if (data) {
+            updateProjects(data.data);
+        }
+    }, [data]);
+
     useEffect(() => {
         if (error) {
             toast.error("Fail to load projects.");
         }
     }, [error]);
+
     const projects = useStoreState<StoreModel>(
         (state) => state.projects.projects,
     );
@@ -86,7 +95,7 @@ export const ProjectSidebar = () => {
                 startIcon={<SearchIcon className="w-4 h-4" />}
             />
             <div className="flex-1 min-h-0">
-                {data && <ProjectList projects={projects} />}
+                {isSuccess && <ProjectList projects={projects} />}
                 {(isPending || isFetching) && (
                     <div className="space-y-2">
                         <Skeleton className="h-4 w-full" />
