@@ -49,13 +49,20 @@ const ProjectList = ({ projects }: ProjectListProps) => (
     </ScrollArea>
 );
 
-export const ProjectSidebar = () => {
+const ProjectSkeleton = () => (
+    <div className="space-y-2">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-2/3" />
+        <Skeleton className="h-4 w-1/3" />
+    </div>
+);
+
+const useFetchingProjects = () => {
     const updateProjects = useStoreActions<StoreModel>(
         (state) => state.projects.updateProjects,
     );
-    const { isPending, error, data, isFetching, isSuccess } = useQuery<
-        Response<Project[]>
-    >({
+
+    const { error, data, isFetching, isSuccess } = useQuery<Response<Project[]>>({
         queryKey: ["queryProjects"],
         queryFn: async () => {
             const api = createAPI(store);
@@ -65,16 +72,22 @@ export const ProjectSidebar = () => {
     });
 
     useEffect(() => {
-        if (data) {
+        if (isSuccess && data) {
             updateProjects(data.data);
         }
-    }, [data]);
+    }, [isSuccess]);
 
     useEffect(() => {
         if (error) {
             toast.error("Fail to load projects.");
         }
     }, [error]);
+
+    return [isFetching, isSuccess];
+};
+
+export const ProjectSidebar = () => {
+    const [isFetching, isSuccess] = useFetchingProjects();
 
     const projects = useStoreState<StoreModel>(
         (state) => state.projects.projects,
@@ -96,13 +109,7 @@ export const ProjectSidebar = () => {
             />
             <div className="flex-1 min-h-0">
                 {isSuccess && <ProjectList projects={projects} />}
-                {(isPending || isFetching) && (
-                    <div className="space-y-2">
-                        <Skeleton className="h-4 w-full" />
-                        <Skeleton className="h-4 w-2/3" />
-                        <Skeleton className="h-4 w-1/3" />
-                    </div>
-                )}
+                {isFetching && <ProjectSkeleton />}
             </div>
         </div>
     );
