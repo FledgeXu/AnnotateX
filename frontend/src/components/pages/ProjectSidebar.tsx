@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useStoreActions, useStoreState } from "easy-peasy";
-import { Plus, SearchIcon } from "lucide-react";
+import { ArrowUpDown, ListFilter, Plus, SearchIcon } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { Skeleton } from "../ui/skeleton";
@@ -10,6 +10,13 @@ import { SearchInput } from "@/components/pages/IconInput";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { createAPI } from "@/config";
 import type { Project, Response } from "@/models";
@@ -107,6 +114,28 @@ export const ProjectSidebar = () => {
                 placeholder="Search..."
                 startIcon={<SearchIcon className="w-4 h-4" />}
             />
+            <div className="flex gap-4">
+                <Select>
+                    <SelectTrigger className="w-full">
+                        <ListFilter />
+                        <SelectValue placeholder="Filter" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="light">Name</SelectItem>
+                        <SelectItem value="dark">Create Time</SelectItem>
+                    </SelectContent>
+                </Select>
+                <Select>
+                    <SelectTrigger className="w-full">
+                        <ArrowUpDown />
+                        <SelectValue placeholder="Sort" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="light">Increase</SelectItem>
+                        <SelectItem value="dark">Decrease</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
             <div className="flex-1 min-h-0">
                 {isSuccess && <ProjectList projects={projects} />}
                 {isFetching && <ProjectSkeleton />}
