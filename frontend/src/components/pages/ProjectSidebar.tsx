@@ -1,68 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
 import { useStoreActions, useStoreState } from "easy-peasy";
-import { ArrowUpDown, ListFilter, Plus, SearchIcon } from "lucide-react";
+import { Plus, SearchIcon } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
-import { Skeleton } from "../ui/skeleton";
 import { CreateProjectDialog } from "./CreateProjectDialog";
+import { ProjectLoadingSkeleton } from "./ProjectLoadingSkeleton";
+import { ProjectsFilterSelect } from "./ProjectsFilterSelect";
+import { ProjectsList } from "./ProjectsList";
+import { ProjectsSortSelect } from "./ProjectsSortSelect";
 import { SearchInput } from "@/components/pages/IconInput";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { createAPI } from "@/config";
 import type { Project, Response } from "@/models";
 import { store } from "@/store";
 import type { StoreModel } from "@/store/types";
-import { localizedDateFromISO } from "@/utils/date";
-const statusColorMap = new Map<string, string>([
-    ["active", "bg-green-600 text-white"],
-    ["archive", "bg-gray-200 text-gray-800"],
-]);
-
-type ProjectListProps = {
-    projects: Project[];
-};
-const ProjectList = ({ projects }: ProjectListProps) => (
-    <ScrollArea className="h-full pr-3">
-        {projects.map((project, index) => (
-            <Link
-                to="/project/$id"
-                params={{ id: String(project.id) }}
-                key={project.id}
-            >
-                <div className="w-full hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 rounded-sm">
-                    <div className="flex justify-between items-center">
-                        <div className="pb-2 font-medium">{project.name}</div>
-                        <Badge className={statusColorMap.get(project.status)}>
-                            {project.status}
-                        </Badge>
-                    </div>
-                    <span className="text-sm text-gray-500">
-                        {localizedDateFromISO(project.created_at)}
-                    </span>
-                </div>
-                {index < projects.length - 1 && <Separator className="m-2" />}
-            </Link>
-        ))}
-    </ScrollArea>
-);
-
-const ProjectSkeleton = () => (
-    <div className="space-y-2">
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-2/3" />
-        <Skeleton className="h-4 w-1/3" />
-    </div>
-);
 
 const useFetchingProjects = () => {
     const updateProjects = useStoreActions<StoreModel>(
@@ -115,30 +66,12 @@ export const ProjectSidebar = () => {
                 startIcon={<SearchIcon className="w-4 h-4" />}
             />
             <div className="flex gap-4">
-                <Select>
-                    <SelectTrigger className="w-full">
-                        <ListFilter />
-                        <SelectValue placeholder="Filter" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="light">Name</SelectItem>
-                        <SelectItem value="dark">Create Time</SelectItem>
-                    </SelectContent>
-                </Select>
-                <Select>
-                    <SelectTrigger className="w-full">
-                        <ArrowUpDown />
-                        <SelectValue placeholder="Sort" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="light">Increase</SelectItem>
-                        <SelectItem value="dark">Decrease</SelectItem>
-                    </SelectContent>
-                </Select>
+                <ProjectsFilterSelect />
+                <ProjectsSortSelect />
             </div>
             <div className="flex-1 min-h-0">
-                {isSuccess && <ProjectList projects={projects} />}
-                {isFetching && <ProjectSkeleton />}
+                {isSuccess && <ProjectsList projects={projects} />}
+                {isFetching && <ProjectLoadingSkeleton />}
             </div>
         </div>
     );
