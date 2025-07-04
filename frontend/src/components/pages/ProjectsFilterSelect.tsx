@@ -16,7 +16,7 @@ export const ProjectsFilterSelect = ({ className }: { className: string }) => {
             </SelectTrigger>
             <SelectContent>
                 <SelectItem value="light">Name</SelectItem>
-                <SelectItem value="dark">Create Time</SelectItem>
+                <SelectItem value="dark">Time</SelectItem>
             </SelectContent>
         </Select>
     );

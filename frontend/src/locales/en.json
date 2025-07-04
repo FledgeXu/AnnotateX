@@ -1,3 +1,7 @@
 {
-    "login": "Login"
+    "login": "Login",
+    "nameAsc": "A-Z",
+    "nameDesc": "Z-A",
+    "createTimeDesc": "Newest",
+    "createTimeAsc": "Oldest"
 }

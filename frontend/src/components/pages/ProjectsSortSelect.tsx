@@ -1,5 +1,6 @@
 import { useStoreActions, useStoreState } from "easy-peasy";
 import { ArrowUpDown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import {
     Select,
     SelectContent,
@@ -18,6 +19,7 @@ export const ProjectsSortSelect = ({ className }: { className?: string }) => {
     const setSortMode = useStoreActions<StoreModel>(
         (actions) => actions.projects.setSortMode,
     );
+    const { t } = useTranslation();
 
     return (
         <Select value={sortMode} onValueChange={(value) => setSortMode(value)}>
@@ -28,7 +30,7 @@ export const ProjectsSortSelect = ({ className }: { className?: string }) => {
             <SelectContent>
                 {PROJECT_SORT_MODES.map((mode) => (
                     <SelectItem value={mode} key={mode}>
-                        {mode}
+                        {t(mode)}
                     </SelectItem>
                 ))}
             </SelectContent>

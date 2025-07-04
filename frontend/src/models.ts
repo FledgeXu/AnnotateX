@@ -21,10 +21,10 @@ export interface Project {
 }
 
 export const PROJECT_SORT_MODES = [
+  "createTimeDesc",
+  "createTimeAsc",
   "nameAsc",
   "nameDesc",
-  "createTimeAsc",
-  "createTimeDesc",
 ] as const;
 
 export type ProjectSortMode = typeof PROJECT_SORT_MODES[number];
