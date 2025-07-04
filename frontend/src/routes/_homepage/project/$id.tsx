@@ -1,4 +1,6 @@
 import { createFileRoute, useParams } from "@tanstack/react-router";
+import { DatasetPage } from "@/components/pages/DatasetPage";
+import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_homepage/project/$id")({
@@ -12,14 +14,17 @@ function RouteComponent() {
       <div className="flex justify-between items-center">
         <span className="text-2xl font-semibold">{id}</span>
         <TabsList>
-          <TabsTrigger value="account">Batches</TabsTrigger>
-          <TabsTrigger value="password">Dataset</TabsTrigger>
+          <TabsTrigger value="batches">Batches</TabsTrigger>
+          <TabsTrigger value="dataset">Dataset</TabsTrigger>
         </TabsList>
       </div>
-      <TabsContent value="account">
+      <Separator />
+      <TabsContent value="batches">
         Make changes to your account here.
       </TabsContent>
-      <TabsContent value="password">Change your password here.</TabsContent>
+      <TabsContent value="dataset">
+        <DatasetPage />
+      </TabsContent>
     </Tabs>
   );
 }

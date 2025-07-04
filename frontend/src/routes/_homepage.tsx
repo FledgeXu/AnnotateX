@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { HomePageSidebar } from "@/components/pages/HomePageSidebar";
 import { IndexNav } from "@/components/pages/IndexNav";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { HomePageSidebar } from "@/components/pages/HomePageSidebar";
 
 export const Route = createFileRoute("/_homepage")({
   beforeLoad: async ({ context }) => {
