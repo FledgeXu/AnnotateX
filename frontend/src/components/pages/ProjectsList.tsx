@@ -14,7 +14,7 @@ const statusColorMap = new Map<string, string>([
 
 export const ProjectsList = () => {
     const projects = useStoreState<StoreModel>(
-        (state) => state.projects.sortedProjects,
+        (state) => state.projects.visibleProjects,
     ) as Project[];
 
     return (
