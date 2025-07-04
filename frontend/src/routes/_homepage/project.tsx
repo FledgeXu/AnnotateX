@@ -9,7 +9,7 @@ function RouteComponent() {
   return (
     <div className="h-full flex gap-2">
       <ProjectSidebar />
-      <div className="bg-gray-100 rounded-sm border w-full h-full">
+      <div className="rounded-sm border w-full h-full shadow-md p-3">
         <Outlet />
       </div>
     </div>
