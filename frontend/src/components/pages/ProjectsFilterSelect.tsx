@@ -7,10 +7,10 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 
-export const ProjectsFilterSelect = () => {
+export const ProjectsFilterSelect = ({ className }: { className: string }) => {
     return (
         <Select>
-            <SelectTrigger className="w-full">
+            <SelectTrigger className={className}>
                 <ListFilter />
                 <SelectValue placeholder="Filter" />
             </SelectTrigger>

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useStoreActions, useStoreState } from "easy-peasy";
+import { useStoreActions } from "easy-peasy";
 import { Plus, SearchIcon } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
@@ -47,10 +47,6 @@ const useFetchingProjects = () => {
 export const ProjectSidebar = () => {
     const [isFetching, isSuccess] = useFetchingProjects();
 
-    const projects = useStoreState<StoreModel>(
-        (state) => state.projects.projects,
-    );
-
     return (
         <div className="h-full w-sm flex flex-col gap-2">
             <div className="flex justify-between">
@@ -65,12 +61,12 @@ export const ProjectSidebar = () => {
                 placeholder="Search..."
                 startIcon={<SearchIcon className="w-4 h-4" />}
             />
-            <div className="flex gap-4">
-                <ProjectsFilterSelect />
-                <ProjectsSortSelect />
+            <div className="grid grid-cols-2 gap-4">
+                <ProjectsSortSelect className="w-full" />
+                <ProjectsFilterSelect className="w-full" />
             </div>
             <div className="flex-1 min-h-0">
-                {isSuccess && <ProjectsList projects={projects} />}
+                {isSuccess && <ProjectsList />}
                 {isFetching && <ProjectLoadingSkeleton />}
             </div>
         </div>

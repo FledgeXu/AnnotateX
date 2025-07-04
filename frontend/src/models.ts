@@ -19,3 +19,13 @@ export interface Project {
   created_at: string;
   updated_at: string;
 }
+
+export const PROJECT_SORT_MODES = [
+  "nameAsc",
+  "nameDesc",
+  "createTimeAsc",
+  "createTimeDesc",
+] as const;
+
+export type ProjectSortMode = typeof PROJECT_SORT_MODES[number];
+
