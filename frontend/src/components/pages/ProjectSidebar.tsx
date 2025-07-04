@@ -48,7 +48,7 @@ export const ProjectSidebar = () => {
     const [isFetching, isSuccess] = useFetchingProjects();
 
     return (
-        <div className="h-full w-sm flex flex-col gap-2">
+        <div className="h-full w-md flex flex-col gap-2">
             <div className="flex justify-between">
                 <h1 className="text-2xl font-bold">Project</h1>
                 <CreateProjectDialog>
