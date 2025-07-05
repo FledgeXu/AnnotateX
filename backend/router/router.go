@@ -96,6 +96,7 @@ func SetupRouter() *gin.Engine {
 	api.RegisterUsersRouters(v1)
 	api.RegisterOrganizationsRouters(v1)
 	api.RegisterProjectsRouters(v1)
+	api.RegisterDatasetRouters(v1)
 
 	return r
 }

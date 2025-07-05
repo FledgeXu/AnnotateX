@@ -5,3 +5,4 @@ p, /v1/users/*, admin, *
 #p, /v1/organizations/*, admin, *
 p, /v1/organizations/*, *, *
 p, /v1/projects/*, super_admin, *
+p, /v1/datasets/*, super_admin, *
