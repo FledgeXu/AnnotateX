@@ -14,7 +14,7 @@ func NewProjectRepository(db *sqlx.DB) *ProjectRepository {
 	return &ProjectRepository{DB: db}
 }
 
-func (r *ProjectRepository) GetProjectByID(id int64) (*model.Project, error) {
+func (r *ProjectRepository) GetProjectByID(id int) (*model.Project, error) {
 	var project model.Project
 	err := r.DB.Get(&project, `SELECT * FROM projects WHERE id = $1`, id)
 	if err != nil {

@@ -7,6 +7,7 @@ import (
 	"annotate-x/model"
 	"annotate-x/utils"
 	"slices"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,6 +18,7 @@ func RegisterProjectsRouters(rg *gin.RouterGroup) {
 
 	group.GET("/list", listProject)
 	group.POST("/create", createProject)
+	group.GET("/:id", getProject)
 }
 
 func listProject(c *gin.Context) {
@@ -63,4 +65,27 @@ func createProject(c *gin.Context) {
 	}
 
 	utils.Created(c, project)
+}
+
+func getProject(c *gin.Context) {
+	appCtx := c.MustGet("appCtx").(*context.AppContext)
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		utils.BadRequest(c, "Invalid project ID")
+		return
+	}
+
+	project, err := appCtx.ProjectRepo.GetProjectByID(id)
+	if err != nil {
+		utils.InternalServerError(c, err.Error())
+		return
+	}
+
+	if project == nil {
+		utils.NotFound(c, "Project not found")
+		return
+	}
+
+	utils.OK(c, project)
 }
