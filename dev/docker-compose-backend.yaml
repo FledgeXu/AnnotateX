@@ -29,6 +29,19 @@ services:
       RABBITMQ_DEFAULT_USER: rabbitmq 
       RABBITMQ_DEFAULT_PASS: rabbitmq
 
+  minio:
+    image: minio/minio
+    restart: unless-stopped
+    volumes:
+      - minio-data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+
   migrate:
     build:
       context: ..
