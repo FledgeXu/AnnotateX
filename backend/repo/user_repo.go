@@ -2,6 +2,7 @@ package repo
 
 import (
 	"annotate-x/model"
+	"database/sql"
 	"errors"
 
 	"github.com/jmoiron/sqlx"
@@ -18,6 +19,7 @@ type IUserRepository interface {
 
 	// Update
 	UpdateUser(user *model.User) error
+	UpdateUserPassword(id int64, newHash string)
 
 	// Delete
 	DeleteUser(id int64) error
@@ -98,6 +100,25 @@ func (r *UserRepo) UpdateUser(user *model.User) error {
 	rows, _ := result.RowsAffected()
 	if rows == 0 {
 		return errors.New("no rows updated")
+	}
+	return nil
+}
+
+func (r *UserRepo) UpdateUserPassword(userID int64, newHash string) error {
+	result, err := r.DB.Exec(`
+		UPDATE users
+		SET password_hash = $1, updated_at = NOW()
+		WHERE id = $2
+	`, newHash, userID)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
 	}
 	return nil
 }

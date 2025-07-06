@@ -3,6 +3,7 @@ package repo_test
 import (
 	"annotate-x/model"
 	"annotate-x/repo"
+	"database/sql"
 	"testing"
 	"time"
 
@@ -140,6 +141,39 @@ func TestUpdateUser(t *testing.T) {
 
 	err := repo.UpdateUser(user)
 	assert.NoError(t, err)
+}
+
+func TestUpdateUserPassword(t *testing.T) {
+	db, mock := setupMockDB(t)
+	defer db.Close()
+
+	userRepo := repo.NewUserRepo(db)
+
+	const (
+		userID  = int64(123)
+		newHash = "new_hash"
+	)
+
+	mock.ExpectExec(`UPDATE users`).
+		WithArgs(newHash, userID).
+		WillReturnResult(sqlmock.NewResult(0, 1))
+
+	err := userRepo.UpdateUserPassword(userID, newHash)
+	assert.NoError(t, err)
+
+	mock.ExpectExec(`UPDATE users`).
+		WithArgs(newHash, userID).
+		WillReturnResult(sqlmock.NewResult(0, 0))
+
+	err = userRepo.UpdateUserPassword(userID, newHash)
+	assert.Equal(t, sql.ErrNoRows, err)
+
+	mock.ExpectExec(`UPDATE users`).
+		WithArgs(newHash, userID).
+		WillReturnError(sql.ErrConnDone)
+
+	err = userRepo.UpdateUserPassword(userID, newHash)
+	assert.Error(t, err)
 }
 
 func TestDeleteUser(t *testing.T) {
