@@ -3,6 +3,7 @@ package router
 import (
 	"annotate-x/api"
 	"annotate-x/logger"
+	"annotate-x/service"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -46,6 +47,36 @@ func createSuperAdmin() {
 	}
 }
 
+type InjectObject struct {
+	UserRepo    *repository.UserRepository
+	OrgRepo     *repository.OrganizationRepository
+	ProjectRepo *repository.ProjectRepository
+	CacheRepo   *repository.CacheRepository
+	UserService *service.UserService
+}
+
+func newInjectObject() *InjectObject {
+	appConfig := config.AppConfig
+
+	db := db.InitDB(appConfig.DATABASE_URL)
+	redis := cache.InitRedis(appConfig.REDIS_ADDRESS, appConfig.REDIS_PASSWORD, appConfig.REDIS_DB)
+	userRepository := repository.NewUserRepository(db)
+	organizationRepository := repository.NewOrganizationRepository(db)
+	projectRepository := repository.NewProjectRepository(db)
+	cacheRepository := repository.NewCacheRepository(redis)
+
+	userService := service.NewUserService(userRepository)
+
+	return &InjectObject{
+		UserRepo:    userRepository,
+		OrgRepo:     organizationRepository,
+		ProjectRepo: projectRepository,
+		CacheRepo:   cacheRepository,
+
+		UserService: userService,
+	}
+}
+
 func setupAppContext() *context.AppContext {
 	appConfig := config.AppConfig
 
@@ -86,13 +117,14 @@ func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
 	r.Use(setupCors())
-	r.Use(context.InjectAppContext(setupAppContext()))
+	// r.Use(context.InjectAppContext(setupAppContext()))
+	injectObject := newInjectObject()
 	r.Use(ginzap.Ginzap(logger.Logger, time.RFC3339, true))
 	r.Use(ginzap.RecoveryWithZap(logger.Logger, true))
 
 	v1 := r.Group("/v1")
 
-	api.RegisterAuthRouters(v1)
+	api.RegisterAuthRouters(v1, injectObject.UserRepo, injectObject.CacheRepo, injectObject.UserService)
 	api.RegisterUsersRouters(v1)
 	api.RegisterOrganizationsRouters(v1)
 	api.RegisterProjectsRouters(v1)

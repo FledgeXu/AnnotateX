@@ -5,9 +5,8 @@ import (
 
 	"annotate-x/internal/middleware"
 	"annotate-x/model"
+	"annotate-x/repository"
 	"annotate-x/service"
-
-	"annotate-x/internal/context"
 
 	"annotate-x/internal/security"
 	"annotate-x/utils"
@@ -20,24 +19,32 @@ type LoginRequest struct {
 	Password string `json:"password" binding:"required"`
 }
 
-func RegisterAuthRouters(rg *gin.RouterGroup) {
-	group := rg.Group("/auth")
-	{
-		group.POST("/login", login)
-		group.POST("/register", register)
-		group.POST("/logout", middleware.AuthMiddleware(), logout)
-	}
+type AuthHandler struct {
+	UserRepo    *repository.UserRepository
+	CacheRepo   *repository.CacheRepository
+	UserService *service.UserService
 }
 
-func login(c *gin.Context) {
-	appCtx := c.MustGet("appCtx").(*context.AppContext)
+func RegisterAuthRouters(rg *gin.RouterGroup,
+	userRepo *repository.UserRepository,
+	cacheRepo *repository.CacheRepository,
+	userService *service.UserService,
+) {
+	handler := &AuthHandler{userRepo, cacheRepo, userService}
+	group := rg.Group("/auth")
+	group.POST("/login", handler.login)
+	group.POST("/register", handler.register)
+	group.POST("/logout", middleware.AuthMiddleware(), handler.logout)
+}
+
+func (h *AuthHandler) login(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.BadRequest(c, err.Error())
 		return
 	}
 
-	user, err := appCtx.UserRepo.GetUserByUsername(req.Username)
+	user, err := h.UserRepo.GetUserByUsername(req.Username)
 	if err != nil || !user.IsActive {
 		utils.Unauthorized(c, "Invalid username or password")
 		return
@@ -57,7 +64,7 @@ func login(c *gin.Context) {
 	if needsRehash {
 		if newHash, ok, err := security.RehashIfNeeded(req.Password, user.Password); err == nil && ok {
 			user.Password = newHash
-			_ = appCtx.UserRepo.UpdateUserPassword(user.ID, newHash) // optional error handling
+			_ = h.UserRepo.UpdateUserPassword(user.ID, newHash) // optional error handling
 		}
 	}
 
@@ -71,8 +78,7 @@ func login(c *gin.Context) {
 	})
 }
 
-func register(c *gin.Context) {
-	appCtx := c.MustGet("appCtx").(*context.AppContext)
+func (h *AuthHandler) register(c *gin.Context) {
 	var req model.CreateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.BadRequest(c, err.Error())
@@ -82,7 +88,7 @@ func register(c *gin.Context) {
 	// for this endpoint role must be unassigned.
 	req.Role = string(model.RoleUnassigned)
 
-	user, err := service.NewUserService(appCtx.UserRepo).CreateUser(req)
+	user, err := h.UserService.CreateUser(req)
 	if err != nil {
 		utils.InternalServerError(c, err.Error())
 		return
@@ -96,8 +102,7 @@ func register(c *gin.Context) {
 	})
 }
 
-func logout(c *gin.Context) {
-	appCtx := c.MustGet("appCtx").(*context.AppContext)
+func (h *AuthHandler) logout(c *gin.Context) {
 	tokenRaw, exists := c.Get("rawToken")
 	if !exists {
 		utils.BadRequest(c, "Missing token")
@@ -114,7 +119,7 @@ func logout(c *gin.Context) {
 
 	// Add the token to the Redis blacklist with an expiration time matching the original token.
 	expiration := time.Until(claims.ExpiresAt.Time)
-	err := appCtx.CacheRepo.BlacklistToken(c.Request.Context(), tokenStr, expiration)
+	err := h.CacheRepo.BlacklistToken(c.Request.Context(), tokenStr, expiration)
 	if err != nil {
 		utils.InternalServerError(c, "Failed to logout")
 		return
