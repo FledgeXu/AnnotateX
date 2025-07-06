@@ -2,30 +2,39 @@ package api
 
 import (
 	"annotate-x/model"
+	"annotate-x/repository"
 	"annotate-x/service"
 	"annotate-x/utils"
 	"strconv"
 	"strings"
 
 	casbin_auth "annotate-x/internal/auth"
-	"annotate-x/internal/context"
 	"annotate-x/internal/middleware"
 	"annotate-x/internal/security"
 
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterUsersRouters(rg *gin.RouterGroup) {
-	group := rg.Group("/users")
-	group.Use(middleware.AuthMiddleware(), middleware.RequirePermissionMiddleware(casbin_auth.Enforcer))
-
-	group.GET("/list", userList)
-	group.GET("/me", middleware.AuthMiddleware(), middleware.UserInjectionMiddleware(), me)
-	group.PUT("/me", middleware.AuthMiddleware(), middleware.UserInjectionMiddleware(), updateMe)
+type UsersHandler struct {
+	UserRepo    *repository.UserRepository
+	UserService *service.UserService
 }
 
-func userList(c *gin.Context) {
-	appCtx := c.MustGet("appCtx").(*context.AppContext)
+func RegisterUsersRouters(rg *gin.RouterGroup,
+	userRepo *repository.UserRepository,
+	cacheRepo *repository.CacheRepository,
+	userService *service.UserService,
+) {
+	handler := &UsersHandler{userRepo, userService}
+	group := rg.Group("/users")
+	group.Use(middleware.AuthMiddleware(cacheRepo), middleware.RequirePermissionMiddleware(casbin_auth.Enforcer))
+
+	group.GET("/list", handler.userList)
+	group.GET("/me", middleware.AuthMiddleware(cacheRepo), middleware.UserInjectionMiddleware(userRepo), handler.me)
+	group.PUT("/me", middleware.AuthMiddleware(cacheRepo), middleware.UserInjectionMiddleware(userRepo), handler.updateMe)
+}
+
+func (h *UsersHandler) userList(c *gin.Context) {
 	// Parse pagination
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
 	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
@@ -59,7 +68,7 @@ func userList(c *gin.Context) {
 		Offset:   offset,
 	}
 
-	users, total, err := service.NewUserService(appCtx.UserRepo).GetFilteredUserList(filter)
+	users, total, err := h.UserService.GetFilteredUserList(filter)
 	if err != nil {
 		utils.InternalServerError(c, "Failed to get users")
 		return
@@ -73,7 +82,7 @@ func userList(c *gin.Context) {
 	})
 }
 
-func me(c *gin.Context) {
+func (h *UsersHandler) me(c *gin.Context) {
 	user := c.MustGet("currentUser").(*model.User)
 
 	utils.OK(c, model.UserCreateResponse{
@@ -84,8 +93,7 @@ func me(c *gin.Context) {
 	})
 }
 
-func updateMe(c *gin.Context) {
-	appCtx := c.MustGet("appCtx").(*context.AppContext)
+func (h *UsersHandler) updateMe(c *gin.Context) {
 	user := c.MustGet("currentUser").(*model.User)
 
 	var req model.UpdateUserRequest
@@ -111,7 +119,7 @@ func updateMe(c *gin.Context) {
 		user.Email = req.Email
 	}
 
-	updatedUser, err := appCtx.UserRepo.UpdateUser(user)
+	updatedUser, err := h.UserRepo.UpdateUser(user)
 	if err != nil {
 		utils.InternalServerError(c, err.Error())
 	}

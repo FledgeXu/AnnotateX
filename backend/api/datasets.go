@@ -3,15 +3,16 @@ package api
 import (
 	"annotate-x/internal/auth"
 	"annotate-x/internal/middleware"
+	"annotate-x/repository"
 	"annotate-x/utils"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterDatasetRouters(rg *gin.RouterGroup) {
+func RegisterDatasetRouters(rg *gin.RouterGroup, cacheRepo *repository.CacheRepository) {
 	group := rg.Group("/datasets")
-	group.Use(middleware.AuthMiddleware(), middleware.RequirePermissionMiddleware(auth.Enforcer))
+	group.Use(middleware.AuthMiddleware(cacheRepo), middleware.RequirePermissionMiddleware(auth.Enforcer))
 
 	group.POST("/upload", uploadDataset)
 }

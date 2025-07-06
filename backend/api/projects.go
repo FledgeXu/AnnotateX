@@ -2,9 +2,9 @@ package api
 
 import (
 	"annotate-x/internal/auth"
-	"annotate-x/internal/context"
 	"annotate-x/internal/middleware"
 	"annotate-x/model"
+	"annotate-x/repository"
 	"annotate-x/utils"
 	"slices"
 	"strconv"
@@ -12,18 +12,25 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterProjectsRouters(rg *gin.RouterGroup) {
-	group := rg.Group("/projects")
-	group.Use(middleware.AuthMiddleware(), middleware.RequirePermissionMiddleware(auth.Enforcer))
-
-	group.GET("/list", listProject)
-	group.POST("/create", createProject)
-	group.GET("/:id", getProject)
+type ProjectsHandler struct {
+	ProjectRepo *repository.ProjectRepository
 }
 
-func listProject(c *gin.Context) {
-	appCtx := c.MustGet("appCtx").(*context.AppContext)
-	projects, err := appCtx.ProjectRepo.ListProjects()
+func RegisterProjectsRouters(rg *gin.RouterGroup,
+	projectRepo *repository.ProjectRepository,
+	cacheRepo *repository.CacheRepository,
+) {
+	handler := &ProjectsHandler{projectRepo}
+	group := rg.Group("/projects")
+	group.Use(middleware.AuthMiddleware(cacheRepo), middleware.RequirePermissionMiddleware(auth.Enforcer))
+
+	group.GET("/list", handler.list)
+	group.POST("/create", handler.create)
+	group.GET("/:id", handler.get)
+}
+
+func (h *ProjectsHandler) list(c *gin.Context) {
+	projects, err := h.ProjectRepo.ListProjects()
 	if err != nil {
 		utils.InternalServerError(c, err.Error())
 	}
@@ -33,9 +40,7 @@ func listProject(c *gin.Context) {
 	utils.OK(c, projects)
 }
 
-func createProject(c *gin.Context) {
-	appCtx := c.MustGet("appCtx").(*context.AppContext)
-
+func (h *ProjectsHandler) create(c *gin.Context) {
 	var req model.CreateProjectRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.BadRequest(c, err.Error())
@@ -47,7 +52,7 @@ func createProject(c *gin.Context) {
 		return
 	}
 
-	isProjectExist, err := appCtx.ProjectRepo.ProjectNameExists(req.Name)
+	isProjectExist, err := h.ProjectRepo.ProjectNameExists(req.Name)
 	if err != nil {
 		utils.InternalServerError(c, err.Error())
 		return
@@ -58,7 +63,7 @@ func createProject(c *gin.Context) {
 		return
 	}
 
-	project, err := appCtx.ProjectRepo.CreateProject(&req)
+	project, err := h.ProjectRepo.CreateProject(&req)
 	if err != nil {
 		utils.InternalServerError(c, err.Error())
 		return
@@ -67,15 +72,14 @@ func createProject(c *gin.Context) {
 	utils.Created(c, project)
 }
 
-func getProject(c *gin.Context) {
-	appCtx := c.MustGet("appCtx").(*context.AppContext)
+func (h *ProjectsHandler) get(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		utils.BadRequest(c, "Invalid project ID")
 		return
 	}
 
-	project, err := appCtx.ProjectRepo.GetProjectByID(id)
+	project, err := h.ProjectRepo.GetProjectByID(id)
 	if err != nil {
 		utils.InternalServerError(c, err.Error())
 		return

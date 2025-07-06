@@ -17,12 +17,10 @@ type OrganizationsHandler struct {
 	OrgRepo *repository.OrganizationRepository
 }
 
-func RegisterOrganizationsRouters(rg *gin.RouterGroup,
-	orgRepo *repository.OrganizationRepository,
-) {
+func RegisterOrganizationsRouters(rg *gin.RouterGroup, orgRepo *repository.OrganizationRepository, cacheRepo *repository.CacheRepository) {
 	handler := &OrganizationsHandler{orgRepo}
 	group := rg.Group("/organizations")
-	group.Use(middleware.AuthMiddleware(), middleware.RequirePermissionMiddleware(casbin_auth.Enforcer))
+	group.Use(middleware.AuthMiddleware(cacheRepo), middleware.RequirePermissionMiddleware(casbin_auth.Enforcer))
 	group.POST("/create", handler.create)
 	group.GET("/:id", handler.info)
 }

@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	ctxpkg "annotate-x/internal/context"
 	"annotate-x/internal/security"
+	"annotate-x/repository"
 	"annotate-x/utils"
 	"context"
 	"net/http"
@@ -13,9 +13,8 @@ import (
 	"github.com/casbin/casbin/v2"
 )
 
-func AuthMiddleware() gin.HandlerFunc {
+func AuthMiddleware(cacheRepo *repository.CacheRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		appCtx := c.MustGet("appCtx").(*ctxpkg.AppContext)
 		authHeader := c.GetHeader("Authorization")
 		if len(authHeader) < 7 || authHeader[:7] != "Bearer " {
 			utils.AbortJSON(c, http.StatusUnauthorized, "Authorization header missing or malformed")
@@ -25,7 +24,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		tokenStr := authHeader[7:]
 
 		ctx := context.Background()
-		exist, err := appCtx.CacheRepo.IsBlacklisted(ctx, tokenStr)
+		exist, err := cacheRepo.IsBlacklisted(ctx, tokenStr)
 		if err != nil && err != redis.Nil {
 			utils.AbortJSON(c, http.StatusInternalServerError, "Failed to check token blacklist")
 			return

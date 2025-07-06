@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"annotate-x/config"
-	"annotate-x/internal/context"
 
 	"github.com/gin-contrib/cors"
 	ginzap "github.com/gin-contrib/zap"
@@ -77,26 +76,6 @@ func newInjectObject() *InjectObject {
 	}
 }
 
-func setupAppContext() *context.AppContext {
-	appConfig := config.AppConfig
-
-	db := db.InitDB(appConfig.DATABASE_URL)
-	redis := cache.InitRedis(appConfig.REDIS_ADDRESS, appConfig.REDIS_PASSWORD, appConfig.REDIS_DB)
-	userRepository := repository.NewUserRepository(db)
-	organizationRepository := repository.NewOrganizationRepository(db)
-	projectRepository := repository.NewProjectRepository(db)
-	cacheRepository := repository.NewCacheRepository(redis)
-
-	appContext := context.AppContext{
-		UserRepo:    userRepository,
-		OrgRepo:     organizationRepository,
-		ProjectRepo: projectRepository,
-		CacheRepo:   cacheRepository,
-	}
-
-	return &appContext
-}
-
 func setupCors() gin.HandlerFunc {
 	appConfig := config.AppConfig
 
@@ -117,18 +96,19 @@ func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
 	r.Use(setupCors())
-	// r.Use(context.InjectAppContext(setupAppContext()))
+
 	injectObject := newInjectObject()
+
 	r.Use(ginzap.Ginzap(logger.Logger, time.RFC3339, true))
 	r.Use(ginzap.RecoveryWithZap(logger.Logger, true))
 
 	v1 := r.Group("/v1")
 
 	api.RegisterAuthRouters(v1, injectObject.UserRepo, injectObject.CacheRepo, injectObject.UserService)
-	api.RegisterUsersRouters(v1)
-	api.RegisterOrganizationsRouters(v1, injectObject.OrgRepo)
-	api.RegisterProjectsRouters(v1)
-	api.RegisterDatasetRouters(v1)
+	api.RegisterUsersRouters(v1, injectObject.UserRepo, injectObject.CacheRepo, injectObject.UserService)
+	api.RegisterOrganizationsRouters(v1, injectObject.OrgRepo, injectObject.CacheRepo)
+	api.RegisterProjectsRouters(v1, injectObject.ProjectRepo, injectObject.CacheRepo)
+	api.RegisterDatasetRouters(v1, injectObject.CacheRepo)
 
 	return r
 }

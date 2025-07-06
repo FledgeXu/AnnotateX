@@ -34,7 +34,7 @@ func RegisterAuthRouters(rg *gin.RouterGroup,
 	group := rg.Group("/auth")
 	group.POST("/login", handler.login)
 	group.POST("/register", handler.register)
-	group.POST("/logout", middleware.AuthMiddleware(), handler.logout)
+	group.POST("/logout", middleware.AuthMiddleware(cacheRepo), handler.logout)
 }
 
 func (h *AuthHandler) login(c *gin.Context) {
