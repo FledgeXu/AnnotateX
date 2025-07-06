@@ -11,6 +11,18 @@ import (
 	"database/sql"
 )
 
+type IUserRepository interface {
+	GetUserByID(id int64) (*model.User, error)
+	GetUserByUsername(username string) (*model.User, error)
+	UsernameExists(username string) (bool, error)
+	CreateUser(user *model.User) error
+	AssignUserRole(userID, roleID int64) error
+	GetUserRoles(userID int64) ([]string, error)
+	UpdateUserPassword(userID int64, newHash string) error
+	FindWithFilter(f model.UserFilter) ([]model.User, int, error)
+	UpdateUser(user *model.User) (*model.User, error)
+}
+
 type UserRepository struct {
 	DB *sqlx.DB
 }
