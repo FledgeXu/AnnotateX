@@ -11,10 +11,9 @@ import (
 )
 
 func setupTestRedisClient() *redis.Client {
-	// 默认连接本地Redis
 	return redis.NewClient(&redis.Options{
 		Addr: "localhost:6379",
-		DB:   9, // 使用一个测试用的DB，防止污染主库
+		DB:   9,
 	})
 }
 

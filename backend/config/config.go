@@ -5,6 +5,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	_ "github.com/joho/godotenv/autoload"
@@ -23,7 +24,15 @@ type Config struct {
 	ALLOW_ORIGINS        []string
 }
 
-var AppConfig = Load()
+var AppConfig *Config
+var once sync.Once
+
+func GetConfig() *Config {
+	once.Do(func() {
+		AppConfig = Load()
+	})
+	return AppConfig
+}
 
 func Load() *Config {
 	c := &Config{
