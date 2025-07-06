@@ -69,8 +69,7 @@ func createProject(c *gin.Context) {
 
 func getProject(c *gin.Context) {
 	appCtx := c.MustGet("appCtx").(*context.AppContext)
-	idStr := c.Param("id")
-	id, err := strconv.Atoi(idStr)
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		utils.BadRequest(c, "Invalid project ID")
 		return

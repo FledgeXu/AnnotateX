@@ -3,7 +3,7 @@
 SELECT 'up SQL query';
 
 CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
 
     username VARCHAR(100) UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
@@ -17,14 +17,14 @@ CREATE TABLE users (
 );
 
 CREATE TABLE roles (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     name VARCHAR(50) UNIQUE NOT NULL,
     description TEXT
 );
 
 CREATE TABLE user_roles (
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    role_id INTEGER NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    role_id BIGINT NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
     PRIMARY KEY (user_id, role_id)
 );
 
@@ -37,7 +37,7 @@ INSERT INTO roles (name, description) VALUES
   ('unassigned', 'User has not been assigned a role yet');
 
 CREATE TABLE organizations (
-    id SERIAL PRIMARY KEY,                             -- Unique organization ID
+    id BIGSERIAL PRIMARY KEY,                             -- Unique organization ID
     type VARCHAR(50) NOT NULL DEFAULT 'vendor',        -- Organization type: vendor, internal, etc.
     name VARCHAR(255) NOT NULL UNIQUE,                 -- Organization name (must be unique)
     code VARCHAR(64) UNIQUE,                           -- Optional short code or slug
@@ -48,7 +48,7 @@ CREATE TABLE organizations (
 );
 
 CREATE TABLE projects (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     modality TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'active',

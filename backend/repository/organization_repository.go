@@ -24,7 +24,7 @@ func (r *OrganizationRepository) OrganizationExists(name string) (bool, error) {
 	return exists, err
 }
 
-func (r *OrganizationRepository) GetOrganizationById(id int) (model.Organization, error) {
+func (r *OrganizationRepository) GetOrganizationById(id int64) (model.Organization, error) {
 	var organization model.Organization
 	err := r.DB.Get(&organization, `SELECT * FROM organizations WHERE id = $1`, id)
 	return organization, err

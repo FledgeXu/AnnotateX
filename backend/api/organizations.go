@@ -5,7 +5,6 @@ import (
 	"annotate-x/internal/middleware"
 	"annotate-x/model"
 	"annotate-x/utils"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -53,12 +52,11 @@ func create(c *gin.Context) {
 }
 
 func info(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		utils.BadRequest(c, "Invalid organization ID: must be a numeric value")
 		return
 	}
-	fmt.Println(id)
 	appCtx := c.MustGet("appCtx").(*context.AppContext)
 	model, err := appCtx.OrgRepo.GetOrganizationById(id)
 	if err != nil {
