@@ -1,8 +1,8 @@
-package repos_test
+package repo_test
 
 import (
 	"annotate-x/models"
-	"annotate-x/repos"
+	"annotate-x/repo"
 	"database/sql"
 	"testing"
 	"time"
@@ -21,7 +21,7 @@ func setupMockDB(t *testing.T) (*sqlx.DB, sqlmock.Sqlmock) {
 
 func TestCreateUser(t *testing.T) {
 	db, mock := setupMockDB(t)
-	repo := repos.NewUserRepo(db)
+	repo := repo.NewUserRepo(db)
 
 	user := &models.User{
 		Username:    "testuser",
@@ -43,7 +43,7 @@ func TestCreateUser(t *testing.T) {
 
 func TestGetUserByID(t *testing.T) {
 	db, mock := setupMockDB(t)
-	repo := repos.NewUserRepo(db)
+	repo := repo.NewUserRepo(db)
 
 	mockUser := models.User{
 		ID:          1,
@@ -74,7 +74,7 @@ func TestGetUserByID(t *testing.T) {
 
 func TestGetUserByUsername(t *testing.T) {
 	db, mock := setupMockDB(t)
-	repo := repos.NewUserRepo(db)
+	repo := repo.NewUserRepo(db)
 
 	mockUser := models.User{
 		ID:          2,
@@ -105,7 +105,7 @@ func TestGetUserByUsername(t *testing.T) {
 
 func TestUsernameExists(t *testing.T) {
 	db, mock := setupMockDB(t)
-	repo := repos.NewUserRepo(db)
+	repo := repo.NewUserRepo(db)
 
 	mock.ExpectQuery(`SELECT EXISTS\(SELECT 1 FROM users WHERE username = \$1\)`).
 		WithArgs("testuser").
@@ -118,7 +118,7 @@ func TestUsernameExists(t *testing.T) {
 
 func TestUpdateUser(t *testing.T) {
 	db, mock := setupMockDB(t)
-	repo := repos.NewUserRepo(db)
+	repo := repo.NewUserRepo(db)
 
 	user := &models.User{
 		ID:          1,
@@ -147,7 +147,7 @@ func TestUpdateUserPassword(t *testing.T) {
 	db, mock := setupMockDB(t)
 	defer db.Close()
 
-	userRepo := repos.NewUserRepo(db)
+	userRepo := repo.NewUserRepo(db)
 
 	const (
 		userID  = int64(123)
@@ -178,7 +178,7 @@ func TestUpdateUserPassword(t *testing.T) {
 
 func TestDeleteUser(t *testing.T) {
 	db, mock := setupMockDB(t)
-	repo := repos.NewUserRepo(db)
+	repo := repo.NewUserRepo(db)
 
 	mock.ExpectExec(`DELETE FROM users WHERE id = \$1`).
 		WithArgs(1).

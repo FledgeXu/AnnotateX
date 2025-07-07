@@ -1,9 +1,9 @@
-package services_test
+package service_test
 
 import (
 	"annotate-x/mocks"
 	"annotate-x/models"
-	"annotate-x/services"
+	"annotate-x/service"
 	"annotate-x/utils/security"
 	"errors"
 	"testing"
@@ -29,7 +29,7 @@ func TestAuthService_Login_Success(t *testing.T) {
 	userRepo.On("GetUserByUsername", "testuser").Return(user, nil)
 	userRepo.On("UpdateUserPassword", user.ID, mock.Anything).Return(nil).Maybe()
 
-	authService := services.NewAuthService(userRepo, cacheService)
+	authService := service.NewAuthService(userRepo, cacheService)
 
 	loggedInUser, token, err := authService.Login("testuser", password)
 
@@ -52,7 +52,7 @@ func TestAuthService_Login_InvalidPassword(t *testing.T) {
 
 	userRepo.On("GetUserByUsername", "testuser").Return(user, nil)
 
-	authService := services.NewAuthService(userRepo, cacheService)
+	authService := service.NewAuthService(userRepo, cacheService)
 
 	_, _, err := authService.Login("testuser", "wrong-password")
 
@@ -68,7 +68,7 @@ func TestAuthService_Register_Success(t *testing.T) {
 	userRepo.On("UsernameExists", "newuser").Return(false, nil)
 	userRepo.On("CreateUser", mock.AnythingOfType("*models.User")).Return(int64(1), nil)
 
-	authService := services.NewAuthService(userRepo, cacheService)
+	authService := service.NewAuthService(userRepo, cacheService)
 
 	req := &models.CreateUserRequest{
 		Username:    "newuser",
@@ -89,7 +89,7 @@ func TestAuthService_Register_UsernameExists(t *testing.T) {
 
 	userRepo.On("UsernameExists", "existinguser").Return(true, nil)
 
-	authService := services.NewAuthService(userRepo, cacheService)
+	authService := service.NewAuthService(userRepo, cacheService)
 
 	req := &models.CreateUserRequest{
 		Username:    "existinguser",
@@ -109,7 +109,7 @@ func TestAuthService_Logout_Success(t *testing.T) {
 	userRepo := mocks.NewMockIUserRepository(t)
 	cacheService := mocks.NewMockICacheService(t)
 
-	authService := services.NewAuthService(userRepo, cacheService)
+	authService := service.NewAuthService(userRepo, cacheService)
 
 	tokenStr, _ := security.GenerateToken(1, "testuser")
 
@@ -130,7 +130,7 @@ func TestAuthService_Logout_InvalidToken(t *testing.T) {
 	userRepo := mocks.NewMockIUserRepository(t)
 	cacheService := mocks.NewMockICacheService(t)
 
-	authService := services.NewAuthService(userRepo, cacheService)
+	authService := service.NewAuthService(userRepo, cacheService)
 
 	tokenStr := "invalid.token.string"
 
@@ -144,7 +144,7 @@ func TestAuthService_Logout_BlacklistError(t *testing.T) {
 	userRepo := mocks.NewMockIUserRepository(t)
 	cacheService := mocks.NewMockICacheService(t)
 
-	authService := services.NewAuthService(userRepo, cacheService)
+	authService := service.NewAuthService(userRepo, cacheService)
 
 	tokenStr, _ := security.GenerateToken(1, "testuser")
 

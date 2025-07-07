@@ -1,7 +1,7 @@
-package services
+package service
 
 import (
-	"annotate-x/repos"
+	"annotate-x/repo"
 	"context"
 )
 
@@ -11,11 +11,11 @@ type ICacheService interface {
 }
 
 type CacheService struct {
-	Repo repos.ICacheRepository
+	Repo repo.ICacheRepository
 	Ctx  context.Context
 }
 
-func NewCacheService(repo repos.ICacheRepository) *CacheService {
+func NewCacheService(repo repo.ICacheRepository) *CacheService {
 	return &CacheService{
 		Repo: repo,
 		Ctx:  context.Background(),

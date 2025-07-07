@@ -1,7 +1,7 @@
-package repos_test
+package repo_test
 
 import (
-	"annotate-x/repos"
+	"annotate-x/repo"
 	"context"
 	"testing"
 	"time"
@@ -26,7 +26,7 @@ func TestCacheRepository(t *testing.T) {
 	defer client.Close()
 	clearTestRedisData(client)
 
-	cacheRepo := repos.NewCacheRepository(client)
+	cacheRepo := repo.NewCacheRepository(client)
 
 	t.Run("Set and Get", func(t *testing.T) {
 		err := cacheRepo.Set("test_key", "test_value", 10)

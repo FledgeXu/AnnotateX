@@ -1,8 +1,8 @@
-package services
+package service
 
 import (
 	"annotate-x/models"
-	repo "annotate-x/repos"
+	"annotate-x/repo"
 	"annotate-x/utils/security"
 	"errors"
 	"time"
