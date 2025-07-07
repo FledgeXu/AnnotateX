@@ -1,7 +1,7 @@
-package repo
+package repos
 
 import (
-	"annotate-x/model"
+	"annotate-x/models"
 	"database/sql"
 	"errors"
 
@@ -10,15 +10,15 @@ import (
 
 type IUserRepository interface {
 	// Create
-	CreateUser(user *model.User) (int64, error)
+	CreateUser(user *models.User) (int64, error)
 	// Read
-	GetUserByID(id int64) (*model.User, error)
-	GetUserByUsername(username string) (*model.User, error)
+	GetUserByID(id int64) (*models.User, error)
+	GetUserByUsername(username string) (*models.User, error)
 	// ListUsers() ([]model.User, error)
 	UsernameExists(username string) (bool, error)
 
 	// Update
-	UpdateUser(user *model.User) error
+	UpdateUser(user *models.User) error
 	UpdateUserPassword(id int64, newHash string)
 
 	// Delete
@@ -33,7 +33,7 @@ func NewUserRepo(db *sqlx.DB) *UserRepo {
 	return &UserRepo{DB: db}
 }
 
-func (r *UserRepo) CreateUser(user *model.User) (int64, error) {
+func (r *UserRepo) CreateUser(user *models.User) (int64, error) {
 	var id int64
 	query := `
 		INSERT INTO users (username, password_hash, display_name, email, is_active)
@@ -48,8 +48,8 @@ func (r *UserRepo) CreateUser(user *model.User) (int64, error) {
 	return id, err
 }
 
-func (r *UserRepo) GetUserByID(id int64) (*model.User, error) {
-	var user model.User
+func (r *UserRepo) GetUserByID(id int64) (*models.User, error) {
+	var user models.User
 	err := r.DB.Get(&user, `
 		SELECT id, username, password_hash, display_name, email, is_active, created_at, updated_at
 		FROM users
@@ -62,8 +62,8 @@ func (r *UserRepo) GetUserByID(id int64) (*model.User, error) {
 	return &user, nil
 }
 
-func (r *UserRepo) GetUserByUsername(username string) (*model.User, error) {
-	var user model.User
+func (r *UserRepo) GetUserByUsername(username string) (*models.User, error) {
+	var user models.User
 	err := r.DB.Get(&user, `
 		SELECT id, username, password_hash, display_name, email, is_active, created_at, updated_at
 		FROM users
@@ -82,7 +82,7 @@ func (r *UserRepo) UsernameExists(username string) (bool, error) {
 	return exists, err
 }
 
-func (r *UserRepo) UpdateUser(user *model.User) error {
+func (r *UserRepo) UpdateUser(user *models.User) error {
 	query := `
 		UPDATE users
 		SET username = :username,

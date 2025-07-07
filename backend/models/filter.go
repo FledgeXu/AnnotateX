@@ -1,4 +1,4 @@
-package model
+package models
 
 type UserFilter struct {
 	Keyword  string // fuzzy match on username or email

@@ -1,8 +1,8 @@
-package service_test
+package services_test
 
 import (
-	"annotate-x/mocks" // 引入 mockery 生成的 mock
-	"annotate-x/service"
+	"annotate-x/mocks"
+	"annotate-x/services"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,7 +10,7 @@ import (
 
 func TestCacheService_BlacklistToken(t *testing.T) {
 	mockRepo := mocks.NewMockICacheRepository(t)
-	cacheService := service.NewCacheService(mockRepo)
+	cacheService := services.NewCacheService(mockRepo)
 
 	token := "abc123"
 	key := "blacklist:" + token
@@ -25,7 +25,7 @@ func TestCacheService_BlacklistToken(t *testing.T) {
 
 func TestCacheService_IsTokenBlacklisted(t *testing.T) {
 	mockRepo := mocks.NewMockICacheRepository(t)
-	cacheService := service.NewCacheService(mockRepo)
+	cacheService := services.NewCacheService(mockRepo)
 
 	token := "expired-token"
 	key := "blacklist:" + token

@@ -1,8 +1,8 @@
-package repo_test
+package repos_test
 
 import (
-	"annotate-x/model"
-	"annotate-x/repo"
+	"annotate-x/models"
+	"annotate-x/repos"
 	"database/sql"
 	"testing"
 	"time"
@@ -21,9 +21,9 @@ func setupMockDB(t *testing.T) (*sqlx.DB, sqlmock.Sqlmock) {
 
 func TestCreateUser(t *testing.T) {
 	db, mock := setupMockDB(t)
-	repo := repo.NewUserRepo(db)
+	repo := repos.NewUserRepo(db)
 
-	user := &model.User{
+	user := &models.User{
 		Username:    "testuser",
 		Password:    "hashpass",
 		DisplayName: "Test User",
@@ -43,9 +43,9 @@ func TestCreateUser(t *testing.T) {
 
 func TestGetUserByID(t *testing.T) {
 	db, mock := setupMockDB(t)
-	repo := repo.NewUserRepo(db)
+	repo := repos.NewUserRepo(db)
 
-	mockUser := model.User{
+	mockUser := models.User{
 		ID:          1,
 		Username:    "testuser",
 		Password:    "hashpass",
@@ -74,9 +74,9 @@ func TestGetUserByID(t *testing.T) {
 
 func TestGetUserByUsername(t *testing.T) {
 	db, mock := setupMockDB(t)
-	repo := repo.NewUserRepo(db)
+	repo := repos.NewUserRepo(db)
 
-	mockUser := model.User{
+	mockUser := models.User{
 		ID:          2,
 		Username:    "byusername",
 		Password:    "hashpass2",
@@ -105,7 +105,7 @@ func TestGetUserByUsername(t *testing.T) {
 
 func TestUsernameExists(t *testing.T) {
 	db, mock := setupMockDB(t)
-	repo := repo.NewUserRepo(db)
+	repo := repos.NewUserRepo(db)
 
 	mock.ExpectQuery(`SELECT EXISTS\(SELECT 1 FROM users WHERE username = \$1\)`).
 		WithArgs("testuser").
@@ -118,9 +118,9 @@ func TestUsernameExists(t *testing.T) {
 
 func TestUpdateUser(t *testing.T) {
 	db, mock := setupMockDB(t)
-	repo := repo.NewUserRepo(db)
+	repo := repos.NewUserRepo(db)
 
-	user := &model.User{
+	user := &models.User{
 		ID:          1,
 		Username:    "updated",
 		Password:    "newhash",
@@ -147,7 +147,7 @@ func TestUpdateUserPassword(t *testing.T) {
 	db, mock := setupMockDB(t)
 	defer db.Close()
 
-	userRepo := repo.NewUserRepo(db)
+	userRepo := repos.NewUserRepo(db)
 
 	const (
 		userID  = int64(123)
@@ -178,7 +178,7 @@ func TestUpdateUserPassword(t *testing.T) {
 
 func TestDeleteUser(t *testing.T) {
 	db, mock := setupMockDB(t)
-	repo := repo.NewUserRepo(db)
+	repo := repos.NewUserRepo(db)
 
 	mock.ExpectExec(`DELETE FROM users WHERE id = \$1`).
 		WithArgs(1).

@@ -1,16 +1,16 @@
-package service
+package services
 
 import (
-	"annotate-x/model"
-	"annotate-x/repo"
-	"annotate-x/util/security"
+	"annotate-x/models"
+	repo "annotate-x/repos"
+	"annotate-x/utils/security"
 	"errors"
 	"time"
 )
 
 type IAuthService interface {
-	Login(username, password string) (*model.User, string, error)
-	Register(createRequest *model.CreateUserRequest) error
+	Login(username, password string) (*models.User, string, error)
+	Register(createRequest *models.CreateUserRequest) error
 	Logout(userID int64) error
 }
 
@@ -26,7 +26,7 @@ func NewAuthService(userRepo repo.IUserRepository, CacheService ICacheService) *
 	}
 }
 
-func (s *AuthService) Login(username, password string) (*model.User, string, error) {
+func (s *AuthService) Login(username, password string) (*models.User, string, error) {
 	user, err := s.UserRepo.GetUserByUsername(username)
 	if err != nil {
 		return nil, "", errors.New("Invalid username or password")
@@ -58,7 +58,7 @@ func (s *AuthService) Login(username, password string) (*model.User, string, err
 	return user, token, nil
 }
 
-func (s *AuthService) Register(createRequest *model.CreateUserRequest) error {
+func (s *AuthService) Register(createRequest *models.CreateUserRequest) error {
 	isExist, err := s.UserRepo.UsernameExists(createRequest.Username)
 	if err != nil {
 		return err
@@ -72,7 +72,7 @@ func (s *AuthService) Register(createRequest *model.CreateUserRequest) error {
 		return err
 	}
 
-	newUser := &model.User{
+	newUser := &models.User{
 		Username:    createRequest.Username,
 		Password:    hashedPassword,
 		DisplayName: createRequest.DisplayName,
