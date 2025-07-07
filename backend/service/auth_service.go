@@ -5,6 +5,7 @@ import (
 	"annotate-x/repo"
 	"annotate-x/util/security"
 	"errors"
+	"time"
 )
 
 type IAuthService interface {
@@ -83,6 +84,24 @@ func (s *AuthService) Register(createRequest *model.CreateUserRequest) error {
 	if err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func (s *AuthService) Logout(tokenStr string) error {
+	claims, err := security.ParseToken(tokenStr)
+	if err != nil {
+		return errors.New("invalid token")
+	}
+
+	expiration := time.Until(claims.ExpiresAt.Time)
+	if expiration <= 0 {
+		return nil
+	}
+	// err = s.CacheRepo.BlacklistToken(tokenStr, int(expiration.Seconds()))
+	// if err != nil {
+	// 	return errors.New("failed to logout")
+	// }
 
 	return nil
 }
