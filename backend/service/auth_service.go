@@ -15,14 +15,14 @@ type IAuthService interface {
 }
 
 type AuthService struct {
-	UserRepo  repo.IUserRepository
-	CacheRepo repo.ICacheRepository
+	UserRepo     repo.IUserRepository
+	CacheService ICacheService
 }
 
-func NewAuthService(userRepo repo.IUserRepository, cacheRepo repo.ICacheRepository) *AuthService {
+func NewAuthService(userRepo repo.IUserRepository, CacheService ICacheService) *AuthService {
 	return &AuthService{
-		UserRepo:  userRepo,
-		CacheRepo: cacheRepo,
+		UserRepo:     userRepo,
+		CacheService: CacheService,
 	}
 }
 
@@ -98,10 +98,11 @@ func (s *AuthService) Logout(tokenStr string) error {
 	if expiration <= 0 {
 		return nil
 	}
-	// err = s.CacheRepo.BlacklistToken(tokenStr, int(expiration.Seconds()))
-	// if err != nil {
-	// 	return errors.New("failed to logout")
-	// }
+
+	err = s.CacheService.BlacklistToken(tokenStr, int(expiration.Seconds()))
+	if err != nil {
+		return errors.New("failed to logout")
+	}
 
 	return nil
 }

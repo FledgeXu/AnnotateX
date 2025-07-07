@@ -5,7 +5,9 @@ import (
 	"annotate-x/model"
 	"annotate-x/service"
 	"annotate-x/util/security"
+	"errors"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -13,7 +15,7 @@ import (
 
 func TestAuthService_Login_Success(t *testing.T) {
 	userRepo := mocks.NewMockIUserRepository(t)
-	cacheRepo := mocks.NewMockICacheRepository(t)
+	cacheService := mocks.NewMockICacheService(t)
 
 	password := "secret"
 	hashed, _ := security.HashPassword(password)
@@ -27,7 +29,7 @@ func TestAuthService_Login_Success(t *testing.T) {
 	userRepo.On("GetUserByUsername", "testuser").Return(user, nil)
 	userRepo.On("UpdateUserPassword", user.ID, mock.Anything).Return(nil).Maybe()
 
-	authService := service.NewAuthService(userRepo, cacheRepo)
+	authService := service.NewAuthService(userRepo, cacheService)
 
 	loggedInUser, token, err := authService.Login("testuser", password)
 
@@ -39,7 +41,7 @@ func TestAuthService_Login_Success(t *testing.T) {
 
 func TestAuthService_Login_InvalidPassword(t *testing.T) {
 	userRepo := mocks.NewMockIUserRepository(t)
-	cacheRepo := mocks.NewMockICacheRepository(t)
+	cacheService := mocks.NewMockICacheService(t)
 
 	hashed, _ := security.HashPassword("correct-password")
 	user := &model.User{
@@ -50,7 +52,7 @@ func TestAuthService_Login_InvalidPassword(t *testing.T) {
 
 	userRepo.On("GetUserByUsername", "testuser").Return(user, nil)
 
-	authService := service.NewAuthService(userRepo, cacheRepo)
+	authService := service.NewAuthService(userRepo, cacheService)
 
 	_, _, err := authService.Login("testuser", "wrong-password")
 
@@ -61,12 +63,12 @@ func TestAuthService_Login_InvalidPassword(t *testing.T) {
 
 func TestAuthService_Register_Success(t *testing.T) {
 	userRepo := mocks.NewMockIUserRepository(t)
-	cacheRepo := mocks.NewMockICacheRepository(t)
+	cacheService := mocks.NewMockICacheService(t)
 
 	userRepo.On("UsernameExists", "newuser").Return(false, nil)
 	userRepo.On("CreateUser", mock.AnythingOfType("*model.User")).Return(int64(1), nil)
 
-	authService := service.NewAuthService(userRepo, cacheRepo)
+	authService := service.NewAuthService(userRepo, cacheService)
 
 	req := &model.CreateUserRequest{
 		Username:    "newuser",
@@ -83,11 +85,11 @@ func TestAuthService_Register_Success(t *testing.T) {
 
 func TestAuthService_Register_UsernameExists(t *testing.T) {
 	userRepo := mocks.NewMockIUserRepository(t)
-	cacheRepo := mocks.NewMockICacheRepository(t)
+	cacheService := mocks.NewMockICacheService(t)
 
 	userRepo.On("UsernameExists", "existinguser").Return(true, nil)
 
-	authService := service.NewAuthService(userRepo, cacheRepo)
+	authService := service.NewAuthService(userRepo, cacheService)
 
 	req := &model.CreateUserRequest{
 		Username:    "existinguser",
@@ -101,4 +103,56 @@ func TestAuthService_Register_UsernameExists(t *testing.T) {
 	assert.Error(t, err)
 	assert.Equal(t, "Username already exists.", err.Error())
 	userRepo.AssertExpectations(t)
+}
+
+func TestAuthService_Logout_Success(t *testing.T) {
+	userRepo := mocks.NewMockIUserRepository(t)
+	cacheService := mocks.NewMockICacheService(t)
+
+	authService := service.NewAuthService(userRepo, cacheService)
+
+	tokenStr, _ := security.GenerateToken(1, "testuser")
+
+	claims, _ := security.ParseToken(tokenStr)
+	expiration := time.Until(claims.ExpiresAt.Time)
+
+	cacheService.On("BlacklistToken", tokenStr, mock.MatchedBy(func(i int) bool {
+		return float64(i) > expiration.Seconds()-2 && float64(i) < expiration.Seconds()+2
+	})).Return(nil)
+
+	err := authService.Logout(tokenStr)
+
+	assert.NoError(t, err)
+	cacheService.AssertExpectations(t)
+}
+
+func TestAuthService_Logout_InvalidToken(t *testing.T) {
+	userRepo := mocks.NewMockIUserRepository(t)
+	cacheService := mocks.NewMockICacheService(t)
+
+	authService := service.NewAuthService(userRepo, cacheService)
+
+	tokenStr := "invalid.token.string"
+
+	err := authService.Logout(tokenStr)
+
+	assert.Error(t, err)
+	assert.Equal(t, "invalid token", err.Error())
+}
+
+func TestAuthService_Logout_BlacklistError(t *testing.T) {
+	userRepo := mocks.NewMockIUserRepository(t)
+	cacheService := mocks.NewMockICacheService(t)
+
+	authService := service.NewAuthService(userRepo, cacheService)
+
+	tokenStr, _ := security.GenerateToken(1, "testuser")
+
+	cacheService.On("BlacklistToken", tokenStr, mock.AnythingOfType("int")).Return(errors.New("redis down"))
+
+	err := authService.Logout(tokenStr)
+
+	assert.Error(t, err)
+	assert.Equal(t, "failed to logout", err.Error())
+	cacheService.AssertExpectations(t)
 }
