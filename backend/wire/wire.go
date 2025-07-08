@@ -32,23 +32,34 @@ var authService = wire.NewSet(
 	wire.Bind(new(service.IAuthService), new(*service.AuthService)),
 )
 
+var authRepoProvider = wire.NewSet(
+	db.InitDB,
+	userRepo,
+)
+
+var cacheRepoProvider = wire.NewSet(
+	cache.InitRedis,
+	cacheRepo,
+)
+
+var cacheServiceProvider = wire.NewSet(
+	cacheRepoProvider,
+	cacheService,
+)
+
 func InitICacheService(cacheConfig cache.RedisConfig) service.ICacheService {
 	wire.Build(
-		cache.InitRedis,
-		cacheRepo,
 		cacheService,
+		cacheRepoProvider,
 	)
 	return nil
 }
 
 func InitIAuthService(dsn string, cacheConfig cache.RedisConfig) service.IAuthService {
 	wire.Build(
-		db.InitDB,
-		cache.InitRedis,
-		userRepo,
-		cacheRepo,
-		cacheService,
 		authService,
+		authRepoProvider,
+		cacheServiceProvider,
 	)
 	return nil
 }
