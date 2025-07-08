@@ -16,8 +16,6 @@ func RegisterAuthRouters(rg *gin.RouterGroup, userService service.IAuthService) 
 	handler := &AuthHandler{userService}
 	group := rg.Group("/auth")
 	group.POST("/login", handler.login)
-	// group.POST("/register", handler.register)
-	// group.POST("/logout", middleware.AuthMiddleware(cacheRepo), handler.logout)
 }
 
 func (h *AuthHandler) login(c *gin.Context) {
@@ -31,9 +29,14 @@ func (h *AuthHandler) login(c *gin.Context) {
 		utils.Unauthorized(c, err.Error())
 		return
 	}
+	userResp := models.UserCreateResponse{
+		Username:    user.Username,
+		DisplayName: user.DisplayName,
+		Email:       user.Email,
+	}
 
 	utils.OK(c, gin.H{
 		"token": token,
-		"user":  user,
+		"user":  userResp,
 	})
 }

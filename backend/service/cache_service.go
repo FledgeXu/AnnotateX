@@ -11,11 +11,11 @@ type ICacheService interface {
 }
 
 type CacheService struct {
-	Repo repo.ICacheRepository
+	Repo repo.ICacheRepo
 	Ctx  context.Context
 }
 
-func NewCacheService(repo repo.ICacheRepository) *CacheService {
+func NewCacheService(repo repo.ICacheRepo) *CacheService {
 	return &CacheService{
 		Repo: repo,
 		Ctx:  context.Background(),

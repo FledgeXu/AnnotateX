@@ -26,7 +26,7 @@ func TestCacheRepository(t *testing.T) {
 	defer client.Close()
 	clearTestRedisData(client)
 
-	cacheRepo := repo.NewCacheRepository(client)
+	cacheRepo := repo.NewCacheRepo(client)
 
 	t.Run("Set and Get", func(t *testing.T) {
 		err := cacheRepo.Set("test_key", "test_value", 10)

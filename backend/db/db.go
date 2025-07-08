@@ -2,21 +2,29 @@ package db
 
 import (
 	"log"
+	"sync"
 	"time"
 
-	_ "github.com/jackc/pgx/v5/stdlib"
+	_ "github.com/jackc/pgx/v5/stdlib" // 注册 "pgx"
 	"github.com/jmoiron/sqlx"
 )
 
+var (
+	dbInstance *sqlx.DB
+	once       sync.Once
+	initErr    error
+)
+
 func InitDB(dsn string) *sqlx.DB {
-	var err error
-	DB, err := sqlx.Connect("pgx", dsn)
-	if err != nil {
-		log.Fatalf("connect db failed: %v", err)
-	}
-	DB.SetMaxOpenConns(10)
-	DB.SetMaxIdleConns(5)
-	DB.SetConnMaxIdleTime(5 * time.Minute)
-	DB.SetConnMaxLifetime(30 * time.Minute)
-	return DB
+	once.Do(func() {
+		dbInstance, initErr = sqlx.Connect("pgx", dsn)
+		if initErr != nil {
+			log.Fatalf("connect db failed: %v", initErr)
+		}
+		dbInstance.SetMaxOpenConns(10)
+		dbInstance.SetMaxIdleConns(5)
+		dbInstance.SetConnMaxIdleTime(5 * time.Minute)
+		dbInstance.SetConnMaxLifetime(30 * time.Minute)
+	})
+	return dbInstance
 }

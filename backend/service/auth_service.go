@@ -11,15 +11,15 @@ import (
 type IAuthService interface {
 	Login(username, password string) (*models.User, string, error)
 	Register(createRequest *models.CreateUserRequest) error
-	Logout(userID int64) error
+	Logout(tokenStr string) error
 }
 
 type AuthService struct {
-	UserRepo     repo.IUserRepository
+	UserRepo     repo.IUserRepo
 	CacheService ICacheService
 }
 
-func NewAuthService(userRepo repo.IUserRepository, CacheService ICacheService) *AuthService {
+func NewAuthService(userRepo repo.IUserRepo, CacheService ICacheService) *AuthService {
 	return &AuthService{
 		UserRepo:     userRepo,
 		CacheService: CacheService,

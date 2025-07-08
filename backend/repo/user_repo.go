@@ -8,7 +8,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type IUserRepository interface {
+type IUserRepo interface {
 	// Create
 	CreateUser(user *models.User) (int64, error)
 	// Read
@@ -19,7 +19,7 @@ type IUserRepository interface {
 
 	// Update
 	UpdateUser(user *models.User) error
-	UpdateUserPassword(id int64, newHash string)
+	UpdateUserPassword(id int64, newHash string) error
 
 	// Delete
 	DeleteUser(id int64) error
