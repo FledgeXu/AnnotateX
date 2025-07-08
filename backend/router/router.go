@@ -15,7 +15,7 @@ func SetupRouter() *gin.Engine {
 
 	// v1 := r.Group("/v1")
 
-	// api.RegisterAuthRouters(v1, injectObject.UserRepo, injectObject.CacheRepo, injectObject.UserService)
+	// api.RegisterAuthRouters(v1)
 
 	return r
 }
