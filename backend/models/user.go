@@ -17,12 +17,12 @@ type CreateUserRequest struct {
 }
 
 type UserResponse struct {
-	ID          int64     `db:"id"`
+	ID          int64     `json:"id" binding:"required"`
 	Username    string    `json:"username" binding:"required"`
-	DisplayName string    `json:"displayName"`
+	DisplayName string    `json:"display_name"`
 	Email       string    `json:"email" binding:"omitempty,email"`
-	CreatedAt   time.Time `db:"created_at"`
-	UpdatedAt   time.Time `db:"updated_at"`
+	CreatedAt   time.Time `json:"created_at" binding:"required"`
+	UpdatedAt   time.Time `json:"updated_at" binding:"required"`
 	// Role        string `json:"role" binding:"omitempty,oneof=super_admin admin project_manager reviewer labeler"`
 }
 

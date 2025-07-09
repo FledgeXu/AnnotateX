@@ -20,6 +20,7 @@ func SetupRouter() *gin.Engine {
 		Password: config.GetConfig().REDIS_PASSWORD,
 		DB:       config.GetConfig().REDIS_DB,
 	}
+	userService := wire.InitIUserService(config.GetConfig().DATABASE_URL)
 	authService := wire.InitIAuthService(config.GetConfig().DATABASE_URL, cacheConfig)
 	cacheService := wire.InitICacheService(cacheConfig)
 
@@ -28,6 +29,7 @@ func SetupRouter() *gin.Engine {
 	v1 := r.Group("/v1")
 
 	api.RegisterAuthRouters(v1, authService, cacheService)
+	api.RegisterUserRouters(v1, userService)
 
 	return r
 }
