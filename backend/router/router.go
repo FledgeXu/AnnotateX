@@ -21,12 +21,13 @@ func SetupRouter() *gin.Engine {
 		DB:       config.GetConfig().REDIS_DB,
 	}
 	authService := wire.InitIAuthService(config.GetConfig().DATABASE_URL, cacheConfig)
+	cacheService := wire.InitICacheService(cacheConfig)
 
 	r.Use(bootstrap.SetupCors())
 
 	v1 := r.Group("/v1")
 
-	api.RegisterAuthRouters(v1, authService)
+	api.RegisterAuthRouters(v1, authService, cacheService)
 
 	return r
 }
