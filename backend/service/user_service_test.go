@@ -1,0 +1,53 @@
+package service_test
+
+import (
+	"annotate-x/mocks"
+	"annotate-x/models"
+	"annotate-x/service"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+)
+
+func TestAuthService_Register_Success(t *testing.T) {
+	userRepo := mocks.NewMockIUserRepo(t)
+
+	userRepo.On("UsernameExists", "newuser").Return(false, nil)
+	userRepo.On("CreateUser", mock.AnythingOfType("*models.User")).Return(int64(1), nil)
+
+	userService := service.NewUserService(userRepo)
+
+	req := &models.CreateUserRequest{
+		Username:    "newuser",
+		Password:    "pass123",
+		DisplayName: "New User",
+		Email:       "new@example.com",
+	}
+
+	err := userService.Register(req)
+
+	assert.NoError(t, err)
+	userRepo.AssertExpectations(t)
+}
+
+func TestAuthService_Register_UsernameExists(t *testing.T) {
+	userRepo := mocks.NewMockIUserRepo(t)
+
+	userRepo.On("UsernameExists", "existinguser").Return(true, nil)
+
+	userService := service.NewUserService(userRepo)
+
+	req := &models.CreateUserRequest{
+		Username:    "existinguser",
+		Password:    "pass123",
+		DisplayName: "Existing User",
+		Email:       "existing@example.com",
+	}
+
+	err := userService.Register(req)
+
+	assert.Error(t, err)
+	assert.Equal(t, "Username already exists.", err.Error())
+	userRepo.AssertExpectations(t)
+}

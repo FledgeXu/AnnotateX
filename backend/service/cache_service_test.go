@@ -9,7 +9,7 @@ import (
 )
 
 func TestCacheService_BlacklistToken(t *testing.T) {
-	mockRepo := mocks.NewMockICacheRepository(t)
+	mockRepo := mocks.NewMockICacheRepo(t)
 	cacheService := service.NewCacheService(mockRepo)
 
 	token := "abc123"
@@ -24,7 +24,7 @@ func TestCacheService_BlacklistToken(t *testing.T) {
 }
 
 func TestCacheService_IsTokenBlacklisted(t *testing.T) {
-	mockRepo := mocks.NewMockICacheRepository(t)
+	mockRepo := mocks.NewMockICacheRepo(t)
 	cacheService := service.NewCacheService(mockRepo)
 
 	token := "expired-token"
