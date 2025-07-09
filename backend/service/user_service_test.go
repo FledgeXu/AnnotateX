@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestAuthService_Register_Success(t *testing.T) {
+func TestAuthService_Create_Success(t *testing.T) {
 	userRepo := mocks.NewMockIUserRepo(t)
 
 	userRepo.On("UsernameExists", "newuser").Return(false, nil)
@@ -25,13 +25,13 @@ func TestAuthService_Register_Success(t *testing.T) {
 		Email:       "new@example.com",
 	}
 
-	err := userService.Register(req)
+	err := userService.Create(req)
 
 	assert.NoError(t, err)
 	userRepo.AssertExpectations(t)
 }
 
-func TestAuthService_Register_UsernameExists(t *testing.T) {
+func TestAuthService_Create_UsernameExists(t *testing.T) {
 	userRepo := mocks.NewMockIUserRepo(t)
 
 	userRepo.On("UsernameExists", "existinguser").Return(true, nil)
@@ -45,7 +45,7 @@ func TestAuthService_Register_UsernameExists(t *testing.T) {
 		Email:       "existing@example.com",
 	}
 
-	err := userService.Register(req)
+	err := userService.Create(req)
 
 	assert.Error(t, err)
 	assert.Equal(t, "Username already exists.", err.Error())

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"annotate-x/models"
 	"annotate-x/service"
 	"annotate-x/utils"
 	"fmt"
@@ -16,9 +17,22 @@ type UserHandler struct {
 func RegisterUserRouters(rg *gin.RouterGroup, userService service.IUserService) {
 	handler := &UserHandler{userService}
 	group := rg.Group("/users")
+	group.POST("/create", handler.createUser)
 	group.GET("/:id", handler.getUserById)
 }
 
+func (h *UserHandler) createUser(c *gin.Context) {
+	var req *models.CreateUserRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.BadRequest(c, err.Error())
+		return
+	}
+	if err := h.UserService.Create(req); err != nil {
+		utils.BadRequest(c, err.Error())
+		return
+	}
+	utils.Created(c, gin.H{})
+}
 func (h *UserHandler) getUserById(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	fmt.Println(id)

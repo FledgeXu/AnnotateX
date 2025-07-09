@@ -8,7 +8,7 @@ import (
 )
 
 type IUserService interface {
-	Register(createRequest *models.CreateUserRequest) error
+	Create(createRequest *models.CreateUserRequest) error
 	GetUserById(userId int64) (*models.UserResponse, error)
 }
 
@@ -22,7 +22,7 @@ func NewUserService(userRepo repo.IUserRepo) *UserService {
 	}
 }
 
-func (s *UserService) Register(createRequest *models.CreateUserRequest) error {
+func (s *UserService) Create(createRequest *models.CreateUserRequest) error {
 	isExist, err := s.UserRepo.UsernameExists(createRequest.Username)
 	if err != nil {
 		return err

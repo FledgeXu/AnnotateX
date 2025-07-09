@@ -4,14 +4,14 @@ import "time"
 
 type UpdateUserRequest struct {
 	Password    string `json:"password" binding:"omitempty,required,min=8,max=64"`
-	DisplayName string `json:"displayName" binding:"omitempty"`
+	DisplayName string `json:"display_name" binding:"omitempty"`
 	Email       string `json:"email" binding:"omitempty,email"`
 }
 
 type CreateUserRequest struct {
 	Username    string `json:"username" binding:"required"`
 	Password    string `json:"password" binding:"required,min=8,max=64"`
-	DisplayName string `json:"displayName"`
+	DisplayName string `json:"display_name"`
 	Email       string `json:"email" binding:"omitempty,email"`
 	// Role        string `json:"role" binding:"omitempty,oneof=super_admin admin project_manager reviewer labeler"`
 }
