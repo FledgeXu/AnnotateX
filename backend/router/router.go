@@ -7,6 +7,7 @@ import (
 	"annotate-x/config"
 	"annotate-x/wire"
 
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,6 +15,7 @@ func SetupRouter() *gin.Engine {
 	bootstrap.CreateSuperAdmin()
 
 	r := gin.Default()
+	r.Use(gzip.Gzip(gzip.DefaultCompression))
 
 	cacheConfig := cache.RedisConfig{
 		Addr:     config.GetConfig().REDIS_ADDRESS,
