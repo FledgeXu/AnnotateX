@@ -9,6 +9,7 @@ import (
 
 type IUserService interface {
 	Register(createRequest *models.CreateUserRequest) error
+	GetUserById(userId int64) (*models.UserResponse, error)
 }
 
 type UserService struct {
@@ -49,4 +50,21 @@ func (s *UserService) Register(createRequest *models.CreateUserRequest) error {
 	}
 
 	return nil
+}
+
+func (s *UserService) GetUserById(userId int64) (*models.UserResponse, error) {
+	user, err := s.UserRepo.GetUserByID(userId)
+	if err != nil {
+		return nil, err
+	}
+	userResp := &models.UserResponse{
+		ID:          user.ID,
+		Username:    user.Username,
+		DisplayName: user.DisplayName,
+		Email:       user.Email,
+		CreatedAt:   user.CreatedAt,
+		UpdatedAt:   user.UpdatedAt,
+	}
+
+	return userResp, nil
 }

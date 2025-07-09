@@ -16,10 +16,13 @@ type CreateUserRequest struct {
 	// Role        string `json:"role" binding:"omitempty,oneof=super_admin admin project_manager reviewer labeler"`
 }
 
-type UserCreateResponse struct {
-	Username    string `json:"username" binding:"required"`
-	DisplayName string `json:"displayName"`
-	Email       string `json:"email" binding:"omitempty,email"`
+type UserResponse struct {
+	ID          int64     `db:"id"`
+	Username    string    `json:"username" binding:"required"`
+	DisplayName string    `json:"displayName"`
+	Email       string    `json:"email" binding:"omitempty,email"`
+	CreatedAt   time.Time `db:"created_at"`
+	UpdatedAt   time.Time `db:"updated_at"`
 	// Role        string `json:"role" binding:"omitempty,oneof=super_admin admin project_manager reviewer labeler"`
 }
 

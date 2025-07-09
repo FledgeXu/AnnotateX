@@ -33,10 +33,13 @@ func (h *AuthHandler) login(c *gin.Context) {
 		utils.Unauthorized(c, err.Error())
 		return
 	}
-	userResp := models.UserCreateResponse{
+	userResp := models.UserResponse{
+		ID:          user.ID,
 		Username:    user.Username,
 		DisplayName: user.DisplayName,
 		Email:       user.Email,
+		CreatedAt:   user.CreatedAt,
+		UpdatedAt:   user.UpdatedAt,
 	}
 
 	utils.OK(c, gin.H{
