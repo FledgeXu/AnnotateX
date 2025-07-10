@@ -28,7 +28,7 @@ func (h *AuthHandler) login(c *gin.Context) {
 		utils.BadRequest(c, err.Error())
 		return
 	}
-	user, token, err := h.UserService.Login(req.Username, req.Password)
+	user, token, err := h.UserService.Login(c.Request.Context(), req.Username, req.Password)
 	if err != nil || !user.IsActive {
 		utils.Unauthorized(c, err.Error())
 		return
@@ -58,7 +58,7 @@ func (h *AuthHandler) logout(c *gin.Context) {
 	}
 
 	expiration := time.Until(claims.ExpiresAt.Time)
-	err = h.CacheService.BlacklistToken(tokenStr, int(expiration))
+	err = h.CacheService.BlacklistToken(c.Request.Context(), tokenStr, int(expiration))
 	if err != nil {
 		utils.InternalServerError(c, "Failed to logout")
 		return

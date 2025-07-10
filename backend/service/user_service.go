@@ -4,12 +4,13 @@ import (
 	"annotate-x/models"
 	"annotate-x/repo"
 	"annotate-x/utils/security"
+	"context"
 	"errors"
 )
 
 type IUserService interface {
-	Create(createRequest *models.CreateUserRequest) error
-	GetUserById(userId int64) (*models.UserResponse, error)
+	Create(ctx context.Context, createRequest *models.CreateUserRequest) error
+	GetUserById(ctx context.Context, userId int64) (*models.UserResponse, error)
 }
 
 type UserService struct {
@@ -22,8 +23,8 @@ func NewUserService(userRepo repo.IUserRepo) *UserService {
 	}
 }
 
-func (s *UserService) Create(createRequest *models.CreateUserRequest) error {
-	isExist, err := s.UserRepo.UsernameExists(createRequest.Username)
+func (s *UserService) Create(ctx context.Context, createRequest *models.CreateUserRequest) error {
+	isExist, err := s.UserRepo.UsernameExists(ctx, createRequest.Username)
 	if err != nil {
 		return err
 	}
@@ -44,7 +45,7 @@ func (s *UserService) Create(createRequest *models.CreateUserRequest) error {
 		IsActive:    true,
 	}
 
-	_, err = s.UserRepo.CreateUser(newUser)
+	_, err = s.UserRepo.CreateUser(ctx, newUser)
 	if err != nil {
 		return err
 	}
@@ -52,8 +53,8 @@ func (s *UserService) Create(createRequest *models.CreateUserRequest) error {
 	return nil
 }
 
-func (s *UserService) GetUserById(userId int64) (*models.UserResponse, error) {
-	user, err := s.UserRepo.GetUserByID(userId)
+func (s *UserService) GetUserById(ctx context.Context, userId int64) (*models.UserResponse, error) {
+	user, err := s.UserRepo.GetUserByID(ctx, userId)
 	if err != nil {
 		return nil, err
 	}

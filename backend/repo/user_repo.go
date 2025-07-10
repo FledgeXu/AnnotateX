@@ -2,6 +2,7 @@ package repo
 
 import (
 	"annotate-x/models"
+	"context"
 	"database/sql"
 	"errors"
 
@@ -10,19 +11,19 @@ import (
 
 type IUserRepo interface {
 	// Create
-	CreateUser(user *models.User) (int64, error)
+	CreateUser(ctx context.Context, user *models.User) (int64, error)
 	// Read
-	GetUserByID(id int64) (*models.User, error)
-	GetUserByUsername(username string) (*models.User, error)
+	GetUserByID(ctx context.Context, id int64) (*models.User, error)
+	GetUserByUsername(ctx context.Context, username string) (*models.User, error)
 	// ListUsers() ([]model.User, error)
-	UsernameExists(username string) (bool, error)
+	UsernameExists(ctx context.Context, username string) (bool, error)
 
 	// Update
-	UpdateUser(user *models.User) error
-	UpdateUserPassword(id int64, newHash string) error
+	UpdateUser(ctx context.Context, user *models.User) error
+	UpdateUserPassword(ctx context.Context, id int64, newHash string) error
 
 	// Delete
-	DeleteUser(id int64) error
+	DeleteUser(ctx context.Context, id int64) error
 }
 
 type UserRepo struct {
@@ -33,14 +34,14 @@ func NewUserRepo(db *sqlx.DB) *UserRepo {
 	return &UserRepo{DB: db}
 }
 
-func (r *UserRepo) CreateUser(user *models.User) (int64, error) {
+func (r *UserRepo) CreateUser(ctx context.Context, user *models.User) (int64, error) {
 	var id int64
 	query := `
 		INSERT INTO users (username, password_hash, display_name, email, is_active)
 		VALUES (:username, :password_hash, :display_name, :email, :is_active) 
 		RETURNING id
 	`
-	stmt, err := r.DB.PrepareNamed(query)
+	stmt, err := r.DB.PrepareNamedContext(ctx, query)
 	if err != nil {
 		return 0, err
 	}
@@ -48,9 +49,9 @@ func (r *UserRepo) CreateUser(user *models.User) (int64, error) {
 	return id, err
 }
 
-func (r *UserRepo) GetUserByID(id int64) (*models.User, error) {
+func (r *UserRepo) GetUserByID(ctx context.Context, id int64) (*models.User, error) {
 	var user models.User
-	err := r.DB.Get(&user, `
+	err := r.DB.GetContext(ctx, &user, `
 		SELECT id, username, password_hash, display_name, email, is_active, created_at, updated_at
 		FROM users
 		WHERE id = $1
@@ -62,9 +63,9 @@ func (r *UserRepo) GetUserByID(id int64) (*models.User, error) {
 	return &user, nil
 }
 
-func (r *UserRepo) GetUserByUsername(username string) (*models.User, error) {
+func (r *UserRepo) GetUserByUsername(ctx context.Context, username string) (*models.User, error) {
 	var user models.User
-	err := r.DB.Get(&user, `
+	err := r.DB.GetContext(ctx, &user, `
 		SELECT id, username, password_hash, display_name, email, is_active, created_at, updated_at
 		FROM users
 		WHERE username = $1
@@ -76,13 +77,13 @@ func (r *UserRepo) GetUserByUsername(username string) (*models.User, error) {
 	return &user, nil
 }
 
-func (r *UserRepo) UsernameExists(username string) (bool, error) {
+func (r *UserRepo) UsernameExists(ctx context.Context, username string) (bool, error) {
 	var exists bool
-	err := r.DB.Get(&exists, "SELECT EXISTS(SELECT 1 FROM users WHERE username = $1)", username)
+	err := r.DB.GetContext(ctx, &exists, "SELECT EXISTS(SELECT 1 FROM users WHERE username = $1)", username)
 	return exists, err
 }
 
-func (r *UserRepo) UpdateUser(user *models.User) error {
+func (r *UserRepo) UpdateUser(ctx context.Context, user *models.User) error {
 	query := `
 		UPDATE users
 		SET username = :username,
@@ -93,7 +94,7 @@ func (r *UserRepo) UpdateUser(user *models.User) error {
 		    updated_at = NOW()
 		WHERE id = :id
 	`
-	result, err := r.DB.NamedExec(query, user)
+	result, err := r.DB.NamedExecContext(ctx, query, user)
 	if err != nil {
 		return err
 	}
@@ -104,8 +105,8 @@ func (r *UserRepo) UpdateUser(user *models.User) error {
 	return nil
 }
 
-func (r *UserRepo) UpdateUserPassword(userID int64, newHash string) error {
-	result, err := r.DB.Exec(`
+func (r *UserRepo) UpdateUserPassword(ctx context.Context, userID int64, newHash string) error {
+	result, err := r.DB.ExecContext(ctx, `
 		UPDATE users
 		SET password_hash = $1, updated_at = NOW()
 		WHERE id = $2
@@ -123,8 +124,8 @@ func (r *UserRepo) UpdateUserPassword(userID int64, newHash string) error {
 	return nil
 }
 
-func (r *UserRepo) DeleteUser(id int64) error {
-	result, err := r.DB.Exec("DELETE FROM users WHERE id = $1", id)
+func (r *UserRepo) DeleteUser(ctx context.Context, id int64) error {
+	result, err := r.DB.ExecContext(ctx, "DELETE FROM users WHERE id = $1", id)
 	if err != nil {
 		return err
 	}

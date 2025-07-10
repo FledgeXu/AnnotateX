@@ -6,8 +6,8 @@ import (
 )
 
 type ICacheService interface {
-	BlacklistToken(token string, ttlSeconds int) error
-	IsTokenBlacklisted(token string) (bool, error)
+	BlacklistToken(ctx context.Context, token string, ttlSeconds int) error
+	IsTokenBlacklisted(ctx context.Context, token string) (bool, error)
 }
 
 type CacheService struct {
@@ -22,12 +22,12 @@ func NewCacheService(repo repo.ICacheRepo) *CacheService {
 	}
 }
 
-func (s *CacheService) BlacklistToken(token string, ttlSeconds int) error {
+func (s *CacheService) BlacklistToken(ctx context.Context, token string, ttlSeconds int) error {
 	key := "blacklist:" + token
-	return s.Repo.Set(key, "1", ttlSeconds)
+	return s.Repo.Set(ctx, key, "1", ttlSeconds)
 }
 
-func (s *CacheService) IsTokenBlacklisted(token string) (bool, error) {
+func (s *CacheService) IsTokenBlacklisted(ctx context.Context, token string) (bool, error) {
 	key := "blacklist:" + token
-	return s.Repo.Exists(key)
+	return s.Repo.Exists(ctx, key)
 }

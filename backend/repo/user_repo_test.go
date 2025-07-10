@@ -3,6 +3,7 @@ package repo_test
 import (
 	"annotate-x/models"
 	"annotate-x/repo"
+	"context"
 	"database/sql"
 	"testing"
 	"time"
@@ -22,6 +23,7 @@ func setupMockDB(t *testing.T) (*sqlx.DB, sqlmock.Sqlmock) {
 func TestCreateUser(t *testing.T) {
 	db, mock := setupMockDB(t)
 	repo := repo.NewUserRepo(db)
+	context := context.Background()
 
 	user := &models.User{
 		Username:    "testuser",
@@ -36,7 +38,7 @@ func TestCreateUser(t *testing.T) {
 		WithArgs(user.Username, user.Password, user.DisplayName, user.Email, user.IsActive).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
 
-	id, err := repo.CreateUser(user)
+	id, err := repo.CreateUser(context, user)
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), id)
 }
@@ -44,6 +46,7 @@ func TestCreateUser(t *testing.T) {
 func TestGetUserByID(t *testing.T) {
 	db, mock := setupMockDB(t)
 	repo := repo.NewUserRepo(db)
+	context := context.Background()
 
 	mockUser := models.User{
 		ID:          1,
@@ -67,7 +70,7 @@ func TestGetUserByID(t *testing.T) {
 		WithArgs(mockUser.ID).
 		WillReturnRows(rows)
 
-	user, err := repo.GetUserByID(mockUser.ID)
+	user, err := repo.GetUserByID(context, mockUser.ID)
 	assert.NoError(t, err)
 	assert.Equal(t, mockUser.Username, user.Username)
 }
@@ -75,6 +78,7 @@ func TestGetUserByID(t *testing.T) {
 func TestGetUserByUsername(t *testing.T) {
 	db, mock := setupMockDB(t)
 	repo := repo.NewUserRepo(db)
+	context := context.Background()
 
 	mockUser := models.User{
 		ID:          2,
@@ -98,7 +102,7 @@ func TestGetUserByUsername(t *testing.T) {
 		WithArgs(mockUser.Username).
 		WillReturnRows(rows)
 
-	user, err := repo.GetUserByUsername(mockUser.Username)
+	user, err := repo.GetUserByUsername(context, mockUser.Username)
 	assert.NoError(t, err)
 	assert.Equal(t, mockUser.ID, user.ID)
 }
@@ -106,12 +110,13 @@ func TestGetUserByUsername(t *testing.T) {
 func TestUsernameExists(t *testing.T) {
 	db, mock := setupMockDB(t)
 	repo := repo.NewUserRepo(db)
+	context := context.Background()
 
 	mock.ExpectQuery(`SELECT EXISTS\(SELECT 1 FROM users WHERE username = \$1\)`).
 		WithArgs("testuser").
 		WillReturnRows(sqlmock.NewRows([]string{"exists"}).AddRow(true))
 
-	exists, err := repo.UsernameExists("testuser")
+	exists, err := repo.UsernameExists(context, "testuser")
 	assert.NoError(t, err)
 	assert.True(t, exists)
 }
@@ -119,6 +124,7 @@ func TestUsernameExists(t *testing.T) {
 func TestUpdateUser(t *testing.T) {
 	db, mock := setupMockDB(t)
 	repo := repo.NewUserRepo(db)
+	context := context.Background()
 
 	user := &models.User{
 		ID:          1,
@@ -139,7 +145,7 @@ func TestUpdateUser(t *testing.T) {
 			user.ID,
 		).WillReturnResult(sqlmock.NewResult(0, 1))
 
-	err := repo.UpdateUser(user)
+	err := repo.UpdateUser(context, user)
 	assert.NoError(t, err)
 }
 
@@ -148,6 +154,7 @@ func TestUpdateUserPassword(t *testing.T) {
 	defer db.Close()
 
 	userRepo := repo.NewUserRepo(db)
+	context := context.Background()
 
 	const (
 		userID  = int64(123)
@@ -158,32 +165,33 @@ func TestUpdateUserPassword(t *testing.T) {
 		WithArgs(newHash, userID).
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
-	err := userRepo.UpdateUserPassword(userID, newHash)
+	err := userRepo.UpdateUserPassword(context, userID, newHash)
 	assert.NoError(t, err)
 
 	mock.ExpectExec(`UPDATE users`).
 		WithArgs(newHash, userID).
 		WillReturnResult(sqlmock.NewResult(0, 0))
 
-	err = userRepo.UpdateUserPassword(userID, newHash)
+	err = userRepo.UpdateUserPassword(context, userID, newHash)
 	assert.Equal(t, sql.ErrNoRows, err)
 
 	mock.ExpectExec(`UPDATE users`).
 		WithArgs(newHash, userID).
 		WillReturnError(sql.ErrConnDone)
 
-	err = userRepo.UpdateUserPassword(userID, newHash)
+	err = userRepo.UpdateUserPassword(context, userID, newHash)
 	assert.Error(t, err)
 }
 
 func TestDeleteUser(t *testing.T) {
 	db, mock := setupMockDB(t)
 	repo := repo.NewUserRepo(db)
+	context := context.Background()
 
 	mock.ExpectExec(`DELETE FROM users WHERE id = \$1`).
 		WithArgs(1).
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
-	err := repo.DeleteUser(1)
+	err := repo.DeleteUser(context, 1)
 	assert.NoError(t, err)
 }

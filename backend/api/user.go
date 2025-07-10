@@ -27,7 +27,7 @@ func (h *UserHandler) createUser(c *gin.Context) {
 		utils.BadRequest(c, err.Error())
 		return
 	}
-	if err := h.UserService.Create(req); err != nil {
+	if err := h.UserService.Create(c.Request.Context(), req); err != nil {
 		utils.BadRequest(c, err.Error())
 		return
 	}
@@ -40,7 +40,7 @@ func (h *UserHandler) getUserById(c *gin.Context) {
 		utils.BadRequest(c, "Invalid user ID")
 		return
 	}
-	userResp, err := h.UserService.GetUserById(id)
+	userResp, err := h.UserService.GetUserById(c.Request.Context(), id)
 	if err != nil {
 		utils.InternalServerError(c, err.Error())
 		return

@@ -4,13 +4,14 @@ import (
 	"annotate-x/models"
 	"annotate-x/repo"
 	"annotate-x/utils/security"
+	"context"
 	"errors"
 	"time"
 )
 
 type IAuthService interface {
-	Login(username, password string) (*models.User, string, error)
-	Logout(tokenStr string) error
+	Login(ctx context.Context, username, password string) (*models.User, string, error)
+	Logout(ctx context.Context, tokenStr string) error
 }
 
 type AuthService struct {
@@ -25,8 +26,8 @@ func NewAuthService(userRepo repo.IUserRepo, CacheService ICacheService) *AuthSe
 	}
 }
 
-func (s *AuthService) Login(username, password string) (*models.User, string, error) {
-	user, err := s.UserRepo.GetUserByUsername(username)
+func (s *AuthService) Login(ctx context.Context, username, password string) (*models.User, string, error) {
+	user, err := s.UserRepo.GetUserByUsername(ctx, username)
 	if err != nil {
 		return nil, "", errors.New("Invalid username or password")
 	}
@@ -40,7 +41,7 @@ func (s *AuthService) Login(username, password string) (*models.User, string, er
 	if needsRehash {
 		if newHash, ok, err := security.RehashIfNeeded(password, user.Password); err == nil && ok {
 			user.Password = newHash
-			s.UserRepo.UpdateUserPassword(user.ID, newHash)
+			s.UserRepo.UpdateUserPassword(ctx, user.ID, newHash)
 		}
 	}
 
@@ -57,7 +58,7 @@ func (s *AuthService) Login(username, password string) (*models.User, string, er
 	return user, token, nil
 }
 
-func (s *AuthService) Logout(tokenStr string) error {
+func (s *AuthService) Logout(ctx context.Context, tokenStr string) error {
 	claims, err := security.ParseToken(tokenStr)
 	if err != nil {
 		return errors.New("invalid token")
@@ -68,7 +69,7 @@ func (s *AuthService) Logout(tokenStr string) error {
 		return nil
 	}
 
-	err = s.CacheService.BlacklistToken(tokenStr, int(expiration.Seconds()))
+	err = s.CacheService.BlacklistToken(ctx, tokenStr, int(expiration.Seconds()))
 	if err != nil {
 		return errors.New("failed to logout")
 	}
