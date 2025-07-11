@@ -41,11 +41,10 @@ func (r *UserRepo) CreateUser(ctx context.Context, user *models.User) (int64, er
 		VALUES (:username, :password_hash, :display_name, :email, :is_active) 
 		RETURNING id
 	`
-	stmt, err := r.DB.PrepareNamedContext(ctx, query)
+	err := r.DB.GetContext(ctx, &id, query, user)
 	if err != nil {
 		return 0, err
 	}
-	err = stmt.Get(&id, user)
 	return id, err
 }
 
