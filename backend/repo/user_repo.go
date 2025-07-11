@@ -11,7 +11,7 @@ import (
 
 type IUserRepo interface {
 	// Create
-	CreateUser(ctx context.Context, user *models.User) (int64, error)
+	CreateUser(ctx context.Context, user *models.User) error
 	// Read
 	GetUserByID(ctx context.Context, id int64) (*models.User, error)
 	GetUserByUsername(ctx context.Context, username string) (*models.User, error)
@@ -34,18 +34,23 @@ func NewUserRepo(db *sqlx.DB) *UserRepo {
 	return &UserRepo{DB: db}
 }
 
-func (r *UserRepo) CreateUser(ctx context.Context, user *models.User) (int64, error) {
-	var id int64
+func (r *UserRepo) CreateUser(ctx context.Context, user *models.User) error {
 	query := `
 		INSERT INTO users (username, password_hash, display_name, email, is_active)
 		VALUES (:username, :password_hash, :display_name, :email, :is_active) 
-		RETURNING id
 	`
-	err := r.DB.GetContext(ctx, &id, query, *user)
+	result, err := r.DB.NamedExecContext(ctx, query, user)
 	if err != nil {
-		return 0, err
+		return err
 	}
-	return id, err
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
+	}
+	return nil
 }
 
 func (r *UserRepo) GetUserByID(ctx context.Context, id int64) (*models.User, error) {

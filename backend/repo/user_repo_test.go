@@ -25,14 +25,12 @@ func TestCreateUser(t *testing.T) {
 		IsActive:    true,
 	}
 
-	mock.ExpectPrepare("INSERT INTO users").
-		ExpectQuery().
+	mock.ExpectExec("^INSERT INTO users").
 		WithArgs(user.Username, user.Password, user.DisplayName, user.Email, user.IsActive).
-		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
+		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	id, err := repo.CreateUser(context, user)
+	err := repo.CreateUser(context, user)
 	assert.NoError(t, err)
-	assert.Equal(t, int64(1), id)
 }
 
 func TestGetUserByID(t *testing.T) {

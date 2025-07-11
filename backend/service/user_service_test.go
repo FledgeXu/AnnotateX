@@ -16,7 +16,7 @@ func TestAuthService_Create_Success(t *testing.T) {
 	context := context.Background()
 
 	userRepo.On("UsernameExists", mock.Anything, "newuser").Return(false, nil)
-	userRepo.On("CreateUser", mock.Anything, mock.AnythingOfType("*models.User")).Return(int64(1), nil)
+	userRepo.On("CreateUser", mock.Anything, mock.AnythingOfType("*models.User")).Return(nil)
 
 	userService := service.NewUserService(userRepo)
 

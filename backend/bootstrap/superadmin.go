@@ -31,7 +31,7 @@ func CreateSuperAdmin() {
 		Email:       "",
 		IsActive:    true,
 	}
-	if _, err := userRepo.CreateUser(ctx, user); err != nil {
+	if err := userRepo.CreateUser(ctx, user); err != nil {
 		panic(err.Error())
 	}
 }

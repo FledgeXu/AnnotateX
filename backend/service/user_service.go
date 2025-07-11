@@ -45,7 +45,7 @@ func (s *UserService) Create(ctx context.Context, createRequest *models.CreateUs
 		IsActive:    true,
 	}
 
-	_, err = s.UserRepo.CreateUser(ctx, newUser)
+	err = s.UserRepo.CreateUser(ctx, newUser)
 	if err != nil {
 		return err
 	}
