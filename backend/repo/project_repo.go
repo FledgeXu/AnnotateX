@@ -8,7 +8,7 @@ import (
 )
 
 type IProjectRepo interface {
-	CreateProject(ctx context.Context, project *models.CreateProjectRequest) (*models.Project, error)
+	CreateProject(ctx context.Context, projectReq *models.CreateProjectRequest) (*models.Project, error)
 	GetProjectByID(ctx context.Context, id int64) (*models.Project, error)
 	ListProjects(ctx context.Context, filter models.ProjectFilter) ([]*models.Project, error)
 	UpdateProject(ctx context.Context, project *models.Project) error
@@ -22,4 +22,15 @@ type ProjectRepo struct {
 
 func NewProjectRepo(db *sqlx.DB) *ProjectRepo {
 	return &ProjectRepo{DB: db}
+}
+
+func (r *ProjectRepo) CreateProject(ctx context.Context, projectReq *models.CreateProjectRequest) (*models.Project, error) {
+	var project *models.Project
+	query := `
+		INSERT INTO projects (name, modality, description)
+		VALUES (:name, :modality, :description) 
+		RETURNING id, name, modality, status, description, created_at, updated_at
+	`
+	err := r.DB.GetContext(ctx, &project, query, projectReq)
+	return project, err
 }
