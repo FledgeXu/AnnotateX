@@ -33,3 +33,8 @@ type CreateProjectRequest struct {
 	Modality    string `json:"modality" binding:"omitempty"`
 	Description string `json:"description"`
 }
+
+type ProjectFilter struct {
+	Limit  int
+	Offset int
+}
