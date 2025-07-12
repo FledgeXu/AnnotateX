@@ -70,14 +70,6 @@ var cacheServiceProvider = wire.NewSet(
 	cacheService,
 )
 
-func InitICacheService(cacheConfig cache.RedisConfig) service.ICacheService {
-	wire.Build(
-		cacheService,
-		cacheRepoProvider,
-	)
-	return nil
-}
-
 func InitIAuthService(dsn string, cacheConfig cache.RedisConfig) service.IAuthService {
 	wire.Build(
 		authService,

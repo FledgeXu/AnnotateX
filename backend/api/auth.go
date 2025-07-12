@@ -11,12 +11,11 @@ import (
 )
 
 type AuthHandler struct {
-	UserService  service.IAuthService
-	CacheService service.ICacheService
+	AuthService service.IAuthService
 }
 
-func RegisterAuthRouters(rg *gin.RouterGroup, userService service.IAuthService, cacheService service.ICacheService) {
-	handler := &AuthHandler{userService, cacheService}
+func RegisterAuthRouters(rg *gin.RouterGroup, authService service.IAuthService) {
+	handler := &AuthHandler{authService}
 	group := rg.Group("/auth")
 	group.POST("/login", handler.login)
 	group.POST("/logout", handler.logout)
@@ -28,7 +27,7 @@ func (h *AuthHandler) login(c *gin.Context) {
 		utils.BadRequest(c, err.Error())
 		return
 	}
-	user, token, err := h.UserService.Login(c.Request.Context(), req.Username, req.Password)
+	user, token, err := h.AuthService.Login(c.Request.Context(), req.Username, req.Password)
 	if err != nil || !user.IsActive {
 		utils.Unauthorized(c, err.Error())
 		return
@@ -62,7 +61,7 @@ func (h *AuthHandler) logout(c *gin.Context) {
 		return
 	}
 
-	err = h.UserService.Logout(c.Request.Context(), userId, expiration)
+	err = h.AuthService.Logout(c.Request.Context(), userId, expiration)
 	if err != nil {
 		utils.InternalServerError(c, err.Error())
 		return
