@@ -24,6 +24,7 @@ func SetupRouter() *gin.Engine {
 	}
 	userService := wire.InitIUserService(config.GetConfig().DATABASE_URL)
 	authService := wire.InitIAuthService(config.GetConfig().DATABASE_URL, cacheConfig)
+	projectService := wire.InitIProjectService(config.GetConfig().DATABASE_URL)
 	cacheService := wire.InitICacheService(cacheConfig)
 
 	r.Use(bootstrap.SetupCors())
@@ -32,6 +33,7 @@ func SetupRouter() *gin.Engine {
 
 	api.RegisterAuthRouters(v1, authService, cacheService)
 	api.RegisterUserRouters(v1, userService)
+	api.RegisterProjectRouters(v1, projectService)
 
 	return r
 }
