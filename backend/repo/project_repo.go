@@ -44,3 +44,65 @@ func (r *ProjectRepo) CreateProject(ctx context.Context, projectReq *models.Crea
 	}
 	return nil
 }
+
+func (r *ProjectRepo) GetProjectByID(ctx context.Context, id int64) (*models.Project, error) {
+	var project models.Project
+	err := r.DB.GetContext(ctx, &project, `
+	SELECT * 
+	From projects 
+	WHERE id = $1
+	LIMIT 1
+	`, id)
+	if err != nil {
+		return nil, err
+	}
+	return &project, nil
+}
+
+func (r *ProjectRepo) ListProjects(ctx context.Context, filter models.ProjectFilter) ([]*models.Project, error) {
+	projects := []*models.Project{}
+
+	query := `
+		SELECT id, name, modality, status, description, created_at, updated_at
+		FROM projects
+		ORDER BY created_at DESC
+		LIMIT $1 OFFSET $2
+	`
+
+	err := r.DB.SelectContext(ctx, &projects, query, filter.Limit, filter.Offset)
+	if err != nil {
+		return nil, err
+	}
+
+	return projects, nil
+}
+
+func (r *ProjectRepo) UpdateProject(ctx context.Context, project *models.Project) error {
+	query := `
+		UPDATE projects
+		SET name = :name,
+			modality = :modality,
+			status = :status,
+			description = :description,
+			updated_at = NOW()
+		WHERE id = :id
+	`
+	result, err := r.DB.NamedExecContext(ctx, query, project)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
+	}
+	return nil
+}
+
+func (r *ProjectRepo) ProjectNameExists(ctx context.Context, name string) (bool, error) {
+	var exists bool
+	err := r.DB.GetContext(ctx, &exists, `SELECT EXISTS(SELECT 1 FROM projects WHERE name = $1)`, name)
+	return exists, err
+}
