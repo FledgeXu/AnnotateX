@@ -6,12 +6,13 @@ import (
 	"annotate-x/utils/security"
 	"context"
 	"errors"
+	"strconv"
 	"time"
 )
 
 type IAuthService interface {
 	Login(ctx context.Context, username, password string) (*models.User, string, error)
-	Logout(ctx context.Context, tokenStr string) error
+	Logout(ctx context.Context, userId int64, rawExpiration time.Time) error
 }
 
 type AuthService struct {
@@ -58,18 +59,13 @@ func (s *AuthService) Login(ctx context.Context, username, password string) (*mo
 	return user, token, nil
 }
 
-func (s *AuthService) Logout(ctx context.Context, tokenStr string) error {
-	claims, err := security.ParseToken(tokenStr)
-	if err != nil {
-		return errors.New("invalid token")
-	}
-
-	expiration := time.Until(claims.ExpiresAt.Time)
+func (s *AuthService) Logout(ctx context.Context, userId int64, rawExpiration time.Time) error {
+	expiration := time.Until(rawExpiration)
 	if expiration <= 0 {
 		return nil
 	}
 
-	err = s.CacheService.BlacklistToken(ctx, tokenStr, int(expiration.Seconds()))
+	err := s.CacheService.BlacklistToken(ctx, strconv.FormatInt(userId, 10), int(expiration.Seconds()))
 	if err != nil {
 		return errors.New("failed to logout")
 	}

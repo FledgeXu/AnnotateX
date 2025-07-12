@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"annotate-x/models"
-	"annotate-x/utils"
 	"annotate-x/utils/security"
 	"strconv"
 	"strings"
@@ -14,19 +13,16 @@ func InjectUserHeaderMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-			utils.Unauthorized(c, "Missing or invalid Authorization header")
 			return
 		}
 
 		tokenStr := strings.TrimSpace(authHeader[7:])
 		if tokenStr == "" {
-			utils.Unauthorized(c, "Token not provided")
 			return
 		}
-		claims, err := security.ParseToken(tokenStr)
 
+		claims, err := security.ParseToken(tokenStr)
 		if err != nil {
-			utils.InternalServerError(c, "Failed to get users")
 			return
 		}
 

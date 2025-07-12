@@ -4,8 +4,8 @@ import (
 	"annotate-x/models"
 	"annotate-x/service"
 	"annotate-x/utils"
-	"annotate-x/utils/security"
-	"time"
+	"fmt"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -49,19 +49,24 @@ func (h *AuthHandler) login(c *gin.Context) {
 }
 
 func (h *AuthHandler) logout(c *gin.Context) {
-	authHeader := c.GetHeader("Authorization")
-	tokenStr := authHeader[7:]
-	claims, err := security.ParseToken(tokenStr)
+	fmt.Println(c.GetHeader(models.XUserID))
+	userId, err := strconv.ParseInt(c.GetHeader(models.XUserID), 10, 64)
 	if err != nil {
-		utils.BadRequest(c, "Invalid or expired token")
+		utils.InternalServerError(c, err.Error())
 		return
 	}
 
-	expiration := time.Until(claims.ExpiresAt.Time)
-	err = h.CacheService.BlacklistToken(c.Request.Context(), tokenStr, int(expiration))
+	expiration, err := utils.UnixStringToTime(c.GetHeader(models.XExpiresAt))
 	if err != nil {
-		utils.InternalServerError(c, "Failed to logout")
+		utils.InternalServerError(c, err.Error())
 		return
 	}
+
+	err = h.UserService.Logout(c.Request.Context(), userId, expiration)
+	if err != nil {
+		utils.InternalServerError(c, err.Error())
+		return
+	}
+
 	utils.OK(c, gin.H{})
 }

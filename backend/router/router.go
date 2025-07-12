@@ -5,6 +5,7 @@ import (
 	"annotate-x/bootstrap"
 	"annotate-x/cache"
 	"annotate-x/config"
+	"annotate-x/middleware"
 	"annotate-x/wire"
 
 	"github.com/gin-contrib/gzip"
@@ -30,7 +31,7 @@ func SetupRouter() *gin.Engine {
 	r.Use(bootstrap.SetupCors())
 
 	v1 := r.Group("/v1")
-
+	v1.Use(middleware.InjectUserHeaderMiddleware())
 	api.RegisterAuthRouters(v1, authService, cacheService)
 	api.RegisterUserRouters(v1, userService)
 	api.RegisterProjectRouters(v1, projectService)

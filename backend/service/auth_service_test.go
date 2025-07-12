@@ -66,53 +66,43 @@ func TestAuthService_Login_InvalidPassword(t *testing.T) {
 
 func TestAuthService_Logout_Success(t *testing.T) {
 	userRepo := mocks.NewMockIUserRepo(t)
-	context := context.Background()
+	ctx := context.Background()
 
 	cacheService := mocks.NewMockICacheService(t)
 	authService := service.NewAuthService(userRepo, cacheService)
 
 	tokenStr, _ := security.GenerateToken(1, "testuser")
-
 	claims, _ := security.ParseToken(tokenStr)
+
 	expiration := time.Until(claims.ExpiresAt.Time)
 
-	cacheService.On("BlacklistToken", mock.Anything, tokenStr, mock.MatchedBy(func(i int) bool {
-		return float64(i) > expiration.Seconds()-2 && float64(i) < expiration.Seconds()+2
-	})).Return(nil)
+	cacheService.
+		On("BlacklistToken", mock.Anything, "1", mock.MatchedBy(func(i int) bool {
+			// 容忍 2 秒误差
+			return float64(i) > expiration.Seconds()-2 && float64(i) < expiration.Seconds()+2
+		})).
+		Return(nil)
 
-	err := authService.Logout(context, tokenStr)
+	err := authService.Logout(ctx, 1, claims.ExpiresAt.Time)
 
 	assert.NoError(t, err)
 	cacheService.AssertExpectations(t)
 }
 
-func TestAuthService_Logout_InvalidToken(t *testing.T) {
-	userRepo := mocks.NewMockIUserRepo(t)
-	context := context.Background()
-
-	cacheService := mocks.NewMockICacheService(t)
-	authService := service.NewAuthService(userRepo, cacheService)
-
-	tokenStr := "invalid.token.string"
-
-	err := authService.Logout(context, tokenStr)
-
-	assert.Error(t, err)
-	assert.Equal(t, "invalid token", err.Error())
-}
-
 func TestAuthService_Logout_BlacklistError(t *testing.T) {
 	userRepo := mocks.NewMockIUserRepo(t)
-	context := context.Background()
+	ctx := context.Background()
 
 	cacheService := mocks.NewMockICacheService(t)
 	authService := service.NewAuthService(userRepo, cacheService)
 
-	tokenStr, _ := security.GenerateToken(1, "testuser")
+	expiration := time.Now().Add(10 * time.Minute)
 
-	cacheService.On("BlacklistToken", mock.Anything, tokenStr, mock.AnythingOfType("int")).Return(errors.New("redis down"))
+	cacheService.
+		On("BlacklistToken", mock.Anything, "1", mock.AnythingOfType("int")).
+		Return(errors.New("redis down"))
 
-	err := authService.Logout(context, tokenStr)
+	err := authService.Logout(ctx, 1, expiration)
 
 	assert.Error(t, err)
 	assert.Equal(t, "failed to logout", err.Error())
