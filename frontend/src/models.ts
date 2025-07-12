@@ -4,6 +4,13 @@ export interface Response<T = unknown> {
   data: T;
 }
 
+export interface Paged<T = unknown> {
+  limit: number;
+  offset: number;
+  total: number;
+  results: T[]
+}
+
 export interface LoginToken {
   token: string;
 }

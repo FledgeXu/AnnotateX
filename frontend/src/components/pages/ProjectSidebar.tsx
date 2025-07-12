@@ -11,7 +11,7 @@ import { ProjectsList } from "@/components/pages/ProjectsList";
 import { ProjectsSortSelect } from "@/components/pages/ProjectsSortSelect";
 import { Button } from "@/components/ui/button";
 import { createAPI } from "@/config";
-import type { Project, Response } from "@/models";
+import type { Project } from "@/models";
 import { store } from "@/store";
 import type { StoreModel } from "@/store/types";
 
@@ -20,18 +20,18 @@ const useFetchingProjects = () => {
         (state) => state.projects.updateProjects,
     );
 
-    const { error, data, isFetching, isSuccess } = useQuery<Response<Project[]>>({
+    const { error, data, isFetching, isSuccess } = useQuery<Project[]>({
         queryKey: ["queryProjects"],
         queryFn: async () => {
             const api = createAPI(store);
             const res = await api.get("/v1/projects/list");
-            return res.data;
+            return res.data.results ?? [];
         },
     });
 
     useEffect(() => {
         if (isSuccess && data) {
-            updateProjects(data.data);
+            updateProjects(data);
         }
     }, [isSuccess]);
 
