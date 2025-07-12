@@ -10,7 +10,6 @@ import (
 )
 
 func CreateSuperAdmin() {
-	appConfig := config.AppConfig
 	db := db.InitDB(config.GetConfig().DATABASE_URL)
 	userRepo := repo.NewUserRepo(db)
 	ctx := context.Background()
@@ -25,7 +24,7 @@ func CreateSuperAdmin() {
 		panic(err.Error())
 	}
 	user := &models.User{
-		Username:    appConfig.SUPER_ADMIN_USERNAME,
+		Username:    config.GetConfig().SUPER_ADMIN_USERNAME,
 		Password:    hashedPassword,
 		DisplayName: "superadmin",
 		Email:       "",
