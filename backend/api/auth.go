@@ -4,7 +4,6 @@ import (
 	"annotate-x/models"
 	"annotate-x/service"
 	"annotate-x/utils"
-	"fmt"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -48,16 +47,15 @@ func (h *AuthHandler) login(c *gin.Context) {
 }
 
 func (h *AuthHandler) logout(c *gin.Context) {
-	fmt.Println(c.GetHeader(models.XUserID))
 	userId, err := strconv.ParseInt(c.GetHeader(models.XUserID), 10, 64)
 	if err != nil {
-		utils.InternalServerError(c, err.Error())
+		utils.Unauthorized(c, "Invalid Bearer Token")
 		return
 	}
 
 	expiration, err := utils.UnixStringToTime(c.GetHeader(models.XExpiresAt))
 	if err != nil {
-		utils.InternalServerError(c, err.Error())
+		utils.Unauthorized(c, "Invalid Bearer Token")
 		return
 	}
 

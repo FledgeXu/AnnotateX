@@ -18,6 +18,7 @@ func RegisterUserRouters(rg *gin.RouterGroup, userService service.IUserService) 
 	group := rg.Group("/users")
 	group.POST("/create", handler.createUser)
 	group.GET("/:id", handler.getUserById)
+	group.GET("/me", handler.getMe)
 }
 
 func (h *UserHandler) createUser(c *gin.Context) {
@@ -44,5 +45,21 @@ func (h *UserHandler) getUserById(c *gin.Context) {
 		utils.InternalServerError(c, err.Error())
 		return
 	}
+	utils.OK(c, userResp)
+}
+
+func (h *UserHandler) getMe(c *gin.Context) {
+	userId, err := strconv.ParseInt(c.GetHeader(models.XUserID), 10, 64)
+	if err != nil {
+		utils.Unauthorized(c, "Invalid Bearer Token")
+		return
+	}
+
+	userResp, err := h.UserService.GetUserById(c.Request.Context(), userId)
+	if err != nil {
+		utils.InternalServerError(c, err.Error())
+		return
+	}
+
 	utils.OK(c, userResp)
 }
