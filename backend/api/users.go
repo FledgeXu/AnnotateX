@@ -4,7 +4,6 @@ import (
 	"annotate-x/models"
 	"annotate-x/service"
 	"annotate-x/utils"
-	"fmt"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -33,9 +32,9 @@ func (h *UserHandler) createUser(c *gin.Context) {
 	}
 	utils.Created(c, gin.H{})
 }
+
 func (h *UserHandler) getUserById(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-	fmt.Println(id)
 	if err != nil {
 		utils.BadRequest(c, "Invalid user ID")
 		return
