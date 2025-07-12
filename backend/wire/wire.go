@@ -12,6 +12,11 @@ import (
 	"github.com/google/wire"
 )
 
+// Repos
+var projectRepo = wire.NewSet(
+	repo.NewProjectRepo,
+	wire.Bind(new(repo.IProjectRepo), new(*repo.ProjectRepo)),
+)
 var userRepo = wire.NewSet(
 	repo.NewUserRepo,
 	wire.Bind(new(repo.IUserRepo), new(*repo.UserRepo)),
@@ -22,6 +27,7 @@ var cacheRepo = wire.NewSet(
 	wire.Bind(new(repo.ICacheRepo), new(*repo.CacheRepo)),
 )
 
+// Service
 var cacheService = wire.NewSet(
 	service.NewCacheService,
 	wire.Bind(new(service.ICacheService), new(*service.CacheService)),
@@ -37,6 +43,7 @@ var userService = wire.NewSet(
 	wire.Bind(new(service.IUserService), new(*service.UserService)),
 )
 
+// Repo Providers
 var userRepoProvider = wire.NewSet(
 	db.InitDB,
 	userRepo,
@@ -47,6 +54,7 @@ var cacheRepoProvider = wire.NewSet(
 	cacheRepo,
 )
 
+// Service Providers
 var cacheServiceProvider = wire.NewSet(
 	cacheRepoProvider,
 	cacheService,
