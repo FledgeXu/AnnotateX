@@ -4,7 +4,7 @@ export interface Response<T = unknown> {
   data: T;
 }
 
-export interface Paged<T = unknown> {
+export interface Paginated<T = unknown> {
   limit: number;
   offset: number;
   total: number;
