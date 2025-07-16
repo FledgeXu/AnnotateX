@@ -1,7 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
-import { useStoreActions } from "easy-peasy";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -38,7 +37,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { createAPI } from "@/config";
 import type { Response, Project } from "@/models";
 import { store } from "@/store";
-import type { StoreModel } from "@/store/types";
 
 const projectModality = ["2D", "3D", "audio", "text"] as const;
 
@@ -73,19 +71,16 @@ export const createProject = async (
 };
 
 export const useCreateProjectMutation = (setOpen: (value: boolean) => void) => {
-    const addProject = useStoreActions<StoreModel>(
-        (state) => state.projects.addProject,
-    );
+    const queryClient = useQueryClient();
     return useMutation({
         mutationFn: createProject,
-        onSuccess: (data) => {
+        onSuccess: (_) => {
             setOpen(false);
-            console.log(data.data);
-            addProject(data.data);
+            queryClient.invalidateQueries({ queryKey: ["useFetchingProjects"] });
         },
         onError: (error: AxiosError<{ message?: string }>) => {
-            const message = error?.response?.data?.message || "Failed to log in.";
-            toast.error(`Login failed: ${message}`);
+            const message = error?.response?.data?.message || "Failed to create.";
+            toast.error(`Create failed: ${message}`);
         },
     });
 };
