@@ -38,7 +38,7 @@ const useFetchingProjects = () => {
             },
             initialPageParam: 0,
             getNextPageParam: (lastPage) => {
-                const { offset, results } = lastPage.data;
+                const { offset, results = [] } = lastPage.data;
                 const nextOffset = offset + results.length;
                 return results.length === 0 ? undefined : nextOffset;
             },
@@ -48,16 +48,15 @@ const useFetchingProjects = () => {
         if (data != undefined) {
             updateProjects(data.pages.flatMap((page) => page.data.results));
         }
-    }, [data]);
+    }, [data, updateProjects]);
 
     const { ref, inView } = useInView();
 
     useEffect(() => {
-        console.log(inView, hasNextPage);
-        if (inView && hasNextPage) {
+        if (inView && hasNextPage && !isFetchingNextPage) {
             fetchNextPage();
         }
-    }, [inView, hasNextPage, fetchNextPage]);
+    }, [inView, hasNextPage, fetchNextPage, isFetchingNextPage]);
 
     return { hasNextPage, isFetchingNextPage, ref };
 };
