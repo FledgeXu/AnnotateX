@@ -17,6 +17,7 @@ export interface ProjectsModel {
     setSortMode: Action<ProjectsModel, ProjectSortMode>;
     setSearchQuery: Action<ProjectsModel, string>;
     updateProjects: Action<ProjectsModel, Project[]>;
+    clearProjects: Action<ProjectsModel, void>;
 }
 
 export const projectsModel: ProjectsModel = {
@@ -67,6 +68,10 @@ export const projectsModel: ProjectsModel = {
 
     updateProjects: action((state, projects) => {
         state.projects = projects;
+    }),
+
+    clearProjects: action((state) => {
+        state.projects = [];
     }),
 };
 
