@@ -28,9 +28,10 @@ func SetupRouter() *gin.Engine {
 	projectService := wire.InitIProjectService(config.GetConfig().DATABASE_URL)
 
 	r.Use(bootstrap.SetupCors())
+	r.Use(middleware.InjectUserHeaderMiddleware())
+	r.Use(middleware.ErrorHandler())
 
 	v1 := r.Group("/v1")
-	v1.Use(middleware.InjectUserHeaderMiddleware())
 	api.RegisterAuthRouters(v1, authService)
 	api.RegisterUserRouters(v1, userService)
 	api.RegisterProjectRouters(v1, projectService)

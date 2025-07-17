@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"annotate-x/errors"
+	"annotate-x/httperr"
 	"annotate-x/utils"
 
 	"github.com/gin-gonic/gin"
@@ -14,7 +14,7 @@ func ErrorHandler() gin.HandlerFunc {
 			err := c.Errors.Last().Err
 
 			switch e := err.(type) {
-			case *errors.BadRequestError:
+			case *httperr.BadRequestError:
 				utils.BadRequest(c, e.Error())
 			default:
 				utils.InternalServerError(c, e.Error())

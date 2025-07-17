@@ -1,6 +1,7 @@
 package api
 
 import (
+	"annotate-x/httperr"
 	"annotate-x/models"
 	"annotate-x/service"
 	"annotate-x/utils"
@@ -26,11 +27,11 @@ func RegisterProjectRouters(rg *gin.RouterGroup, projectService service.IProject
 func (h *ProjectHandler) createProject(c *gin.Context) {
 	var req *models.CreateProjectRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.BadRequest(c, err.Error())
+		c.Error(httperr.NewBadRequestError(err.Error()))
 		return
 	}
 	if err := h.ProjectService.CreateProject(c.Request.Context(), req); err != nil {
-		utils.BadRequest(c, err.Error())
+		c.Error(httperr.NewBadRequestError(err.Error()))
 		return
 	}
 	utils.Created(c, gin.H{})
@@ -40,12 +41,12 @@ func (h *ProjectHandler) getProjectById(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	fmt.Println(id)
 	if err != nil {
-		utils.BadRequest(c, "Invalid user ID")
+		c.Error(httperr.NewBadRequestError("Invalid user ID"))
 		return
 	}
 	project, err := h.ProjectService.GetProjectByID(c.Request.Context(), id)
 	if err != nil {
-		utils.InternalServerError(c, err.Error())
+		c.Error(err)
 		return
 	}
 	utils.OK(c, project)
@@ -72,7 +73,8 @@ func (h *ProjectHandler) listProjects(c *gin.Context) {
 	}
 
 	if !allowedOrderByFields[orderBy] {
-		utils.BadRequest(c, `invalid "orderBy" query parameter: must be "created_at" or "name"`)
+		c.Error(httperr.NewBadRequestError(`invalid "orderBy" query parameter: must be "created_at" or "name"`))
+		return
 	}
 
 	order := strings.ToLower(c.DefaultQuery("order", "desc"))
@@ -81,7 +83,7 @@ func (h *ProjectHandler) listProjects(c *gin.Context) {
 		"desc": true,
 	}
 	if !allowedOrderFields[order] {
-		utils.BadRequest(c, `invalid "order" query parameter: must be "asc" or "desc"`)
+		c.Error(httperr.NewBadRequestError(`invalid "order" query parameter: must be "asc" or "desc"`))
 		return
 	}
 
@@ -95,7 +97,7 @@ func (h *ProjectHandler) listProjects(c *gin.Context) {
 	users, err := h.ProjectService.ListProjects(c.Request.Context(), filter)
 	total := len(users)
 	if err != nil {
-		utils.InternalServerError(c, err.Error())
+		c.Error(err)
 		return
 	}
 
