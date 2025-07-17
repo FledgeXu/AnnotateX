@@ -6,6 +6,7 @@ import (
 	"annotate-x/utils"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -64,15 +65,37 @@ func (h *ProjectHandler) listProjects(c *gin.Context) {
 		offset = 0
 	}
 
+	orderBy := strings.ToLower(c.DefaultQuery("order_by", "created_at"))
+	allowedOrderByFields := map[string]bool{
+		"created_at": true,
+		"name":       true,
+	}
+
+	if !allowedOrderByFields[orderBy] {
+		utils.BadRequest(c, `invalid "orderBy" query parameter: must be "created_at" or "name"`)
+	}
+
+	order := strings.ToLower(c.DefaultQuery("order", "desc"))
+	allowedOrderFields := map[string]bool{
+		"asc":  true,
+		"desc": true,
+	}
+	if !allowedOrderFields[order] {
+		utils.BadRequest(c, `invalid "order" query parameter: must be "asc" or "desc"`)
+		return
+	}
+
 	filter := models.ProjectFilter{
-		Limit:  limit,
-		Offset: offset,
+		OrderBy: orderBy,
+		Order:   order,
+		Limit:   limit,
+		Offset:  offset,
 	}
 
 	users, err := h.ProjectService.ListProjects(c.Request.Context(), filter)
 	total := len(users)
 	if err != nil {
-		utils.InternalServerError(c, "Failed to get users")
+		utils.InternalServerError(c, err.Error())
 		return
 	}
 

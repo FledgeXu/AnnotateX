@@ -4,6 +4,7 @@ import (
 	"annotate-x/models"
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -62,14 +63,14 @@ func (r *ProjectRepo) GetProjectByID(ctx context.Context, id int64) (*models.Pro
 func (r *ProjectRepo) ListProjects(ctx context.Context, filter models.ProjectFilter) ([]*models.Project, error) {
 	projects := []*models.Project{}
 
-	query := `
+	query := fmt.Sprintf(`
 		SELECT id, name, modality, status, description, created_at, updated_at
 		FROM projects
-		ORDER BY created_at DESC
-		LIMIT $1 OFFSET $2
-	`
-
-	err := r.DB.SelectContext(ctx, &projects, query, filter.Limit, filter.Offset)
+		ORDER BY %s %s
+		LIMIT %d OFFSET %d
+	`, filter.OrderBy, filter.Order, filter.Limit, filter.Offset)
+	fmt.Println(query)
+	err := r.DB.SelectContext(ctx, &projects, query)
 	if err != nil {
 		return nil, err
 	}

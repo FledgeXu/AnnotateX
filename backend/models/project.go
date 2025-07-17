@@ -35,6 +35,8 @@ type CreateProjectRequest struct {
 }
 
 type ProjectFilter struct {
-	Limit  int
-	Offset int
+	OrderBy string
+	Order   string
+	Limit   int
+	Offset  int
 }
