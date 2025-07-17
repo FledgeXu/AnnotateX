@@ -16,6 +16,8 @@ func ErrorHandler() gin.HandlerFunc {
 			switch e := err.(type) {
 			case *httperr.BadRequestError:
 				utils.BadRequest(c, e.Error())
+			case *httperr.UnauthorizedError:
+				utils.Unauthorized(c, e.Error())
 			default:
 				utils.InternalServerError(c, e.Error())
 			}

@@ -69,7 +69,6 @@ func (r *ProjectRepo) ListProjects(ctx context.Context, filter models.ProjectFil
 		ORDER BY %s %s
 		LIMIT %d OFFSET %d
 	`, filter.OrderBy, filter.Order, filter.Limit, filter.Offset)
-	fmt.Println(query)
 	err := r.DB.SelectContext(ctx, &projects, query)
 	if err != nil {
 		return nil, err

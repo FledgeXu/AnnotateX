@@ -52,8 +52,7 @@ func (h *UserHandler) getUserById(c *gin.Context) {
 func (h *UserHandler) getMe(c *gin.Context) {
 	userId, err := strconv.ParseInt(c.GetHeader(models.XUserID), 10, 64)
 	if err != nil {
-		// TODO: Fix this
-		utils.Unauthorized(c, "Invalid Bearer Token")
+		c.Error(httperr.NewUnauthorizedError("Invalid Bearer Token"))
 		return
 	}
 
