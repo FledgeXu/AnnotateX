@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { useStoreActions, useStoreState } from "easy-peasy";
 import { ArrowUpDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -9,7 +10,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 
-import { PROJECT_SORT_MODES } from "@/models";
+import { PROJECT_SORT_MODES, type ProjectSortMode } from "@/models";
 import type { StoreModel } from "@/store/types";
 
 export const ProjectsSortSelect = ({ className }: { className?: string }) => {
@@ -21,8 +22,19 @@ export const ProjectsSortSelect = ({ className }: { className?: string }) => {
     );
     const { t } = useTranslation();
 
+    const clearProjects = useStoreActions<StoreModel>(
+        (state) => state.projects.clearProjects,
+    );
+    const queryClient = useQueryClient();
+
+    const onValueChange = (value: ProjectSortMode) => {
+        queryClient.removeQueries({ queryKey: ["useFetchingProjects"] });
+        clearProjects();
+        setSortMode(value);
+    };
+
     return (
-        <Select value={sortMode} onValueChange={(value) => setSortMode(value)}>
+        <Select value={sortMode} onValueChange={onValueChange}>
             <SelectTrigger className={className}>
                 <ArrowUpDown />
                 <SelectValue placeholder="Sort" />

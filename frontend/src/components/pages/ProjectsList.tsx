@@ -25,6 +25,9 @@ const useFetchingProjects = () => {
         (state) => state.projects.updateProjects,
     );
 
+    const order = useStoreState<StoreModel>((state) => state.projects.order);
+    const orderBy = useStoreState<StoreModel>((state) => state.projects.orderBy);
+
     const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
         useInfiniteQuery<Response<Paginated<Project>>>({
             queryKey: ["useFetchingProjects"],
@@ -32,7 +35,7 @@ const useFetchingProjects = () => {
                 const offset = typeof pageParam === "number" ? pageParam : 0;
                 const api = createAPI(store);
                 const res = await api.get("/v1/projects/list", {
-                    params: { offset, limit: LIMIT },
+                    params: { offset, limit: LIMIT, order, order_by: orderBy },
                 });
                 return res.data;
             },
@@ -63,7 +66,7 @@ const useFetchingProjects = () => {
 
 export const ProjectsList = () => {
     const projects = useStoreState<StoreModel>(
-        (state) => state.projects.visibleProjects,
+        (state) => state.projects.projects,
     ) as Project[];
 
     const { isFetchingNextPage, hasNextPage, ref } = useFetchingProjects();

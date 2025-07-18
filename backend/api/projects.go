@@ -66,7 +66,7 @@ func (h *ProjectHandler) listProjects(c *gin.Context) {
 		offset = 0
 	}
 
-	orderBy := strings.ToLower(c.DefaultQuery("order_by", "created_at"))
+	orderBy := strings.ToLower(c.DefaultQuery("orderBy", "created_at"))
 	allowedOrderByFields := map[string]bool{
 		"created_at": true,
 		"name":       true,
