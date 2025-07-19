@@ -27,7 +27,7 @@ func (h *DatasetHandler) create(c *gin.Context) {
 		return
 	}
 
-	if error := h.DatasetService.Create(c, &createDatasetForm); error != nil {
+	if error := h.DatasetService.Create(c.Request.Context(), &createDatasetForm); error != nil {
 		c.Error(error)
 		return
 	}
