@@ -18,7 +18,7 @@ var (
 
 func InitDB(dsn models.DataSourceName) *sqlx.DB {
 	once.Do(func() {
-		dbInstance, initErr = sqlx.Connect("pgx", dsn)
+		dbInstance, initErr = sqlx.Connect("pgx", string(dsn))
 		if initErr != nil {
 			panic(fmt.Sprintf("connect db failed: %v", initErr))
 		}

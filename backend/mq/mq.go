@@ -16,7 +16,7 @@ var (
 
 func InitMQ(mqURL models.MQUrl) *amqp091.Connection {
 	once.Do(func() {
-		conn, initErr = amqp091.Dial(mqURL)
+		conn, initErr = amqp091.Dial(string(mqURL))
 		if initErr != nil {
 			panic(fmt.Sprintf("connect mq failed: %v", initErr))
 		}

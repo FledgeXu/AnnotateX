@@ -32,7 +32,7 @@ func NewS3Repo(s3Config config.S3Config, bucketName models.BucketName) *S3Repo {
 	}
 
 	ctx := context.Background()
-	exists, err := client.BucketExists(ctx, bucketName)
+	exists, err := client.BucketExists(ctx, string(bucketName))
 	if err != nil {
 		panic(fmt.Errorf("failed to check bucket: %w", err))
 	}
@@ -40,7 +40,7 @@ func NewS3Repo(s3Config config.S3Config, bucketName models.BucketName) *S3Repo {
 		panic(fmt.Errorf("bucket: %s is not exists", bucketName))
 	}
 
-	return &S3Repo{client, bucketName}
+	return &S3Repo{client, string(bucketName)}
 }
 
 func (r *S3Repo) UploadObject(ctx context.Context, objectName string, data []byte, contentType string) error {
