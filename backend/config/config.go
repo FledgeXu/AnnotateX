@@ -20,6 +20,7 @@ type S3Config struct {
 
 type Config struct {
 	DATABASE_URL         string
+	MQ_URL               string
 	LISTEN_ADDRESS       string
 	JWT_SECRET           string
 	JWT_TIMEOUT          time.Duration
@@ -47,6 +48,7 @@ func GetConfig() *Config {
 func Load() *Config {
 	c := &Config{
 		DATABASE_URL:         getEnvOrPanic("DATABASE_URL"),
+		MQ_URL:               getEnvOrDefault("MQ_URL", "amqp://rabbitmq:rabbitmq@localhost:5672"),
 		LISTEN_ADDRESS:       getEnvOrDefault("LISTEN_ADDRESS", ":80"),
 		JWT_SECRET:           getEnvOrDefault("JWT_SECRET", "JWT_SECRET"),
 		JWT_TIMEOUT:          getDurationEnvFlexible("JWT_TIMEOUT", 72*time.Hour),

@@ -3,6 +3,7 @@ package main
 import (
 	"annotate-x/config"
 	"annotate-x/db"
+	"annotate-x/mq"
 	"annotate-x/router"
 	"log"
 	"os"
@@ -14,14 +15,17 @@ import (
 
 func init() {
 	db := db.InitDB(config.GetConfig().DATABASE_URL)
+	mqConn := mq.InitMQ(config.GetConfig().MQ_URL)
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		<-quit
+
 		log.Println("Gracefully shutting down...")
 
 		db.Close()
+		mqConn.Close()
 
 		os.Exit(0)
 	}()
