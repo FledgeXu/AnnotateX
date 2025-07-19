@@ -6,6 +6,7 @@ import (
 	"annotate-x/cache"
 	"annotate-x/config"
 	"annotate-x/middleware"
+	"annotate-x/models"
 	"annotate-x/wire"
 
 	"github.com/gin-contrib/gzip"
@@ -23,10 +24,11 @@ func SetupRouter() *gin.Engine {
 		Password: config.GetConfig().REDIS_PASSWORD,
 		DB:       config.GetConfig().REDIS_DB,
 	}
-	userService := wire.InitIUserService(config.GetConfig().DATABASE_URL)
-	authService := wire.InitIAuthService(config.GetConfig().DATABASE_URL, cacheConfig)
-	projectService := wire.InitIProjectService(config.GetConfig().DATABASE_URL)
-	datasetService := wire.InitIDatasetService(config.GetConfig().S3Config, config.GetConfig().S3Bucket)
+	DATABASE_URL := models.DataSourceName(config.GetConfig().DATABASE_URL)
+	userService := wire.InitIUserService(DATABASE_URL)
+	authService := wire.InitIAuthService(DATABASE_URL, cacheConfig)
+	projectService := wire.InitIProjectService(DATABASE_URL)
+	datasetService := wire.InitIDatasetService(config.GetConfig().S3Config, models.BucketName(config.GetConfig().S3Bucket), models.MQUrl(config.GetConfig().MQ_URL))
 
 	r.Use(bootstrap.SetupCors())
 	r.Use(middleware.InjectUserHeaderMiddleware())

@@ -8,6 +8,7 @@ import (
 	"annotate-x/config"
 	"annotate-x/db"
 	"annotate-x/models"
+	"annotate-x/mq"
 	"annotate-x/repo"
 	"annotate-x/service"
 
@@ -32,6 +33,11 @@ var cacheRepo = wire.NewSet(
 var s3Repo = wire.NewSet(
 	repo.NewS3Repo,
 	wire.Bind(new(repo.IS3Repo), new(*repo.S3Repo)),
+)
+
+var mqRepo = wire.NewSet(
+	repo.NewMqRepo,
+	wire.Bind(new(repo.IMqRepo), new(*repo.MqRepo)),
 )
 
 // Service
@@ -76,6 +82,11 @@ var cacheRepoProvider = wire.NewSet(
 	cacheRepo,
 )
 
+var mqProvider = wire.NewSet(
+	mq.InitMQ,
+	mqRepo,
+)
+
 // Service Providers
 var cacheServiceProvider = wire.NewSet(
 	cacheRepoProvider,
@@ -107,10 +118,11 @@ func InitIProjectService(dsn models.DataSourceName) service.IProjectService {
 	return nil
 }
 
-func InitIDatasetService(s3Config config.S3Config, bucketName string) service.IDatasetService {
+func InitIDatasetService(s3Config config.S3Config, bucketName models.BucketName, mqUrl models.MQUrl) service.IDatasetService {
 	wire.Build(
 		datasetService,
 		s3Repo,
+		mqProvider,
 	)
 	return nil
 }

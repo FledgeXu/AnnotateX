@@ -2,6 +2,7 @@ package repo
 
 import (
 	"annotate-x/config"
+	"annotate-x/models"
 	"annotate-x/utils"
 	"bytes"
 	"context"
@@ -21,7 +22,7 @@ type S3Repo struct {
 	BucketName string
 }
 
-func NewS3Repo(s3Config config.S3Config, bucketName string) *S3Repo {
+func NewS3Repo(s3Config config.S3Config, bucketName models.BucketName) *S3Repo {
 	client, err := minio.New(s3Config.Endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(s3Config.AccessKey, s3Config.SecretKey, ""),
 		Secure: s3Config.UseSSL,
