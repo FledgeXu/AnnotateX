@@ -10,6 +10,7 @@ import (
 
 type IMqRepo interface {
 	DeclareExchange(name string, kind string, durable bool) error
+	DeclareQueue(name string, durable bool) error
 	Publish(exchange, routingKey string, body any) error
 }
 
@@ -39,6 +40,27 @@ func (c *MqRepo) DeclareExchange(name, kind string, durable bool) error {
 		false,   // no-wait
 		nil,     // arguments
 	)
+}
+
+func (c *MqRepo) DeclareQueue(name string, durable bool) error {
+	ch, err := c.Conn.Channel()
+	if err != nil {
+		return fmt.Errorf("open channel failed: %w", err)
+	}
+	defer ch.Close()
+
+	_, err = ch.QueueDeclare(
+		name,    // queue name
+		durable, // durable
+		false,   // autoDelete
+		false,   // exclusive
+		false,   // noWait
+		nil,     // arguments
+	)
+	if err != nil {
+		return fmt.Errorf("declare queue failed: %w", err)
+	}
+	return nil
 }
 
 func (r *MqRepo) Publish(exchange, routingKey string, msg any) error {

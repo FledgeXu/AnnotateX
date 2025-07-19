@@ -3,6 +3,7 @@ package main
 import (
 	"annotate-x/config"
 	"annotate-x/db"
+	"annotate-x/models"
 	"annotate-x/mq"
 	"annotate-x/router"
 	"log"
@@ -14,8 +15,8 @@ import (
 )
 
 func init() {
-	db := db.InitDB(config.GetConfig().DATABASE_URL)
-	mqConn := mq.InitMQ(config.GetConfig().MQ_URL)
+	db := db.InitDB(models.DataSourceName(config.GetConfig().DATABASE_URL))
+	mqConn := mq.InitMQ(models.MQUrl(config.GetConfig().MQ_URL))
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)

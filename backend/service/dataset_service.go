@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"time"
 
 	"github.com/google/uuid"
 	"golang.org/x/sync/errgroup"
@@ -38,18 +39,44 @@ func (s *DatasetService) Create(ctx context.Context, createDatasetForm *models.C
 	}
 	defer os.RemoveAll(tempDir)
 
+	uploadFileUrls, err := s.uploadFiles(ctx, createDatasetForm.ProjectId, createDatasetForm.Name, filePaths, limit)
+	if err != nil {
+		return err
+	}
+
+	if err := s.MqRepo.DeclareQueue("dataset.create", true); err != nil {
+		return err
+	}
+	err = s.MqRepo.Publish("", "dataset.create", models.TransformDatasetMessage{
+		Name:      createDatasetForm.Name,
+		ProjectId: createDatasetForm.ProjectId,
+		Type:      "zip",
+		Urls:      uploadFileUrls,
+	})
+
+	return err
+}
+
+func (s *DatasetService) uploadFiles(ctx context.Context, projectId int64, projectName string, filePaths []string, limit int) ([]string, error) {
 	g, ctx := errgroup.WithContext(ctx)
 	g.SetLimit(limit)
-	for _, filePath := range filePaths {
-		fp := filePath
+	savedFileUrls := make([]string, len(filePaths))
+	for i, filePath := range filePaths {
+		i, filePath := i, filePath
 		g.Go(func() error {
-			objectName := filepath.Join(strconv.FormatInt(createDatasetForm.ProjectId, 10), createDatasetForm.Name, filepath.Base(filePath))
-			return s.S3Repo.UploadFile(ctx, objectName, fp)
-
+			objectName := filepath.Join(strconv.FormatInt(projectId, 10), projectName, filepath.Base(filePath))
+			err := s.S3Repo.UploadFile(ctx, objectName, filePath)
+			if err != nil {
+				return err
+			}
+			url, err := s.S3Repo.GetPresignedURL(ctx, objectName, 24*7*time.Hour)
+			savedFileUrls[i] = url
+			return err
 		})
 	}
 
-	return g.Wait()
+	err := g.Wait()
+	return savedFileUrls, err
 }
 
 func saveFiles(ctx context.Context, files []*multipart.FileHeader, limit int) (string, []string, error) {

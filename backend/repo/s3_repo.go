@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -15,6 +16,7 @@ import (
 type IS3Repo interface {
 	UploadObject(ctx context.Context, objectName string, data []byte, contentType string) error
 	UploadFile(ctx context.Context, objectName, filePath string) error
+	GetPresignedURL(ctx context.Context, objectName string, expiry time.Duration) (string, error)
 }
 
 type S3Repo struct {
@@ -57,4 +59,12 @@ func (r *S3Repo) UploadFile(ctx context.Context, objectName, filePath string) er
 	}
 	_, err = r.Client.FPutObject(ctx, r.BucketName, objectName, filePath, minio.PutObjectOptions{ContentType: contentType})
 	return err
+}
+
+func (r *S3Repo) GetPresignedURL(ctx context.Context, objectName string, expiry time.Duration) (string, error) {
+	url, err := r.Client.PresignedGetObject(ctx, r.BucketName, objectName, expiry, nil)
+	if err != nil {
+		return "", err
+	}
+	return url.String(), nil
 }

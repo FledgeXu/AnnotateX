@@ -10,7 +10,7 @@ import (
 )
 
 func CreateSuperAdmin() {
-	db := db.InitDB(config.GetConfig().DATABASE_URL)
+	db := db.InitDB(models.DataSourceName(config.GetConfig().DATABASE_URL))
 	userRepo := repo.NewUserRepo(db)
 	ctx := context.Background()
 
