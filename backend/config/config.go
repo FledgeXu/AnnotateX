@@ -21,6 +21,7 @@ type Config struct {
 	REDIS_DB             int
 	SUPER_ADMIN_USERNAME string
 	SUPER_ADMIN_PASSWORD string
+	TEMP_DIR             string
 	ALLOW_ORIGINS        []string
 }
 
@@ -45,6 +46,7 @@ func Load() *Config {
 		REDIS_DB:             GetEnvInt("REDIS_DB", 0),
 		SUPER_ADMIN_USERNAME: getEnvOrDefault("SUPER_ADMIN_USERNAME", "superadmin"),
 		SUPER_ADMIN_PASSWORD: getEnvOrDefault("SUPER_ADMIN_PASSWORD", "superadmin"),
+		TEMP_DIR:             getEnvOrDefault("TEMP_DIR", ""),
 		ALLOW_ORIGINS: func() []string {
 			parts := strings.Split(getEnvOrDefault("ALLOW_ORIGINS", ""), ",")
 			for i, v := range parts {

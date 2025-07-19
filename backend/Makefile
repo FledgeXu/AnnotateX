@@ -1,10 +1,14 @@
 .DEFAULT_GOAL := run
 
-run:
+run: gen_wire
 	go run main.go
+
+gen_wire:
+	wire wire/wire.go
 
 clear:
 	rm wire/wire_gen.go
 	rm mocks/*
 
-.PHONY: run clear
+:xa
+.PHONY: run wire clear

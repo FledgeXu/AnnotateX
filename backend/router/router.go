@@ -35,6 +35,7 @@ func SetupRouter() *gin.Engine {
 	api.RegisterAuthRouters(v1, authService)
 	api.RegisterUserRouters(v1, userService)
 	api.RegisterProjectRouters(v1, projectService)
+	api.RegisterDatasetRouters(v1)
 
 	return r
 }
