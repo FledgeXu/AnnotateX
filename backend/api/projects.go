@@ -5,12 +5,17 @@ import (
 	"annotate-x/models"
 	"annotate-x/service"
 	"annotate-x/utils"
-	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
+
+type ListProjectsQuery struct {
+	Limit   int    `form:"limit,default=20" binding:"gte=1,lte=100"`
+	Offset  int    `form:"offset,default=0" binding:"gte=0"`
+	OrderBy string `form:"order_by,default=created_at" binding:"oneof=created_at name"`
+	Order   string `form:"order,default=desc" binding:"oneof=asc desc"`
+}
 
 type ProjectHandler struct {
 	ProjectService service.IProjectService
@@ -39,7 +44,6 @@ func (h *ProjectHandler) createProject(c *gin.Context) {
 
 func (h *ProjectHandler) getProjectById(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-	fmt.Println(id)
 	if err != nil {
 		c.Error(httperr.NewBadRequestError("Invalid user ID"))
 		return
@@ -53,58 +57,29 @@ func (h *ProjectHandler) getProjectById(c *gin.Context) {
 }
 
 func (h *ProjectHandler) listProjects(c *gin.Context) {
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
-	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
-
-	if limit <= 0 {
-		limit = 20
-	}
-	if limit > 100 {
-		limit = 100
-	}
-	if offset < 0 {
-		offset = 0
-	}
-
-	orderBy := strings.ToLower(c.DefaultQuery("orderBy", "created_at"))
-	allowedOrderByFields := map[string]bool{
-		"created_at": true,
-		"name":       true,
-	}
-
-	if !allowedOrderByFields[orderBy] {
-		c.Error(httperr.NewBadRequestError(`invalid "orderBy" query parameter: must be "created_at" or "name"`))
-		return
-	}
-
-	order := strings.ToLower(c.DefaultQuery("order", "desc"))
-	allowedOrderFields := map[string]bool{
-		"asc":  true,
-		"desc": true,
-	}
-	if !allowedOrderFields[order] {
-		c.Error(httperr.NewBadRequestError(`invalid "order" query parameter: must be "asc" or "desc"`))
+	var query ListProjectsQuery
+	if err := c.ShouldBindQuery(&query); err != nil {
+		c.Error(httperr.NewBadRequestError("invalid query parameters: " + err.Error()))
 		return
 	}
 
 	filter := models.ProjectFilter{
-		OrderBy: orderBy,
-		Order:   order,
-		Limit:   limit,
-		Offset:  offset,
+		OrderBy: query.OrderBy,
+		Order:   query.Order,
+		Limit:   query.Limit,
+		Offset:  query.Offset,
 	}
 
-	users, err := h.ProjectService.ListProjects(c.Request.Context(), filter)
-	total := len(users)
+	projects, err := h.ProjectService.ListProjects(c.Request.Context(), filter)
 	if err != nil {
 		c.Error(err)
 		return
 	}
 
 	utils.OK(c, gin.H{
-		"limit":   limit,
-		"offset":  offset,
-		"total":   total,
-		"results": users,
+		"limit":   query.Limit,
+		"offset":  query.Offset,
+		"total":   len(projects),
+		"results": projects,
 	})
 }
