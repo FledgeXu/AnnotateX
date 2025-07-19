@@ -11,6 +11,13 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 )
 
+type S3Config struct {
+	Endpoint  string
+	AccessKey string
+	SecretKey string
+	UseSSL    bool
+}
+
 type Config struct {
 	DATABASE_URL         string
 	LISTEN_ADDRESS       string
@@ -23,6 +30,7 @@ type Config struct {
 	SUPER_ADMIN_PASSWORD string
 	TEMP_DIR             string
 	ALLOW_ORIGINS        []string
+	S3Config             S3Config
 }
 
 var AppConfig *Config
@@ -54,6 +62,12 @@ func Load() *Config {
 			}
 			return parts
 		}(),
+		S3Config: S3Config{
+			Endpoint:  getEnvOrDefault("S3_ENDPOINT", "localhost:9000"),
+			AccessKey: getEnvOrDefault("S3_ACCESS_KEY", "minioadmin"),
+			SecretKey: getEnvOrDefault("S3_SECRET_KEY", "minioadmin"),
+			UseSSL:    getEnvOrDefaultBool("S3_USE_SSL", false),
+		},
 	}
 	return c
 }
@@ -72,6 +86,18 @@ func getEnvOrDefault(key, def string) string {
 		return def
 	}
 	return value
+}
+
+func getEnvOrDefaultBool(key string, def bool) bool {
+	value := os.Getenv(key)
+	if value == "" {
+		return def
+	}
+	parsed, err := strconv.ParseBool(value)
+	if err != nil {
+		return def
+	}
+	return parsed
 }
 
 func getDurationEnvFlexible(key string, def time.Duration) time.Duration {
