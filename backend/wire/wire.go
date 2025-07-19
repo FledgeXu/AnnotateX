@@ -5,6 +5,7 @@ package wire
 
 import (
 	"annotate-x/cache"
+	"annotate-x/config"
 	"annotate-x/db"
 	"annotate-x/repo"
 	"annotate-x/service"
@@ -25,6 +26,11 @@ var userRepo = wire.NewSet(
 var cacheRepo = wire.NewSet(
 	repo.NewCacheRepo,
 	wire.Bind(new(repo.ICacheRepo), new(*repo.CacheRepo)),
+)
+
+var s3Repo = wire.NewSet(
+	repo.NewS3Repo,
+	wire.Bind(new(repo.IS3Repo), new(*repo.S3Repo)),
 )
 
 // Service
@@ -100,7 +106,10 @@ func InitIProjectService(dsn string) service.IProjectService {
 	return nil
 }
 
-func InitIDatasetService() service.IDatasetService {
-	wire.Build(datasetService)
+func InitIDatasetService(s3Config config.S3Config, bucketName string) service.IDatasetService {
+	wire.Build(
+		datasetService,
+		s3Repo,
+	)
 	return nil
 }

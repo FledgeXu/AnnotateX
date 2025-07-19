@@ -3,14 +3,16 @@ package service
 import (
 	"annotate-x/config"
 	"annotate-x/models"
+	"annotate-x/repo"
 	"annotate-x/utils"
 	"context"
-	"fmt"
 	"mime/multipart"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/google/uuid"
+	"golang.org/x/sync/errgroup"
 )
 
 type IDatasetService interface {
@@ -18,23 +20,38 @@ type IDatasetService interface {
 }
 
 type DatasetService struct {
+	S3Repo repo.IS3Repo
 }
 
-func NewDatasetService() *DatasetService {
-	return &DatasetService{}
+func NewDatasetService(s3Repo repo.IS3Repo) *DatasetService {
+	return &DatasetService{s3Repo}
 }
 
 func (s *DatasetService) Create(ctx context.Context, createDatasetForm *models.CreateDatasetForm) error {
-	tempDir, filePaths, err := saveFiles(createDatasetForm.Files)
+	// TODO: Make this configurable
+	limit := 10
+
+	tempDir, filePaths, err := saveFiles(ctx, createDatasetForm.Files, limit)
 	if err != nil {
 		return err
 	}
 	defer os.RemoveAll(tempDir)
-	fmt.Println(filePaths)
-	return nil
+
+	g, ctx := errgroup.WithContext(ctx)
+	g.SetLimit(limit)
+	for _, filePath := range filePaths {
+		fp := filePath
+		g.Go(func() error {
+			objectName := filepath.Join(strconv.FormatInt(createDatasetForm.ProjectId, 10), createDatasetForm.Name, filepath.Base(filePath))
+			return s.S3Repo.UploadFile(ctx, objectName, fp)
+
+		})
+	}
+
+	return g.Wait()
 }
 
-func saveFiles(files []*multipart.FileHeader) (string, []string, error) {
+func saveFiles(ctx context.Context, files []*multipart.FileHeader, limit int) (string, []string, error) {
 	tempDir := config.GetConfig().TEMP_DIR
 	if tempDir != "" {
 		if err := os.MkdirAll(tempDir, 0700); err != nil && !os.IsExist(err) {
@@ -47,14 +64,26 @@ func saveFiles(files []*multipart.FileHeader) (string, []string, error) {
 		return "", nil, err
 	}
 
-	savedFiles := []string{}
-	for _, file := range files {
-		fileOutputPath := filepath.Join(dir, file.Filename)
-		if err := utils.SaveUploadedFile(file, fileOutputPath); err != nil {
-			return "", nil, err
-		}
-		savedFiles = append(savedFiles, fileOutputPath)
+	g, ctx := errgroup.WithContext(ctx)
+	g.SetLimit(limit)
+
+	savedFiles := make([]string, len(files))
+
+	for i, file := range files {
+		i, file := i, file
+
+		g.Go(func() error {
+			fileOutputPath := filepath.Join(dir, file.Filename)
+			if err := utils.SaveUploadedFile(file, fileOutputPath); err != nil {
+				return err
+			}
+			savedFiles[i] = fileOutputPath
+			return nil
+		})
 	}
 
+	if err := g.Wait(); err != nil {
+		return "", nil, err
+	}
 	return dir, savedFiles, nil
 }

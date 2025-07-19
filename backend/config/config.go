@@ -29,6 +29,7 @@ type Config struct {
 	SUPER_ADMIN_USERNAME string
 	SUPER_ADMIN_PASSWORD string
 	TEMP_DIR             string
+	S3Bucket             string
 	ALLOW_ORIGINS        []string
 	S3Config             S3Config
 }
@@ -55,6 +56,7 @@ func Load() *Config {
 		SUPER_ADMIN_USERNAME: getEnvOrDefault("SUPER_ADMIN_USERNAME", "superadmin"),
 		SUPER_ADMIN_PASSWORD: getEnvOrDefault("SUPER_ADMIN_PASSWORD", "superadmin"),
 		TEMP_DIR:             getEnvOrDefault("TEMP_DIR", ""),
+		S3Bucket:             getEnvOrDefault("S3_BUCKET", "dev"),
 		ALLOW_ORIGINS: func() []string {
 			parts := strings.Split(getEnvOrDefault("ALLOW_ORIGINS", ""), ",")
 			for i, v := range parts {

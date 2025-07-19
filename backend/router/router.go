@@ -26,7 +26,7 @@ func SetupRouter() *gin.Engine {
 	userService := wire.InitIUserService(config.GetConfig().DATABASE_URL)
 	authService := wire.InitIAuthService(config.GetConfig().DATABASE_URL, cacheConfig)
 	projectService := wire.InitIProjectService(config.GetConfig().DATABASE_URL)
-	datasetService := wire.InitIDatasetService()
+	datasetService := wire.InitIDatasetService(config.GetConfig().S3Config, config.GetConfig().S3Bucket)
 
 	r.Use(bootstrap.SetupCors())
 	r.Use(middleware.InjectUserHeaderMiddleware())
