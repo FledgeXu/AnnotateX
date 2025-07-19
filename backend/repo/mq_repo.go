@@ -3,6 +3,7 @@ package repo
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/rabbitmq/amqp091-go"
 )
@@ -55,7 +56,9 @@ func (r *MqRepo) Publish(exchange, routingKey string, msg any) error {
 	return ch.Publish(
 		exchange, routingKey, false, false,
 		amqp091.Publishing{
-			ContentType: "application/json",
-			Body:        body,
+			ContentType:  "application/json",
+			DeliveryMode: 2,
+			Body:         body,
+			Timestamp:    time.Now(),
 		})
 }
