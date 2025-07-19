@@ -2,7 +2,7 @@ package db
 
 import (
 	"annotate-x/models"
-	"log"
+	"fmt"
 	"sync"
 	"time"
 
@@ -20,7 +20,7 @@ func InitDB(dsn models.DataSourceName) *sqlx.DB {
 	once.Do(func() {
 		dbInstance, initErr = sqlx.Connect("pgx", dsn)
 		if initErr != nil {
-			log.Fatalf("connect db failed: %v", initErr)
+			panic(fmt.Sprintf("connect db failed: %v", initErr))
 		}
 		dbInstance.SetMaxOpenConns(10)
 		dbInstance.SetMaxIdleConns(5)
