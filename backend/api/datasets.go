@@ -1,58 +1,35 @@
 package api
 
 import (
-	"annotate-x/config"
 	"annotate-x/httperr"
+	"annotate-x/models"
+	"annotate-x/service"
 	"annotate-x/utils"
-	"mime/multipart"
-	"os"
-	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"github.com/google/uuid"
 )
 
-type CreateDatasetForm struct {
-	Name      string                  `form:"name" binding:"required"`
-	ProjectId int64                   `form:"project_id" binding:"required"`
-	Files     []*multipart.FileHeader `form:"files" binding:"required"`
-}
-
 type DatasetHandler struct {
+	DatasetService service.IDatasetService
 }
 
-func RegisterDatasetRouters(rg *gin.RouterGroup) {
-	handler := &DatasetHandler{}
+func RegisterDatasetRouters(rg *gin.RouterGroup, datasetService service.IDatasetService) {
+	handler := &DatasetHandler{datasetService}
 	group := rg.Group("/datasets")
 	group.POST("/create", handler.create)
 }
 
 func (h *DatasetHandler) create(c *gin.Context) {
-	var createDatasetForm CreateDatasetForm
+	var createDatasetForm models.CreateDatasetForm
 	if err := c.ShouldBindWith(&createDatasetForm, binding.FormMultipart); err != nil {
 		c.Error(httperr.NewBadRequestError(err.Error()))
 		return
 	}
 
-	tempDir := config.GetConfig().TEMP_DIR
-	if tempDir != "" {
-		if err := os.MkdirAll(tempDir, 0700); err != nil && !os.IsExist(err) {
-			c.Error(err)
-			return
-		}
-	}
-
-	dir, err := os.MkdirTemp(tempDir, uuid.New().String())
-	if err != nil {
-		c.Error(err)
+	if error := h.DatasetService.Create(c, &createDatasetForm); error != nil {
+		c.Error(error)
 		return
 	}
-	defer os.RemoveAll(dir)
-
-	for _, file := range createDatasetForm.Files {
-		c.SaveUploadedFile(file, filepath.Join(dir, file.Filename))
-	}
-
 	utils.OK(c, "created")
 }

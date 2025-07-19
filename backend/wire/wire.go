@@ -48,6 +48,11 @@ var projectService = wire.NewSet(
 	wire.Bind(new(service.IProjectService), new(*service.ProjectService)),
 )
 
+var datasetService = wire.NewSet(
+	service.NewDatasetService,
+	wire.Bind(new(service.IDatasetService), new(*service.DatasetService)),
+)
+
 // Repo Providers
 var projectRepoProvider = wire.NewSet(
 	db.InitDB,
@@ -92,5 +97,10 @@ func InitIProjectService(dsn string) service.IProjectService {
 		projectService,
 		projectRepoProvider,
 	)
+	return nil
+}
+
+func InitIDatasetService() service.IDatasetService {
+	wire.Build(datasetService)
 	return nil
 }
