@@ -1,11 +1,12 @@
 package db
 
 import (
+	"annotate-x/models"
 	"log"
 	"sync"
 	"time"
 
-	_ "github.com/jackc/pgx/v5/stdlib" // 注册 "pgx"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -15,7 +16,7 @@ var (
 	initErr    error
 )
 
-func InitDB(dsn string) *sqlx.DB {
+func InitDB(dsn models.DataSourceName) *sqlx.DB {
 	once.Do(func() {
 		dbInstance, initErr = sqlx.Connect("pgx", dsn)
 		if initErr != nil {

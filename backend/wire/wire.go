@@ -7,6 +7,7 @@ import (
 	"annotate-x/cache"
 	"annotate-x/config"
 	"annotate-x/db"
+	"annotate-x/models"
 	"annotate-x/repo"
 	"annotate-x/service"
 
@@ -81,7 +82,7 @@ var cacheServiceProvider = wire.NewSet(
 	cacheService,
 )
 
-func InitIAuthService(dsn string, cacheConfig cache.RedisConfig) service.IAuthService {
+func InitIAuthService(dsn models.DataSourceName, cacheConfig cache.RedisConfig) service.IAuthService {
 	wire.Build(
 		authService,
 		userRepoProvider,
@@ -90,7 +91,7 @@ func InitIAuthService(dsn string, cacheConfig cache.RedisConfig) service.IAuthSe
 	return nil
 }
 
-func InitIUserService(dsn string) service.IUserService {
+func InitIUserService(dsn models.DataSourceName) service.IUserService {
 	wire.Build(
 		userService,
 		userRepoProvider,
@@ -98,7 +99,7 @@ func InitIUserService(dsn string) service.IUserService {
 	return nil
 }
 
-func InitIProjectService(dsn string) service.IProjectService {
+func InitIProjectService(dsn models.DataSourceName) service.IProjectService {
 	wire.Build(
 		projectService,
 		projectRepoProvider,
