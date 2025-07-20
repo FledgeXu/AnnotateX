@@ -25,6 +25,11 @@ var userRepo = wire.NewSet(
 	wire.Bind(new(repo.IUserRepo), new(*repo.UserRepo)),
 )
 
+var datasetRepo = wire.NewSet(
+	repo.NewDatasetRepo,
+	wire.Bind(new(repo.IDatasetRepo), new(*repo.DatasetRepo)),
+)
+
 var cacheRepo = wire.NewSet(
 	repo.NewCacheRepo,
 	wire.Bind(new(repo.ICacheRepo), new(*repo.CacheRepo)),
@@ -77,6 +82,11 @@ var userRepoProvider = wire.NewSet(
 	userRepo,
 )
 
+var datasetRepoProvider = wire.NewSet(
+	db.InitDB,
+	datasetRepo,
+)
+
 var cacheRepoProvider = wire.NewSet(
 	cache.InitRedis,
 	cacheRepo,
@@ -118,9 +128,10 @@ func InitIProjectService(dsn models.DataSourceName) service.IProjectService {
 	return nil
 }
 
-func InitIDatasetService(s3Config config.S3Config, bucketName models.BucketName, mqUrl models.MQUrl) service.IDatasetService {
+func InitIDatasetService(dsn models.DataSourceName, s3Config config.S3Config, bucketName models.BucketName, mqUrl models.MQUrl) service.IDatasetService {
 	wire.Build(
 		datasetService,
+		datasetRepoProvider,
 		s3Repo,
 		mqProvider,
 	)

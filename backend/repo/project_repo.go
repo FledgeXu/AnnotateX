@@ -50,7 +50,7 @@ func (r *ProjectRepo) GetProjectByID(ctx context.Context, id int64) (*models.Pro
 	var project models.Project
 	err := r.DB.GetContext(ctx, &project, `
 	SELECT * 
-	From projects 
+	FROM projects 
 	WHERE id = $1
 	LIMIT 1
 	`, id)

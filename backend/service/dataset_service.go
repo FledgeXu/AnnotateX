@@ -20,12 +20,13 @@ type IDatasetService interface {
 }
 
 type DatasetService struct {
-	S3Repo repo.IS3Repo
-	MqRepo repo.IMqRepo
+	DatasetRepo repo.IDatasetRepo
+	S3Repo      repo.IS3Repo
+	MqRepo      repo.IMqRepo
 }
 
-func NewDatasetService(s3Repo repo.IS3Repo, mqRepo repo.IMqRepo) *DatasetService {
-	return &DatasetService{s3Repo, mqRepo}
+func NewDatasetService(datasetRepo repo.IDatasetRepo, s3Repo repo.IS3Repo, mqRepo repo.IMqRepo) *DatasetService {
+	return &DatasetService{datasetRepo, s3Repo, mqRepo}
 }
 
 func (s *DatasetService) Create(ctx context.Context, createDatasetForm *models.CreateDatasetForm) error {
