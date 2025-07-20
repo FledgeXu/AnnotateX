@@ -8,6 +8,7 @@ dependencies = [
     "orjson>=3.11.0",
     "pika",
     "python-dotenv>=1.1.1",
+    "ray>=2.48.0",
     "returns>=0.25.0",
 ]
 

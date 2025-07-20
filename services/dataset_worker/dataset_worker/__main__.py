@@ -4,7 +4,7 @@ import orjson
 import pika
 from config import Config
 from dotenv import load_dotenv
-from pika.adapters.blocking_connection import BlockingConnection
+from pika.channel import Channel
 from pika.spec import Basic, BasicProperties
 
 
@@ -18,12 +18,13 @@ def open_mq_connection(url: str):
 
 
 def callback(
-    ch: BlockingConnection,
+    ch: Channel,
     method: Basic.Deliver,
     properties: BasicProperties,
     body: bytes,
 ):
     print(orjson.loads(body))
+    ch.basic_ack(method.delivery_tag)
 
 
 def main():
