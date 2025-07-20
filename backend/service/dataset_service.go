@@ -86,7 +86,6 @@ func (s *DatasetService) uploadFiles(ctx context.Context, projectId int64, proje
 	g.SetLimit(limit)
 	savedFileNames := make([]string, len(filePaths))
 	for i, filePath := range filePaths {
-		i, filePath := i, filePath
 		g.Go(func() error {
 			objectName := filepath.Join(strconv.FormatInt(projectId, 10), projectName, filepath.Base(filePath))
 			savedFileNames[i] = objectName
@@ -117,8 +116,6 @@ func saveFiles(ctx context.Context, files []*multipart.FileHeader, limit int) (s
 	savedFiles := make([]string, len(files))
 
 	for i, file := range files {
-		i, file := i, file
-
 		g.Go(func() error {
 			fileOutputPath := filepath.Join(dir, file.Filename)
 			if err := utils.SaveUploadedFile(file, fileOutputPath); err != nil {
