@@ -78,6 +78,7 @@ CREATE TABLE projects (
 
 CREATE TABLE datasets (
   id BIGSERIAL PRIMARY KEY,
+  project_id BIGINT NOT NULL REFERENCES projects (id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   description TEXT,
   format_version TEXT NOT NULL,
