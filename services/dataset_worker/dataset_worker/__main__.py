@@ -1,9 +1,11 @@
-import json
 from contextlib import contextmanager
 
+import orjson
 import pika
 from config import Config
 from dotenv import load_dotenv
+from pika.adapters.blocking_connection import BlockingConnection
+from pika.spec import Basic, BasicProperties
 
 
 @contextmanager
@@ -15,15 +17,13 @@ def open_mq_connection(url: str):
         conn.close()
 
 
-def callback(ch, method, properties, body):
-    # 假设发送方发送的是 JSON 格式的数据
-    data = json.loads(body)
-    print("📦 Received dataset.create message:", data)
-
-    # TODO: 在这里处理你的逻辑，比如写入数据库、文件等
-
-    # 手动确认消息
-    ch.basic_ack(delivery_tag=method.delivery_tag)
+def callback(
+    ch: BlockingConnection,
+    method: Basic.Deliver,
+    properties: BasicProperties,
+    body: bytes,
+):
+    print(orjson.loads(body))
 
 
 def main():
