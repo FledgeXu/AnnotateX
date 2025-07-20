@@ -27,8 +27,18 @@ func (h *DatasetHandler) create(c *gin.Context) {
 		return
 	}
 
-	if error := h.DatasetService.Create(c.Request.Context(), &createDatasetForm); error != nil {
-		c.Error(error)
+	exist, err := h.DatasetService.DetermineIsExist(c.Request.Context(), createDatasetForm.Name, createDatasetForm.ProjectId)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+	if exist {
+		c.Error(httperr.NewBadRequestError("Dataset is exist."))
+		return
+	}
+
+	if err = h.DatasetService.Create(c.Request.Context(), &createDatasetForm); err != nil {
+		c.Error(err)
 		return
 	}
 	utils.OK(c, "created")

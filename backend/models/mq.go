@@ -1,8 +1,6 @@
 package models
 
 type TransformDatasetMessage struct {
-	Name      string   `json:"name"`
-	ProjectId int64    `json:"project_id"`
-	Type      string   `json:"type"`
-	Keys      []string `json:"keys"`
+	Dataset Dataset  `json:"dataset"`
+	Keys    []string `json:"keys"`
 }

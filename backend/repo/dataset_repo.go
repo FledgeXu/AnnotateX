@@ -3,13 +3,12 @@ package repo
 import (
 	"annotate-x/models"
 	"context"
-	"database/sql"
 
 	"github.com/jmoiron/sqlx"
 )
 
 type IDatasetRepo interface {
-	CreateDataset(ctx context.Context, datasetReq *models.CreateDatasetRequest) error
+	CreateDataset(ctx context.Context, datasetReq *models.CreateDatasetRequest) (*models.Dataset, error)
 	ExistsByNameAndProjectID(ctx context.Context, name string, projectID int64) (bool, error)
 }
 
@@ -21,24 +20,21 @@ func NewDatasetRepo(db *sqlx.DB) *DatasetRepo {
 	return &DatasetRepo{DB: db}
 }
 
-func (r *DatasetRepo) CreateDataset(ctx context.Context, datasetReq *models.CreateDatasetRequest) error {
+func (r *DatasetRepo) CreateDataset(ctx context.Context, datasetReq *models.CreateDatasetRequest) (*models.Dataset, error) {
 	query := `
-		INSERT INTO projects (project_id, name, description, format_version)
-		VALUES (:project_id, :name, :description, :format_version) 
+		INSERT INTO datasets (project_id, name, description, format_version)
+		VALUES (:project_id, :name, :description, :format_version)
 		RETURNING id, project_id, name, description, format_version, status, created_at, updated_at
 	`
-	result, err := r.DB.NamedExecContext(ctx, query, datasetReq)
+	var dataset models.Dataset
+	stmt, err := r.DB.PrepareNamedContext(ctx, query)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return err
+	if err := stmt.GetContext(ctx, &dataset, datasetReq); err != nil {
+		return nil, err
 	}
-	if rowsAffected == 0 {
-		return sql.ErrNoRows
-	}
-	return nil
+	return &dataset, nil
 }
 
 func (r *DatasetRepo) ExistsByNameAndProjectID(ctx context.Context, name string, projectID int64) (bool, error) {

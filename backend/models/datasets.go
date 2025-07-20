@@ -19,8 +19,8 @@ type Dataset struct {
 type CreateDatasetForm struct {
 	ProjectId     int64                   `form:"project_id" binding:"required"`
 	Name          string                  `form:"name" binding:"required"`
-	Description   string                  `form:"description" binding:"required"`
-	FormatVersion string                  `form:"description" binding:"required"`
+	Description   string                  `form:"description"`
+	FormatVersion string                  `form:"format_version" binding:"required"`
 	Files         []*multipart.FileHeader `form:"files" binding:"required"`
 }
 

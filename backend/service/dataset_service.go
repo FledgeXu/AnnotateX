@@ -16,6 +16,7 @@ import (
 )
 
 type IDatasetService interface {
+	DetermineIsExist(ctx context.Context, name string, projectId int64) (bool, error)
 	Create(ctx context.Context, createDatasetForm *models.CreateDatasetForm) error
 }
 
@@ -29,32 +30,55 @@ func NewDatasetService(datasetRepo repo.IDatasetRepo, s3Repo repo.IS3Repo, mqRep
 	return &DatasetService{datasetRepo, s3Repo, mqRepo}
 }
 
+func (s *DatasetService) DetermineIsExist(ctx context.Context, name string, projectId int64) (bool, error) {
+	return s.DatasetRepo.ExistsByNameAndProjectID(ctx, name, projectId)
+}
+
 func (s *DatasetService) Create(ctx context.Context, createDatasetForm *models.CreateDatasetForm) error {
 	// TODO: Make this configurable
 	limit := 10
 
+	// Create dataset
+	dataset, err := s.DatasetRepo.CreateDataset(ctx, &models.CreateDatasetRequest{
+		ProjectId:     createDatasetForm.ProjectId,
+		Name:          createDatasetForm.Name,
+		Description:   createDatasetForm.Description,
+		FormatVersion: createDatasetForm.FormatVersion,
+	})
+	if err != nil {
+		return err
+	}
+
+	// Save files that user uploaded.
 	tempDir, filePaths, err := saveFiles(ctx, createDatasetForm.Files, limit)
 	if err != nil {
 		return err
 	}
 	defer os.RemoveAll(tempDir)
 
+	// Transfer those files to s3.
 	savedFileNames, err := s.uploadFiles(ctx, createDatasetForm.ProjectId, createDatasetForm.Name, filePaths, limit)
 	if err != nil {
 		return err
 	}
 
+	// Enqueue process task
+	err = s.enqueueDatasetProcessTask(dataset, savedFileNames)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *DatasetService) enqueueDatasetProcessTask(dataset *models.Dataset, keys []string) error {
 	if err := s.MqRepo.DeclareQueue("dataset.create", true); err != nil {
 		return err
 	}
-	err = s.MqRepo.Publish("", "dataset.create", models.TransformDatasetMessage{
-		Name:      createDatasetForm.Name,
-		ProjectId: createDatasetForm.ProjectId,
-		Type:      "zip",
-		Keys:      savedFileNames,
+	return s.MqRepo.Publish("", "dataset.create", models.TransformDatasetMessage{
+		Dataset: *dataset,
+		Keys:    keys,
 	})
-
-	return err
 }
 
 func (s *DatasetService) uploadFiles(ctx context.Context, projectId int64, projectName string, filePaths []string, limit int) ([]string, error) {
