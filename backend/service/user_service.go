@@ -29,7 +29,7 @@ func (s *UserService) Create(ctx context.Context, createRequest *models.CreateUs
 		return err
 	}
 	if isExist {
-		return errors.New("Username already exists.")
+		return errors.New("username already exists")
 	}
 
 	hashedPassword, err := security.HashPassword(createRequest.Password)

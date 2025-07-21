@@ -31,7 +31,7 @@ func (s *ProjectService) CreateProject(ctx context.Context, req *models.CreatePr
 		return err
 	}
 	if exist {
-		return errors.New("Project with same name existed.")
+		return errors.New("project with same name existed")
 	}
 	return s.ProjectRepo.CreateProject(ctx, req)
 }

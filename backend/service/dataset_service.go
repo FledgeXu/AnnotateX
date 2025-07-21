@@ -110,7 +110,7 @@ func saveFiles(ctx context.Context, files []*multipart.FileHeader, limit int) (s
 		return "", nil, err
 	}
 
-	g, ctx := errgroup.WithContext(ctx)
+	g, _ := errgroup.WithContext(ctx)
 	g.SetLimit(limit)
 
 	savedFiles := make([]string, len(files))

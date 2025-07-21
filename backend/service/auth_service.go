@@ -30,7 +30,7 @@ func NewAuthService(userRepo repo.IUserRepo, CacheService ICacheService) *AuthSe
 func (s *AuthService) Login(ctx context.Context, username, password string) (*models.User, string, error) {
 	user, err := s.UserRepo.GetUserByUsername(ctx, username)
 	if err != nil {
-		return nil, "", errors.New("Invalid username or password")
+		return nil, "", errors.New("invalid username or password")
 	}
 
 	match, needsRehash, err := security.VerifyPassword(password, user.Password)
@@ -47,7 +47,7 @@ func (s *AuthService) Login(ctx context.Context, username, password string) (*mo
 	}
 
 	if !match {
-		return nil, "", errors.New("Invalid username or password")
+		return nil, "", errors.New("invalid username or password")
 	}
 
 	token, err := security.GenerateToken(user.ID, user.Username)

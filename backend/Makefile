@@ -1,7 +1,16 @@
-.DEFAULT_GOAL := run
+.DEFAULT_GOAL := build
 
-run: gen_wire
+build: gen_mock gen_wire static_check
+	go build -o build/app
+
+run: static_check gen_wire
 	go run main.go
+
+gen_mock:
+	mockery
+
+static_check:
+	staticcheck ./...
 
 gen_wire:
 	wire wire/wire.go
@@ -10,5 +19,4 @@ clear:
 	rm wire/wire_gen.go
 	rm mocks/*
 
-:xa
-.PHONY: run wire clear
+.PHONY: run gen_mock staticcheck wire clear

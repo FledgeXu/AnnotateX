@@ -1,3 +1,4 @@
+build/
 temp
 mocks/
 wire_gen.go

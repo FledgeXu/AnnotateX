@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	client   *redis.Client
-	initOnce sync.Once
+	client *redis.Client
+	once   sync.Once
 )
 
 type RedisConfig struct {
@@ -18,9 +18,12 @@ type RedisConfig struct {
 }
 
 func InitRedis(cfg RedisConfig) *redis.Client {
-	return redis.NewClient(&redis.Options{
-		Addr:     cfg.Addr,
-		Password: cfg.Password,
-		DB:       cfg.DB,
+	once.Do(func() {
+		client = redis.NewClient(&redis.Options{
+			Addr:     cfg.Addr,
+			Password: cfg.Password,
+			DB:       cfg.DB,
+		})
 	})
+	return client
 }
