@@ -14,6 +14,7 @@ import (
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	"golang.org/x/sync/errgroup"
 )
 
 func GetS3Object(ctx context.Context, client *minio.Client, bucket, objectName string) (*minio.Object, error) {
@@ -65,6 +66,26 @@ func DownloadS3ObjectToLocal(ctx context.Context, client *minio.Client, bucket, 
 	return localPath, nil
 }
 
+func downloadAll(ctx context.Context, minioClient *minio.Client, bucketName string, objectNames []string, rootDir string) ([]string, error) {
+	result := make([]string, len(objectNames))
+	g, ctx := errgroup.WithContext(ctx)
+
+	for i, objectName := range objectNames {
+		obj := objectName // 避免闭包捕获问题
+		g.Go(func() error {
+			localFilePath, err := DownloadS3ObjectToLocal(ctx, minioClient, bucketName, obj, rootDir)
+			if err != nil {
+				log.Printf("failed to download %s: %v", obj, err)
+			}
+			result[i] = localFilePath
+			return err
+		})
+	}
+
+	// 等待所有任务完成或任一出错
+	return result, g.Wait()
+}
+
 func main() {
 	minioClient, err := minio.New(config.GetConfig().S3Endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(config.GetConfig().S3AccessKey, config.GetConfig().S3SecretKey, ""),
@@ -94,7 +115,9 @@ func main() {
 	}
 
 	ctx := context.Background()
-	for _, objectName := range message.Keys {
-		DownloadS3ObjectToLocal(ctx, minioClient, config.GetConfig().S3BucketName, objectName, rootDir)
+	localFilePaths, err := downloadAll(ctx, minioClient, config.GetConfig().S3BucketName, message.Keys, rootDir)
+	if err != nil {
+		panic(err)
 	}
+	fmt.Println("%l", localFilePaths)
 }
