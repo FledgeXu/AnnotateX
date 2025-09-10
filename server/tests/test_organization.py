@@ -11,8 +11,6 @@ from annotatex.repositories.organization_repository import (
     OrganizationRepository,
 )
 
-pytestmark = pytest.mark.asyncio
-
 
 @pytest.fixture()
 def org_repo(session: AsyncSession) -> OrganizationRepository:
