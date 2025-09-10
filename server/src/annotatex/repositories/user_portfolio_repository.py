@@ -1,8 +1,8 @@
 import uuid
-from typing import Any, Mapping, Sequence
+from typing import Any, Mapping
 
 from returns.result import Failure, Result, Success
-from sqlalchemy import delete, func, select, update
+from sqlalchemy import func, update
 
 from annotatex.models.user import UserPortfolios
 from annotatex.repositories.base_repository import BaseRepository
@@ -18,25 +18,6 @@ class UserPortfolioRepository(BaseRepository):
                 self.session.add(portfolio)
                 await self.session.flush()
             return Success(portfolio)
-        except Exception as exc:
-            return Failure(exc)
-
-    async def list_portfolios(self, user_id: uuid.UUID) -> Sequence[UserPortfolios]:
-        result = await self.session.execute(
-            select(UserPortfolios)
-            .where(UserPortfolios.user_id == user_id)
-            .order_by(UserPortfolios.id.asc())
-        )
-        return list(result.scalars().all())
-
-    async def delete_portfolio(self, portfolio_id: int) -> Result[int, Exception]:
-        try:
-            async with self.session.begin():
-                result = await self.session.execute(
-                    delete(UserPortfolios).where(UserPortfolios.id == portfolio_id)
-                )
-                rows = result.rowcount or 0
-            return Success(rows)
         except Exception as exc:
             return Failure(exc)
 
