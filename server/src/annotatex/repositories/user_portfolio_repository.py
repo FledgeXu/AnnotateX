@@ -25,15 +25,12 @@ class UserPortfolioRepository(BaseRepository):
         self,
         portfolio_id: int,
         values: Mapping[str, Any],
-        *,
-        touch_updated_at: bool = False,
     ) -> Result[UserPortfolios, Exception]:
-        if not values and not touch_updated_at:
+        if not values:
             return Failure(ValueError("No fields provided to update."))
 
         payload = dict(values)
-        if touch_updated_at:
-            payload["updated_at"] = func.now()
+        payload["updated_at"] = func.now()
 
         try:
             async with self.session.begin():
