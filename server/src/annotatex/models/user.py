@@ -71,7 +71,8 @@ class AuthIdentities(Base):
     email: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     email_verified: Mapped[bool] = mapped_column(default=False, nullable=False)
 
-    password_hash: Mapped[str] = mapped_column(String, nullable=True)
+    hash_method: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    password_hash: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     password_updated_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True)
     )

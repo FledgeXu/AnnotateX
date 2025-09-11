@@ -1,8 +1,8 @@
 """init database
 
-Revision ID: 64fdf465262a
+Revision ID: 6bd7a000ae1b
 Revises:
-Create Date: 2025-09-07 17:19:29.820131
+Create Date: 2025-09-11 20:43:13.616472
 
 """
 
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "64fdf465262a"
+revision: str = "6bd7a000ae1b"
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -74,6 +74,7 @@ def upgrade() -> None:
         sa.Column("subject", sa.String(), nullable=False),
         sa.Column("email", sa.String(), nullable=True),
         sa.Column("email_verified", sa.Boolean(), nullable=False),
+        sa.Column("hash_method", sa.String(), nullable=True),
         sa.Column("password_hash", sa.String(), nullable=True),
         sa.Column("password_updated_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("last_login_at", sa.DateTime(timezone=True), nullable=True),
@@ -140,6 +141,18 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("displayName", sa.String(), nullable=False),
         sa.Column("user_id", sa.Uuid(), nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
+        sa.Column(
+            "updated_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
         sa.ForeignKeyConstraint(
             ["user_id"],
             ["users.id"],
