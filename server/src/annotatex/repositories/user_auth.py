@@ -19,6 +19,7 @@ class UserAuth(BaseRepository):
         subject: str,
         email: str | None = None,
         email_verified: bool = False,
+        hash_method: str | None = None,
         password_hash: str | None = None,
     ) -> Result[AuthIdentities, IntegrityError]:
         identity = AuthIdentities(
@@ -27,6 +28,7 @@ class UserAuth(BaseRepository):
             subject=subject,
             email=email,
             email_verified=email_verified,
+            hash_method=hash_method,
             password_hash=password_hash,
         )
         try:
@@ -44,6 +46,17 @@ class UserAuth(BaseRepository):
             .where(
                 AuthIdentities.provider == provider,
                 AuthIdentities.subject == subject,
+            )
+        )
+        return Maybe.from_optional(result.scalar_one_or_none())
+
+    async def get_auth_identity_by_user_id_and_provider(
+        self, *, user_id: uuid.UUID, provider: str
+    ) -> Maybe[AuthIdentities]:
+        result = await self.session.execute(
+            select(AuthIdentities).where(
+                AuthIdentities.user_id == user_id,
+                AuthIdentities.provider == provider,
             )
         )
         return Maybe.from_optional(result.scalar_one_or_none())
