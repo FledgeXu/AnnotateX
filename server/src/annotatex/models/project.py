@@ -1,7 +1,6 @@
 import uuid
 from datetime import datetime
 from enum import Enum
-from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     JSON,
@@ -18,9 +17,6 @@ from sqlalchemy import Enum as SqlEnum
 from sqlalchemy.orm import Mapped, mapped_column
 
 from annotatex.db.base import Base
-
-if TYPE_CHECKING:
-    pass
 
 
 class ProjectStatus(Enum):
