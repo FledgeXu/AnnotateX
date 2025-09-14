@@ -8,11 +8,12 @@ requires-python = ">=3.13"
 dependencies = [
     "fastapi[all]==0.116.1",
     "psycopg[binary]==3.2.9",
-    "sqlalchemy==2.0.43",
+    "sqlalchemy[asyncio]==2.0.43",
     "alembic==1.16.5",
     "python-dotenv==1.1.1",
     "returns==0.26.0",
     "greenlet==3.2.4",
+    "asyncpg>=0.30.0",
 ]
 
 [tool.uv.sources]
